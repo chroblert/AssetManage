@@ -48,7 +48,7 @@ class Port(models.Model):
 
 class CSP(models.Model):
     csp_type_choice = (
-        ('aliCloud','阿里云'),
+        ('AliCloud','阿里云'),
         ('AWS','亚马逊云'),
         ('Azure','微软云')
     )
@@ -64,7 +64,7 @@ class ServerS(models.Model):
     OSTID = models.ForeignKey('OSType',verbose_name="操作系统类型",null=True,on_delete=models.SET_NULL)
     CSPID = models.ForeignKey('CSP',verbose_name="云服务供应商",null=True,on_delete=models.SET_NULL)
     ServerName = models.CharField(max_length=64,verbose_name="服务器名称")
-    PublicIP = models.GenericIPAddressField(null=True,verbose_name="公网IPV4地址")
+    PublicIP = models.GenericIPAddressField(null=True,blank=True,verbose_name="公网IPV4地址")
     PrivateIP = models.GenericIPAddressField(verbose_name="私网IPV4地址")
 
     def __str__(self):
@@ -81,7 +81,7 @@ class ServerPort(models.Model):
 
     def __str__(self):
         # return '%s' % self.id#self.SID 
-        return '%s' % ServerS.objects.get(id=self.SID_id) 
+        return '%s %s' % (ServerS.objects.get(id=self.SID_id),Port.objects.get(id=self.PID_id))
     class Meta:
         verbose_name = "服务器端口"
         verbose_name_plural = "服务器端口"

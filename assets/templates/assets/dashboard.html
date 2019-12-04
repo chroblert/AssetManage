@@ -31,7 +31,7 @@
                 <div class="box-header">
                   <i class="fa fa-bar-chart-o"></i>
 
-                  <h3 class="box-title">设备状态<small>(%)</small></h3>
+                  <h3 class="box-title">资产分布<small>(%)</small></h3>
 
                   <div class="box-tools pull-right">
                     <button type="button" class="btn btn-default btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -45,23 +45,23 @@
                   <div class="row">
 
                     <div class="col-xs-6 col-md-2 col-md-offset-1 text-center">
-                      <input type="text" class="knob" value="{{ up_rate }}" data-width="90" data-height="90" data-fgColor="#00a65a" data-readonly="true">
+                      <input type="text" class="knob" value="{{ ali_rate }}" data-width="90" data-height="90" data-fgColor="#00a65a" data-readonly="true">
 
-                      <div class="knob-label">在线</div>
+                      <div class="knob-label">Ali</div>
                     </div>
 
                     <!-- ./col -->
                     <div class="col-xs-6 col-md-2 text-center">
-                      <input type="text" class="knob" value="{{ o_rate }}" data-width="90" data-height="90" data-fgColor="#f56954" data-readonly="true">
+                      <input type="text" class="knob" value="{{ azure_rate }}" data-width="90" data-height="90" data-fgColor="#f56954" data-readonly="true">
 
-                      <div class="knob-label">下线</div>
+                      <div class="knob-label">Azure</div>
                     </div>
                     <!-- ./col -->
 
                     <div class="col-xs-6 col-md-2 text-center">
-                      <input type="text" class="knob" value="{{ bd_rate }}" data-width="90" data-height="90" data-fgColor="#932ab6" data-readonly="true">
+                      <input type="text" class="knob" value="{{ aws_rate }}" data-width="90" data-height="90" data-fgColor="#932ab6" data-readonly="true">
 
-                      <div class="knob-label">故障</div>
+                      <div class="knob-label">AWS</div>
                     </div>
 
                     <!-- ./col -->
@@ -91,7 +91,7 @@
             <!-- BAR CHART -->
           <div class="box box-success">
             <div class="box-header with-border">
-              <h3 class="box-title">各状态资产数量统计：</h3>
+              <h3 class="box-title">各云服务提供商资产数量统计：</h3>
 
               <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -112,7 +112,7 @@
           <!-- DONUT CHART -->
           <div class="box box-danger">
             <div class="box-header with-border">
-              <h3 class="box-title">各类型资产数量统计：</h3>
+              <h3 class="box-title">各端口资产数量统计：</h3>
 
               <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -215,13 +215,13 @@ $(function () {
             data:['']
         },
         xAxis: {
-            data: ["在线", "下线","故障","备用","未知"]
+            data: ["Ali", "Azure","AWS","备用","未知"]
         },
         yAxis: {},
         series: [{
             name: '数量',
             type: 'bar',
-            data: [{{ upline }}, {{ offline }}, {{ breakdown }}, {{ backup }}, {{ unknown }}]
+            data: [{{ ali_count }}, {{ azure_count }}, {{ aws_count }}, {{ backup }}, {{ unknown }}]
         }]
     };
 
@@ -246,7 +246,7 @@ $(function () {
         legend: {
             orient: 'vertical',
             left: 'left',
-            data: ['服务器','网络设备','存储设备','安全设备','软件资产']
+            //#data: ['服务器','网络设备','存储设备','安全设备','软件资产']
         },
         series : [
             {
@@ -255,11 +255,15 @@ $(function () {
                 radius : '55%',
                 center: ['50%', '60%'],
                 data:[
-                    {value:{{ server_number }}, name:'服务器'},
-                    {value:{{ networkdevice_number }}, name:'网络设备'},
-                    {value:{{ storagedevice_number }}, name:'存储设备'},
-                    {value:{{ securitydevice_number }}, name:'安全设备'},
-                    {value:{{ software_number }}, name:'软件资产'}
+                    // {value:{{ server_number }}, name:'服务JC器'},
+                    // {value:{{ networkdevice_number }}, name:'网络设备'},
+                    // {value:{{ storagedevice_number }}, name:'存储设备'},
+                    // {value:{{ securitydevice_number }}, name:'安全设备'},
+                    // {value:{{ software_number }}, name:'软件资产'}
+                    //models.Port.objects.filter(id=port_dic['PID_id'])[0].PortNum
+                    {% for port_dic in port_num_count_list %}
+                      {value:{{ port_dic.port_count }},name: '{{ port_dic.port_num }}'},
+                    {% endfor %}
                 ],
                 itemStyle: {
                     emphasis: {
@@ -280,5 +284,4 @@ $(function () {
 
 
 </script>
-
 {% endblock %}

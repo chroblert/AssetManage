@@ -6,6 +6,7 @@ import json
 from assets import models
 from assets import asset_handler
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
 
 
 def index(request):
@@ -19,19 +20,39 @@ def index(request):
 
 
 def dashboard(request):
-    total = models.Asset.objects.count()
-    upline = models.Asset.objects.filter(status=0).count()
-    offline = models.Asset.objects.filter(status=1).count()
-    unknown = models.Asset.objects.filter(status=2).count()
+    # total = models.Asset.objects.count()
+    total = models.ServerS.objects.count()
+    # upline = models.Asset.objects.filter(status=0).count()
+    ali_count = models.ServerS.objects.filter(CSPID_id=1).count()
+    azure_count = models.ServerS.objects.filter(CSPID_id=3).count()
+    aws_count = models.ServerS.objects.filter(CSPID_id=2).count()
+    # offline = models.Asset.objects.filter(status=1).count()
+    # unknown = models.Asset.objects.filter(status=2).count()
     breakdown = models.Asset.objects.filter(status=3).count()
     backup = models.Asset.objects.filter(status=4).count()
 
-    up_rate =  round(upline/total*100) if total != 0 else 0
-    o_rate =   round(offline / total * 100) if total != 0 else 0
-    un_rate =  round(unknown / total * 100) if total != 0 else 0
+    ali_rate =  round(ali_count/total*100) if total != 0 else 0
+    azure_rate =  round(azure_count/total*100) if total != 0 else 0
+    aws_rate =  round(aws_count/total*100) if total != 0 else 0
+    # up_rate =  round(upline/total*100) if total != 0 else 0
+    # o_rate =   round(offline / total * 100) if total != 0 else 0
+    # un_rate =  round(unknown / total * 100) if total != 0 else 0
     bd_rate =  round(breakdown / total * 100) if total != 0 else 0
     bu_rate =  round(backup / total * 100) if total != 0 else 0
 
+    # 端口分布图
+    # 每个端口对应多少个Server
+    # 取出占比前10的端口
+    # 在ServerPort中按照PID_id进行分组，按照各个分组中的个数进行排序
+    port_num_count_list = []
+    port_count_sort = models.ServerPort.objects.values("PID_id").annotate(port_count=Count("PID_id")).order_by("-port_count")[:10]
+    for port_dic in port_count_sort:
+        port_num_count_dict = {}
+        port_num = models.Port.objects.filter(id=port_dic['PID_id'])[0].PortNum
+        port_count = port_dic['port_count']
+        port_num_count_dict['port_count'] = port_count
+        port_num_count_dict['port_num'] = port_num
+        port_num_count_list.append(port_num_count_dict)
     server_number = models.Server.objects.count()
     networkdevice_number = models.NetworkDevice.objects.count()
     storagedevice_number = models.StorageDevice.objects.count()
