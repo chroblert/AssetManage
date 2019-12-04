@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}仪表盘{% endblock %}
+{% block css %}{% endblock %}
+
+{% block breadcrumb %}
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>
+        仪表盘
+        <small>dashboard</small>
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> 主页</a></li>
+        <li class="active">仪表盘</li>
+      </ol>
+    </section>
+{% endblock %}
+
+{% block content %}
+
+
+  <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <!-- row -->
+            <div class="col-md-12">
+              <!-- jQuery Knob -->
+              <div class="box box-solid">
+                <div class="box-header">
+                  <i class="fa fa-bar-chart-o"></i>
+
+                  <h3 class="box-title">设备状态<small>(%)</small></h3>
+
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-default btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm" data-widget="remove"><i class="fa fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                  <div class="row">
+
+                    <div class="col-xs-6 col-md-2 col-md-offset-1 text-center">
+                      <input type="text" class="knob" value="{{ up_rate }}" data-width="90" data-height="90" data-fgColor="#00a65a" data-readonly="true">
+
+                      <div class="knob-label">在线</div>
+                    </div>
+
+                    <!-- ./col -->
+                    <div class="col-xs-6 col-md-2 text-center">
+                      <input type="text" class="knob" value="{{ o_rate }}" data-width="90" data-height="90" data-fgColor="#f56954" data-readonly="true">
+
+                      <div class="knob-label">下线</div>
+                    </div>
+                    <!-- ./col -->
+
+                    <div class="col-xs-6 col-md-2 text-center">
+                      <input type="text" class="knob" value="{{ bd_rate }}" data-width="90" data-height="90" data-fgColor="#932ab6" data-readonly="true">
+
+                      <div class="knob-label">故障</div>
+                    </div>
+
+                    <!-- ./col -->
+                    <div class="col-xs-6 col-md-2 text-center">
+                      <input type="text" class="knob" value="{{ bu_rate }}" data-width="90" data-height="90" data-fgColor="#3c8dbc" data-readonly="true">
+
+                      <div class="knob-label">备用</div>
+                    </div>
+
+                      <!-- ./col -->
+                    <div class="col-xs-6 col-md-2 text-center">
+                      <input type="text" class="knob" value="{{ un_rate }}" data-width="90" data-height="90" data-fgColor="#cccccc" data-readonly="true">
+
+                      <div class="knob-label">未知</div>
+                    </div>
+
+                  </div>
+                <!-- /.box-body -->
+                </div>
+              <!-- /.box -->
+            </div>
+            <!-- /.col (RIGHT) -->
+            </div>
+          <!-- /.row -->
+
+        <div class="col-md-6">
+            <!-- BAR CHART -->
+          <div class="box box-success">
+            <div class="box-header with-border">
+              <h3 class="box-title">各状态资产数量统计：</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+                {# 百度Echarts实现柱状图#}
+                <div id="barChart" style="width: 600px;height:400px;"></div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+        </div>
+
+
+        <div class="col-md-6">
+          <!-- DONUT CHART -->
+          <div class="box box-danger">
+            <div class="box-header with-border">
+              <h3 class="box-title">各类型资产数量统计：</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+                {# 百度Echarts实现饼状图#}
+              <div id="donutChart" style="width: 600px;height:400px;"></div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+        </div>
+        <!-- /.col (RIGHT) -->
+      </div>
+      <!-- /.row -->
+    </section>
+    <!-- /.content -->
+
+{% endblock %}
+
+{% block script %}
+
+<script src="https://cdn.bootcss.com/echarts/4.2.1/echarts.min.js"></script>
+<script src="{% static 'adminlet-2.4.10/bower_components/jquery-knob/js/jquery.knob.js' %}"></script>
+
+
+<script>
+ // 顶部服务器状态百分率圆图
+$(function () {
+        /* jQueryKnob */
+        $(".knob").knob({
+             /*change : function (value) {
+       //console.log("change : " + value);
+       },
+       release : function (value) {
+       console.log("release : " + value);
+       },
+       cancel : function () {
+       console.log("cancel : " + this.value);
+       },*/
+      draw: function () {
+             // "tron" case
+        if (this.$.data('skin') == 'tron'
+                ) {
+          var a = this.angle(this.
+                    cv)  // Angle
+              , sa = this.
+                            startAngle          // Previous start angle
+              , sat = this.startAngle         // Start angle
+              , ea                            // Previous end angle
+              , eat = sat + a                 // End angle
+              , r = true;
+          this.g.lineWidth = this.lineWidth;
+          this.o.cursor
+          && (sat = eat - 0.3)
+          && (eat = eat + 0.3);
+          if (this.o.displayPrevious) {
+            ea = this.startAngle + this.angle(this.value);
+            this.o.cursor
+            && (sa = ea - 0.3)
+            && (ea = ea + 0.3);
+            this.g.beginPath();
+            this.g.strokeStyle = this.previousColor;
+            this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sa, ea, false);
+            this.g.stroke();
+          }
+          this.g.beginPath();
+          this.g.strokeStyle = r ? this.o.fgColor : this.fgColor;
+          this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sat, eat, false);
+          this.g.stroke();
+          this.g.lineWidth = 2;
+          this.g.beginPath();
+          this.g.strokeStyle = this.o.fgColor;
+          this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
+          this.g.stroke();
+          return false;
+        }
+      }
+    });
+    /* END JQUERY KNOB */
+});
+
+
+//不同状态资产数量统计 柱状图
+$(function () {
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('barChart'));
+
+    // 指定图表的配置项和数据
+    var option = {
+        color: ['#3398DB'],
+        title: {
+            text: '数量'
+        },
+        tooltip: {},
+        legend: {
+            data:['']
+        },
+        xAxis: {
+            data: ["在线", "下线","故障","备用","未知"]
+        },
+        yAxis: {},
+        series: [{
+            name: '数量',
+            type: 'bar',
+            data: [{{ upline }}, {{ offline }}, {{ breakdown }}, {{ backup }}, {{ unknown }}]
+        }]
+    };
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+});
+
+
+//资产类型数量统计 饼图
+$(function () {
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('donutChart'));
+    // 指定图表的配置项和数据
+    var option = {
+        title : {
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: ['服务器','网络设备','存储设备','安全设备','软件资产']
+        },
+        series : [
+            {
+                name: '资产类型',
+                type: 'pie',
+                radius : '55%',
+                center: ['50%', '60%'],
+                data:[
+                    {value:{{ server_number }}, name:'服务器'},
+                    {value:{{ networkdevice_number }}, name:'网络设备'},
+                    {value:{{ storagedevice_number }}, name:'存储设备'},
+                    {value:{{ securitydevice_number }}, name:'安全设备'},
+                    {value:{{ software_number }}, name:'软件资产'}
+                ],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+});
+
+
+
+
+
+</script>
+
+{% endblock %}
