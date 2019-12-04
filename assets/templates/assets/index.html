@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}资产总表{% endblock %}
+
+{% block css %}
+     <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+{% endblock %}
+
+{% block breadcrumb %}
+<!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>
+        资产总表
+        <small>assets list</small>
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> 主页</a></li>
+        <li class="active">资产总表</li>
+      </ol>
+    </section>
+{% endblock %}
+
+{% block content %}
+
+   <!-- Main content -->
+    <section class="content">
+      <div class="row">
+        <div class="col-xs-12">
+
+        <div class="box">
+        <div class="box-header">
+          <h3 class="box-title">资产总表<small>(不含软件)</small></h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+
+            <table id="assets_table" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>资产类型</th>
+                        <th>子类型</th>
+                        <th>资产名称</th>
+                        <th>SN</th>
+                        <th>业务线</th>
+                        <th>状态</th>
+                        <th>机房</th>
+                        <th>更新日期</th>
+                        <th>标签</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                {% for asset in assets %}
+
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+
+                        {% if asset.asset_type == 'server' %}
+                          <td class="text-green text-bold">{{ asset.get_asset_type_display }}</td>
+                          <td>{{ asset.server.get_sub_asset_type_display }}</td>
+                        {% elif asset.asset_type == "networkdevice" %}
+                          <td class="text-yellow text-bold">{{ asset.get_asset_type_display }}</td>
+                          <td>{{ asset.networkdevice.get_sub_asset_type_display }}</td>
+                        {% elif asset.asset_type == "storagedevice" %}
+                          <td class="text-blue text-bold">{{ asset.get_asset_type_display }}</td>
+                          <td>{{ asset.storagedevice.get_sub_asset_type_display }}</td>
+                        {% elif asset.asset_type == "securitydevice" %}
+                          <td class="text-red text-bold">{{ asset.get_asset_type_display }}</td>
+                          <td>{{ asset.securitydevice.get_sub_asset_type_display }}</td>
+                        {% endif %}
+
+                        {% if asset.asset_type == 'server' %}
+                            <td><a href="{% url 'assets:detail' asset.id %}">{{ asset.name }}</a></td>
+                        {% else %}
+                            <td>{{ asset.name }}</td>
+                        {% endif %}
+
+                        <td>{{ asset.sn }}</td>
+
+                        <td>{{ asset.business_unit|default_if_none:"-" }}</td>
+
+                        {% if asset.status == 0 %}
+                          <td><label class="label label-success">{{ asset.get_status_display }}</label></td>
+                        {% elif asset.status == 1 %}
+                          <td><label class="label label-warning">{{ asset.get_status_display }}</label></td>
+                        {% elif asset.status == 2 %}
+                          <td><label class="label label-default">{{ asset.get_status_display }}</label></td>
+                        {% elif asset.status == 3 %}
+                          <td><label class="label label-danger">{{ asset.get_status_display }}</label></td>
+                        {% elif asset.status == 4 %}
+                          <td><label class="label label-info">{{ asset.get_status_display }}</label></td>
+                        {% endif %}
+
+                        <td>{{ asset.idc|default:"-" }}</td>
+
+                        <td>{{ asset.m_time|date:"Y/m/d [H:m:s]" }}</td>
+
+                        <td>
+                          {% for tag in asset.tags.all %}
+                            <label class="label label-primary">{{ tag.name }}</label>
+                            {% empty %}
+                              -
+                            {% endfor %}
+                        </td>
+                    </tr>
+
+                {% empty %}
+                <tr>没有数据</tr>
+                {% endfor %}
+
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>序号</th>
+                        <th>资产类型</th>
+                        <th>子类型</th>
+                        <th>资产名称</th>
+                        <th>SN</th>
+                        <th>业务线</th>
+                        <th>状态</th>
+                        <th>机房</th>
+                        <th>更新日期</th>
+                        <th>标签</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box -->
+        </div>
+    <!-- /.col -->
+      </div>
+    <!-- /.row -->
+    </section>
+
+{% endblock %}
+
+{% block script %}
+
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+
+<script>
+
+$(function () {
+        $('#assets_table').DataTable({
+          "paging": true,       <!-- 允许分页 -->
+          "lengthChange": true, <!-- 允许改变每页显示的行数 -->
+          "searching": true,    <!-- 允许内容搜索 -->
+          "ordering": true,     <!-- 允许排序 -->
+          "info": true,         <!-- 显示信息 -->
+          "autoWidth": false    <!-- 固定宽度 -->
+        });
+      });
+
+</script>
+
+{% endblock %}
