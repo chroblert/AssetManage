@@ -1,6 +1,0 @@
-Django==2.2
-pypiwin32==223
-pytz==2019.1
-pywin32==224
-sqlparse==0.3.0
-WMI==1.4.9
