@@ -15,6 +15,25 @@ def index(request):
     :param request:
     :return:
     """
+    servers = models.ServerS.objects.all()
+    ports = models.Port.objects.all()
+    server_detail_list = []
+    for server in servers:
+        port_list = []
+        server_detail_dict = {}
+        server_detail_dict['CSP'] = models.CSP.objects.get(id=server.CSPID_id).csp_type
+        server_detail_dict['OSType'] = models.OSType.objects.get(id=server.OSTID_id).OSType
+        server_detail_dict['ServerName'] = server.ServerName
+        server_detail_dict['PublicIP'] = server.PublicIP
+        server_detail_dict['PrivateIP'] = server.PrivateIP
+        server_detail_dict['Owner'] = models.Owner.objects.get(id=server.OwnerID_id).OwnerName
+        # 开始拼接端口
+        # tmp = ''
+        for port in models.ServerPort.objects.filter(SID_id=server.id):
+            port_list.append(ports.get(id=port.PID_id))
+        server_detail_dict['Ports'] = port_list
+        server_detail_list.append(server_detail_dict)
+    ostypes = models.OSType.objects.all()
     assets = models.Asset.objects.all()
     return render(request, 'assets/index.html', locals())
 
