@@ -2,6 +2,37 @@ from django.db import models
 from django.contrib.auth.models import User
 # Create your models here.
 
+class Owner(models.Model):
+    OwnerName = models.CharField(max_length=30,verbose_name='Owner_Name')
+    OwnerNum = models.CharField(max_length=7,verbose_name="Owner_Num")
+    OwnerID = models.IntegerField(verbose_name="Owner序列号")
+
+class OSType(models.Model):
+    os_type_choice = (
+        ('Windows','Windows'),
+        ('Linux','Linux'),
+    )
+    OSType = models.CharField(choices=os_type_choice,max_length=20,default="Linux",verbose_name="Linux")
+    OSTID = models.IntegerField(verbose_name="操作系统类型序列号")
+
+class Service(models.Model):
+    ServiceName = models.CharField(max_length=64,verbose_name="服务名称")
+    SCID = models.IntegerField(verbose_name="服务序列号")
+
+class Port(models.Model):
+    PortNum = models.IntegerField(verbose_name="端口号")
+    PID = models.IntegerField(verbose_name="端口序列号")
+
+class Server(models.Model):
+    SID = models.IntegerField(verbose_name="Server序列号")
+    OwnerID = models.ForeignKey('Owner',verbose_name="负责人序列号")
+    OSTID = models.ForeignKey('OSType',verbose_name="操作系统类型序列号")
+
+class ServerPort(models.Model):
+    RID = models.IntegerField(verbose_name="RID")
+    SID = models.ForeignKey('Server',verbose_name="Server序列号")
+    PID = models.ForeignKey('Port',verbose_name="端口序列号")
+    SCID = models.ForeignKey('Service',verbose_name="Service序列号")
 
 class Asset(models.Model):
     """所有资产的共有数据表"""
