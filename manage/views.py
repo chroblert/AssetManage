@@ -1,6 +1,9 @@
 from django.shortcuts import render
 import xlrd
 from assets import models
+import xml.etree.ElementTree as ET
+import copy
+import datetime
 
 # Create your views here.
 
@@ -36,4 +39,18 @@ def read_data_create(request):
                 models.Server.objects.get_or_create( OwnerID_id=OwnerID_id,OSTID_id=OSTID_id,CSPID_id=CSPID_id,PublicIP=PublicIP,PrivateIP=PrivateIP,ServerName=ServerName)
                 all_value_list.append(rowValues)
     return render(request,'manage/display.html',locals())
+
+def read_port_create(request):
+    if request.method == "POST":
+        f = request.FILES['xml_file']
+        type_xml = f.name.split('.')[1]
+        if 'xml' == type_xml:
+            tree = ET.parse(source=f.read())
+            root = tree.getroot()
+            hosts = root.findall("host")
+            portList = []
+            for host in hosts:
+
+            pass
+    return render(request,'manage/display_port.html',locals())
 

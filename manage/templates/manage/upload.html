@@ -2,7 +2,9 @@
 {% load static%}
 
 {% block title %}上传文件数据{% endblock %}
-{% block css %}{%  endblock %}
+{% block css %}
+     <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+{% endblock %}
 {% block content %}
 <!DOCTYPE html>
 <html lang="en">
@@ -11,11 +13,34 @@
     <title>Title</title>
 </head>
 <body>
-    <form action="{% url 'manage:display' %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="my_file">
-        <input type="submit">
-    </form>
+    <div>
+        <h1>上传Excel文件</h1>
+        <h3>Excel文件格式如下：</h3>
+        <table id="assets_table" class="table table-bordered table-striped" >
+            <tr>
+                <th>id</th>
+                <th>csp</th>
+                <th>server_name</th>
+                <th>public_ip</th>
+                <th>private_ip</th>
+                <th>owner_name</th>
+                <th>os_type</th>
+            </tr>
+        </table>
+            <form action="{% url 'manage:display' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="my_file" accept=".xlsx">
+                <input type="submit" value="submit">
+            </form>
+    </div>
+    <div>
+        <h1>上传nmap扫描后的xml文件</h1>
+        <form action="{% url 'manage:display_port' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="xml_file" accept=".xml">
+            <input type="submit" value="submit">
+        </form>
+    </div>
 </body>
 </html>
 {% endblock %}
