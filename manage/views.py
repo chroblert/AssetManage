@@ -39,7 +39,8 @@ def read_data_create(request):
                 ServerName = None if not rowValues[2] else rowValues[2]
                 models.Server.objects.get_or_create( OwnerID_id=OwnerID_id,OSTID_id=OSTID_id,CSPID_id=CSPID_id,PublicIP=PublicIP,PrivateIP=PrivateIP,ServerName=ServerName)
                 all_value_list.append(rowValues)
-    return render(request,'manage/display.html',locals())
+    # return render(request,'manage/display.html',locals())
+    return render(request,'manage/result.html',locals())
 
 def read_port_create(request):
     if request.method == "POST":
@@ -74,5 +75,6 @@ def read_port_create(request):
                         models.ServerPort.objects.get_or_create(PID_id=PID_id,SID_id=SID_id,SCID_id=SCID_id)
                 # host_port_dict['ports'] = port_list
                 # host_port_dict_list.append(host_port_dict)
-    return render(request,'manage/display_port.html',locals())
+    # return render(request,'manage/display_port.html',locals())
+    return render(request,'manage/result.html',locals())
 
