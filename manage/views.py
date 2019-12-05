@@ -2,6 +2,7 @@ from django.shortcuts import render
 import xlrd
 from assets import models
 import xml.etree.ElementTree as ET
+from django.core.exceptions import ObjectDoesNotExist
 import copy
 import datetime
 
@@ -45,12 +46,33 @@ def read_port_create(request):
         f = request.FILES['xml_file']
         type_xml = f.name.split('.')[1]
         if 'xml' == type_xml:
-            tree = ET.parse(source=f.read())
-            root = tree.getroot()
+            # tree = ET.parse(source=f.read())
+            # root = tree.getroot()
+            root = ET.fromstring(text=f.read())
             hosts = root.findall("host")
-            portList = []
+            # host_port_dict_list = []
             for host in hosts:
-
-            pass
+                # host_port_dict = {}
+                if host.find("status").attrib['state'] == 'up':
+                    ip = host.find("address").attrib['addr']
+                    # host_port_dict['ip']=ip
+                else:
+                    continue
+                # 某个host的所有端口
+                ports = host.find("ports").findall("port")
+                # port_list = []
+                for port in ports:
+                    # 记录state为open的端口
+                    if port.find("state").attrib['state'] == 'open':
+                        # port_list.append(port.attrib['portid'])
+                        PID_id = models.Port.objects.get_or_create(PortNum=port.attrib['portid'])[0].id
+                        SCID_id = models.Service.objects.get_or_create(ServiceName=port.find("service").attrib['name'])[0].id
+                        try:
+                            SID_id = models.Server.objects.get(PublicIP=ip).id
+                        except ObjectDoesNotExist:
+                            SID_id = models.Server.objects.get(PrivateIP=ip).id
+                        models.ServerPort.objects.get_or_create(PID_id=PID_id,SID_id=SID_id,SCID_id=SCID_id)
+                # host_port_dict['ports'] = port_list
+                # host_port_dict_list.append(host_port_dict)
     return render(request,'manage/display_port.html',locals())
 
