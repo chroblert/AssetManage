@@ -22,7 +22,7 @@ class OSType(models.Model):
     # OSTID = models.IntegerField(verbose_name="操作系统类型序列号")
 
     def __str__(self):
-        return '%s' % self.OSType
+        return '%s' % self.OSVersion
     class Meta:
         verbose_name = '操作系统类型'
         verbose_name_plural = "操作系统类型"

@@ -27,7 +27,7 @@ def read_data_create(request):
                 if not OSVersion:
                     OSType = ''
                 else:
-                    OSType = 'Windows' if 'Windows' in OSVersion else "Linux"
+                    OSType = 'Windows' if ('Windows' in OSVersion) or ('windows' in OSVersion) else "Linux"
                 OSTID_id = models.OSType.objects.get_or_create(OSType=OSType,OSVersion=OSVersion)[0].id
                 CSPID_id = models.CSP.objects.get_or_create(csp_type=rowValues[1])[0].id
                 PublicIP =  None if not rowValues[3] else rowValues[3]
