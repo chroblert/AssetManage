@@ -7,6 +7,7 @@ from assets import models
 from assets import asset_handler
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def index(request):
@@ -15,7 +16,7 @@ def index(request):
     :param request:
     :return:
     """
-    servers = models.ServerS.objects.all()
+    servers = models.Server.objects.all()
     ports = models.Port.objects.all()
     server_detail_list = []
     for server in servers:
@@ -34,28 +35,30 @@ def index(request):
         server_detail_dict['Ports'] = port_list
         server_detail_list.append(server_detail_dict)
     ostypes = models.OSType.objects.all()
-    assets = models.Asset.objects.all()
+    # assets = models.Asset.objects.all()
     return render(request, 'assets/index.html', locals())
 
 
 def dashboard(request):
-    # total = models.Asset.objects.count()
-    total = models.ServerS.objects.count()
-    # upline = models.Asset.objects.filter(status=0).count()
-    ali_count = models.ServerS.objects.filter(CSPID_id=1).count()
-    azure_count = models.ServerS.objects.filter(CSPID_id=3).count()
-    aws_count = models.ServerS.objects.filter(CSPID_id=2).count()
-    # offline = models.Asset.objects.filter(status=1).count()
-    # unknown = models.Asset.objects.filter(status=2).count()
-    breakdown = models.Asset.objects.filter(status=3).count()
-    backup = models.Asset.objects.filter(status=4).count()
+    total = models.Server.objects.all().count()
+    try:
+        ali_count = models.Server.objects.filter(CSPID_id=models.CSP.objects.get(csp_type="AliCloud").id).count()
+    except ObjectDoesNotExist:
+        ali_count = 0
+    try:
+        azure_count = models.Server.objects.filter(CSPID_id=models.CSP.objects.get(csp_type="Azure").id).count()
+    except ObjectDoesNotExist:
+        azure_count = 0
+    try:
+        aws_count = models.Server.objects.filter(CSPID_id=models.CSP.objects.get(csp_type="AWS").id).count()
+    except ObjectDoesNotExist:
+        aws_count = 0
+    breakdown = 0 #models.Asset.objects.filter(status=3).count()
+    backup = 0 #models.Asset.objects.filter(status=4).count()
 
-    ali_rate =  round(ali_count/total*100) if total != 0 else 0
+    ali_rate =  round(ali_count/total*100) if total != 0 else 0 
     azure_rate =  round(azure_count/total*100) if total != 0 else 0
     aws_rate =  round(aws_count/total*100) if total != 0 else 0
-    # up_rate =  round(upline/total*100) if total != 0 else 0
-    # o_rate =   round(offline / total * 100) if total != 0 else 0
-    # un_rate =  round(unknown / total * 100) if total != 0 else 0
     bd_rate =  round(breakdown / total * 100) if total != 0 else 0
     bu_rate =  round(backup / total * 100) if total != 0 else 0
 
@@ -73,15 +76,11 @@ def dashboard(request):
         port_num_count_dict['port_num'] = port_num
         port_num_count_list.append(port_num_count_dict)
     server_number = models.Server.objects.count()
-    networkdevice_number = models.NetworkDevice.objects.count()
-    storagedevice_number = models.StorageDevice.objects.count()
-    securitydevice_number = models.SecurityDevice.objects.count()
-    software_number = models.Software.objects.count()
 
     return render(request, 'assets/dashboard.html', locals())
 
 
-def detail(request, asset_id):
+def detail(request):
     """
     以显示服务器类型资产详细为例，安全设备、存储设备、网络设备等参照此例。
     :param request:
@@ -89,7 +88,7 @@ def detail(request, asset_id):
     :return:
     """
 
-    asset = get_object_or_404(models.Asset, id=asset_id)
+    asset = models.Server
     return render(request, 'assets/detail.html', locals())
 
 

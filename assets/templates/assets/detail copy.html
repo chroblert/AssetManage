@@ -30,7 +30,7 @@
       <div class="box">
 
         <div class="box-header with-border">
-            <h3 class="box-title"><strong class="btn btn-block btn-primary btn-lg">资产： asset.name </strong></h3>
+            <h3 class="box-title"><strong class="btn btn-block btn-primary btn-lg">资产：{{ asset.name }}</strong></h3>
 
             <div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -58,20 +58,20 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td> asset.get_asset_type_display </td>
-                    <td> asset.sn </td>
-                    <td> asset.business_unit|default:'N/A' </td>
-                    <td> asset.manufacturer|default:'N/A' </td>
-                    <td> asset.manage_ip|default:'N/A' </td>
-                    <td> asset.idc|default:'N/A' </td>
+                    <td>{{ asset.get_asset_type_display }}</td>
+                    <td>{{ asset.sn }}</td>
+                    <td>{{ asset.business_unit|default:'N/A' }}</td>
+                    <td>{{ asset.manufacturer|default:'N/A' }}</td>
+                    <td>{{ asset.manage_ip|default:'N/A' }}</td>
+                    <td>{{ asset.idc|default:'N/A' }}</td>
                     <td>
                         {% for tag in asset.tags.all %}
-                        <label class="label label-primary"> tag.name </label>
+                        <label class="label label-primary">{{ tag.name }}</label>
                         {% empty %}
                             -
                         {% endfor %}
                     </td>
-                    <td> asset.m_time </td>
+                    <td>{{ asset.m_time }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -91,14 +91,14 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td> asset.contract.name|default:'N/A' </td>
-                    <td> asset.price|default:'N/A' </td>
-                    <td> asset.purchase_day|default:'N/A' </td>
-                    <td> asset.expire_day|default:'N/A' </td>
-                    <td> asset.admin|default:'N/A' </td>
-                    <td> asset.approved_by|default:'N/A' </td>
-                    <td> asset.memo|default:'N/A' </td>
-                    <td> asset.m_time </td>
+                    <td>{{ asset.contract.name|default:'N/A' }}</td>
+                    <td>{{ asset.price|default:'N/A' }}</td>
+                    <td>{{ asset.purchase_day|default:'N/A' }}</td>
+                    <td>{{ asset.expire_day|default:'N/A' }}</td>
+                    <td>{{ asset.admin|default:'N/A' }}</td>
+                    <td>{{ asset.approved_by|default:'N/A' }}</td>
+                    <td>{{ asset.memo|default:'N/A' }}</td>
+                    <td>{{ asset.m_time }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -119,14 +119,14 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td> asset.server.get_sub_asset_type_display </td>
-                    <td> asset.server.model|default:'N/A' </td>
-                    <td> asset.server.hosted_on.id|default:'N/A' </td>
-                    <td> asset.server.raid_type|default:'N/A' </td>
-                    <td> asset.server.os_type|default:'N/A' </td>
-                    <td> asset.server.os_distribution|default:'N/A' </td>
-                    <td> asset.server.os_release|default:'N/A' </td>
-                    <td> asset.server.get_created_by_display </td>
+                    <td>{{ asset.server.get_sub_asset_type_display }}</td>
+                    <td>{{ asset.server.model|default:'N/A' }}</td>
+                    <td>{{ asset.server.hosted_on.id|default:'N/A' }}</td>
+                    <td>{{ asset.server.raid_type|default:'N/A' }}</td>
+                    <td>{{ asset.server.os_type|default:'N/A' }}</td>
+                    <td>{{ asset.server.os_distribution|default:'N/A' }}</td>
+                    <td>{{ asset.server.os_release|default:'N/A' }}</td>
+                    <td>{{ asset.server.get_created_by_display }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -142,9 +142,9 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td> asset.cpu.cpu_model|default:'N/A' </td>
-                    <td> asset.cpu.cpu_count|default:'1' </td>
-                    <td> asset.cpu.cpu_core_count|default:'1' </td>
+                    <td>{{ asset.cpu.cpu_model|default:'N/A' }}</td>
+                    <td>{{ asset.cpu.cpu_count|default:'1' }}</td>
+                    <td>{{ asset.cpu.cpu_core_count|default:'1' }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -164,12 +164,12 @@
                 <tbody>
                 {% for ram in asset.ram_set.all %}
                     <tr>
-                        <td> forloop.counter </td>
-                        <td> ram.model|default:'N/A' </td>
-                        <td> ram.capacity|default:'N/A' </td>
-                        <td> ram.slot </td>
-                        <td> ram.manufacturer|default:'N/A' </td>
-                        <td> ram.sn|default:'N/A' </td>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ ram.model|default:'N/A' }}</td>
+                        <td>{{ ram.capacity|default:'N/A' }}</td>
+                        <td>{{ ram.slot }}</td>
+                        <td>{{ ram.manufacturer|default:'N/A' }}</td>
+                        <td>{{ ram.sn|default:'N/A' }}</td>
                     </tr>
                 {% empty %}
                     <tr>
@@ -195,13 +195,13 @@
                 <tbody>
                 {% for disk in asset.disk_set.all %}
                     <tr>
-                        <td> forloop.counter </td>
-                        <td> disk.model|default:'N/A' </td>
-                        <td> disk.capacity|default:'N/A' </td>
-                        <td> disk.slot|default:'N/A'  </td>
-                        <td> disk.get_interface_type_display </td>
-                        <td> disk.manufacturer|default:'N/A' </td>
-                        <td> disk.sn</td>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ disk.model|default:'N/A' }}</td>
+                        <td>{{ disk.capacity|default:'N/A' }}</td>
+                        <td>{{ disk.slot|default:'N/A'  }}</td>
+                        <td>{{ disk.get_interface_type_display }}</td>
+                        <td>{{ disk.manufacturer|default:'N/A' }}</td>
+                        <td>{{ disk.sn}}</td>
                     </tr>
                 {% empty %}
                     <tr>
@@ -227,13 +227,13 @@
                 <tbody>
                 {% for nic in asset.nic_set.all %}
                     <tr>
-                        <td> forloop.counter </td>
-                        <td> nic.name|default:'N/A' </td>
-                        <td> nic.model </td>
-                        <td> nic.mac  </td>
-                        <td> nic.ip_address|default:'N/A' </td>
-                        <td> nic.net_mask|default:'N/A' </td>
-                        <td> nic.bonding|default:'N/A' </td>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ nic.name|default:'N/A' }}</td>
+                        <td>{{ nic.model }}</td>
+                        <td>{{ nic.mac  }}</td>
+                        <td>{{ nic.ip_address|default:'N/A' }}</td>
+                        <td>{{ nic.net_mask|default:'N/A' }}</td>
+                        <td>{{ nic.bonding|default:'N/A' }}</td>
                     </tr>
                 {% empty %}
                     <tr>
