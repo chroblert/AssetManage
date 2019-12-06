@@ -34,9 +34,14 @@ def read_data_create(request):
                     OSType = 'Windows' if ('Windows' in OSVersion) or ('windows' in OSVersion) else "Linux"
                 OSTID_id = models.OSType.objects.get_or_create(OSType=OSType,OSVersion=OSVersion)[0].id
                 CSPID_id = models.CSP.objects.get_or_create(csp_type=rowValues[1])[0].id
-                PublicIP =  None if not rowValues[3] else rowValues[3]
+                PublicIP = None if not rowValues[3] else rowValues[3]
                 PrivateIP = None if not rowValues[4] else rowValues[4]
                 ServerName = None if not rowValues[2] else rowValues[2]
+                # 更新数据：在插入同IP的server之前，先删除
+                try:
+                    models.Server.objects.filter(PublicIP=PublicIP,PrivateIP=PrivateIP).delete()
+                except ObjectDoesNotExist:
+                    pass
                 models.Server.objects.get_or_create( OwnerID_id=OwnerID_id,OSTID_id=OSTID_id,CSPID_id=CSPID_id,PublicIP=PublicIP,PrivateIP=PrivateIP,ServerName=ServerName)
                 all_value_list.append(rowValues)
     # return render(request,'manage/display.html',locals())
