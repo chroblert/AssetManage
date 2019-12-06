@@ -72,7 +72,13 @@ def read_port_create(request):
                     continue
                 # 某个host的所有端口
                 ports = host.find("ports").findall("port")
-                # port_list = []
+                # port_list
+                try:
+                    SID_id = models.Server.objects.get(PublicIP=ip).id
+                except ObjectDoesNotExist:
+                    SID_id = models.Server.objects.get(PrivateIP=ip).id
+                # 在插入某host的port之前，删除之前已存在的port
+                models.ServerPort.objects.filter(SID_id=SID_id).delete()
                 for port in ports:
                     # 记录state为open的端口
                     if port.find("state").attrib['state'] == 'open':
@@ -82,10 +88,7 @@ def read_port_create(request):
                             SCID_id = models.Service.objects.get_or_create(ServiceName=port.find("service").attrib['name'])[0].id
                         except AttributeError:
                             SCID_id = None #models.Service.objects.get_or_create(ServiceName=None)
-                        try:
-                            SID_id = models.Server.objects.get(PublicIP=ip).id
-                        except ObjectDoesNotExist:
-                            SID_id = models.Server.objects.get(PrivateIP=ip).id
+                        
                         models.ServerPort.objects.get_or_create(PID_id=PID_id,SID_id=SID_id,SCID_id=SCID_id)
                 # host_port_dict['ports'] = port_list
                 # host_port_dict_list.append(host_port_dict)
