@@ -57,6 +57,17 @@ def read_port_create(request):
                 if host.find("status").attrib['state'] == 'up':
                     ip = host.find("address").attrib['addr']
                     # host_port_dict['ip']=ip
+                    try:
+                        host_exist = models.Server.objects.get(PublicIP=ip)
+                    except ObjectDoesNotExist:
+                        host_exist = False
+                    if host_exist == False:
+                        try:
+                            host_exist = models.Server.objects.get(PrivateIP=ip)
+                        except ObjectDoesNotExist:
+                            host_exist = False
+                    if host_exist == False:
+                        continue
                 else:
                     continue
                 # 某个host的所有端口
@@ -67,7 +78,10 @@ def read_port_create(request):
                     if port.find("state").attrib['state'] == 'open':
                         # port_list.append(port.attrib['portid'])
                         PID_id = models.Port.objects.get_or_create(PortNum=port.attrib['portid'])[0].id
-                        SCID_id = models.Service.objects.get_or_create(ServiceName=port.find("service").attrib['name'])[0].id
+                        try:
+                            SCID_id = models.Service.objects.get_or_create(ServiceName=port.find("service").attrib['name'])[0].id
+                        except AttributeError:
+                            SCID_id = None #models.Service.objects.get_or_create(ServiceName=None)
                         try:
                             SID_id = models.Server.objects.get(PublicIP=ip).id
                         except ObjectDoesNotExist:
