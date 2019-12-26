@@ -1,0 +1,16 @@
+{% extends 'base.html'%}
+{% load static%}
+
+{% block title %}上传文件数据{% endblock %}
+{% block css %}
+     <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+{% endblock %}
+{% block content %}
+{% csrf_token %}
+this is a test
+{{ test }}
+{% endblock %}
+{% block script %}
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+{% endblock %}

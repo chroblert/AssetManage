@@ -26,7 +26,9 @@ SECRET_KEY = 'f!i+jxy_8+-7aehk&xb5%=cb7nkcc0155p2)(=q_!l3uou-2&1'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+# ==== JC0o0l ====
+test=""
+# ===== end ======
 
 # Application definition
 
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'assets.apps.AssetsConfig',
     'manage.apps.ManageConfig',
+    'baseline.apps.BaselineConfig',
 ]
 
 MIDDLEWARE = [
