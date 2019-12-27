@@ -6,11 +6,84 @@
      <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
 {% endblock %}
 {% block content %}
-{% csrf_token %}
-this is a test
-JC0o0l
+   <!-- Main content -->
+   <section class="content">
+     <div class="row">
+       <div class="col-xs-12">
+
+       <div class="box">
+       <div class="box-header">
+         <h3 class="box-title">基线检查<small>(系统)</small></h3>
+       </div>
+       <!-- /.box-header -->
+       <div class="box-body">
+
+           <table id="assets_table" class="table table-bordered table-striped">
+               <thead>
+                   <tr>
+                       <th>序号</th>
+                       <th>扫描时间</th>
+                       <th>操作系统</th>
+                       <th>服务器名称</th>
+                       <th>IP信息</th>
+                       <th>MAC地址</th>
+                   </tr>
+               </thead>
+               <tbody>
+                    {% for scanRes in scanResAll %}
+                    <tr>
+                       <!-- 序号-->
+                       <td>{{ forloop.counter }}</td>
+                       <!-- 扫描时间-->
+                       <td>{{ scanRes.scanTime }}</td>
+                       <!-- 操作系统-->
+                       <td>{{ scanRes.osVersion }}</td>
+                       <!-- 服务器名称-->
+                       <td>{{ scanRes.hostname }}</td>
+                       <!-- IP信息 -->
+                       <td>{{ scanRes.ipList }}</td>
+                       <!-- MAC地址-->
+                       <td>{{ scanRes.macaddr }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>没有数据</tr>
+                    {% endfor %}
+               </tbody>
+               <tfoot>
+                   <tr>
+                       <th>序号</th>
+                       <th>扫描时间</th>
+                       <th>操作系统</th>
+                       <th>服务器名称</th>
+                       <th>IP信息</th>
+                       <th>MAC地址</th>
+                   </tr>
+               </tfoot>
+           </table>
+       </div>
+       <!-- /.box-body -->
+     </div>
+     <!-- /.box -->
+       </div>
+   <!-- /.col -->
+     </div>
+   <!-- /.row -->
+   </section>
 {% endblock %}
 {% block script %}
 <script src="{% static 'adminlet-2.4.10/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script>
+$(function () {
+        $('#assets_table').DataTable({
+          "paging": true,       <!-- 允许分页 -->
+          "lengthChange": true, <!-- 允许改变每页显示的行数 -->
+          "searching": true,    <!-- 允许内容搜索 -->
+          "ordering": true,     <!-- 允许排序 -->
+          "info": true,         <!-- 显示信息 -->
+          "autoWidth": false    <!-- 固定宽度 -->
+        });
+      });
+
+</script>
 {% endblock %}

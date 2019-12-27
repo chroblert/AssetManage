@@ -7,6 +7,12 @@ from baseline import models
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 # Create your views here.
 def scan_res_display(request):
+    scanResAll = models.LinuxScanRes.objects.all()
+    #scanResList = []
+    #for scanRes in scanResAll:
+
+    #    pass
+
     return render(request,'baseline/scan_res_display.html',locals())
 
 
