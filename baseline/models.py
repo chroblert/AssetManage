@@ -1,11 +1,27 @@
 from django.db import models
 
 # Create your models here.
+class LinuxScanResMeta(models.Model):
+    # 时间
+    scanTime=models.DateTimeField(verbose_name="scanTime")
+    # macaddr
+    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    # 扫描结果
+    linuxScanResMetaData=models.CharField(max_length=100000,verbose_name="linuxScanResMeta")
+    def __str__(self):
+        return '%s %s'%(self.scanTime,self.macaddr)  #("LinuxScanResMeta")
+    class Meta:
+        verbose_name='Linux安全基线扫描结果元数据'
+        verbose_name_plural='Linux安全基线扫描结果元数据'
+
 class LinuxScanRes(models.Model):
+    scanTime=models.DateTimeField(verbose_name="scanTime")
     # basic_info
-    publicIP=models.CharField(max_length=30,verbose_name="publicIP")
-    privateIP=models.CharField(max_length=30,verbose_name="privateIP")
+    #publicIP=models.CharField(max_length=30,verbose_name="publicIP")
+    #privateIP=models.CharField(max_length=30,verbose_name="privateIP")
+    ipList=models.CharField(max_length=100,verbose_name="ipList")
     hostname=models.CharField(max_length=30,verbose_name="hostname")
+    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
     osVersion=models.CharField(max_length=30,verbose_name="osVersion")
     kernelVersion=models.CharField(max_length=30,verbose_name="kernelVersion")
 
@@ -35,19 +51,19 @@ class LinuxScanRes(models.Model):
     hostsDenyFileIfConfigured=models.BooleanField(default=False,verbose_name="hostsDenyFileIfConfigured")
     iptablesIfInstalled=models.BooleanField(default=True,verbose_name="iptablesIfInstalled")
     iptablesInputPolicyIfDrop=models.BooleanField(default=False,verbose_name="iptablesInputPolicyIfDrop")
-    iptabledOutputPolicyIfDrop=models.BooleanField(default=False,verbose_name="iptablesOutputPolicyIfDrop")
+    iptablesOutputPolicyIfDrop=models.BooleanField(default=False,verbose_name="iptablesOutputPolicyIfDrop")
 
     # auditd_check_res
     ## auditd_config_info
     auditdIfEnabled=models.BooleanField(default=True,verbose_name="auditdIfEnabled")
     auditdconfIfExist=models.BooleanField(default=True,verbose_name="aditdconfIfExist")
     auditdIfSetMaxLogFile=models.CharField(max_length=5,verbose_name="auditdIfSetMaxLogFile")
-    auidtdIfSetMaxLogFileAction=models.CharField(max_length=10,verbose_name="auditdIfSetMaxLogFileAction")
+    auditdIfSetMaxLogFileAction=models.CharField(max_length=10,verbose_name="auditdIfSetMaxLogFileAction")
     auditdIfSetSpaceLeftAction=models.CharField(max_length=10,verbose_name="auditdIfSetSpaceLeftAction")
-    auidtdIfSetNumLogs=models.CharField(max_length=5,verbose_name="auditdIfSetNumLogs")
+    auditdIfSetNumLogs=models.CharField(max_length=5,verbose_name="auditdIfSetNumLogs")
     ## auditd_rules_info
     auditdRulesIfExist=models.BooleanField(default=True,verbose_name="auditdRulesIfExist")
-    auidtdRulesIfNotNull=models.BooleanField(default=True,verbose_name="auditdRulesIfNotNull")
+    auditdRulesIfNotNull=models.BooleanField(default=True,verbose_name="auditdRulesIfNotNull")
     auditdIfCheckTimechange=models.BooleanField(default=False,verbose_name="auditdIfCheckTimechange")
     auditdRulesCheckedUserandgroupfile=models.CharField(max_length=600,verbose_name="auditdRulesCheckUserandgroupfile")
     auditdRulesNotCheckedUserandgroupfile=models.CharField(max_length=600,verbose_name="auditdRulesNotCheckUserandgroupfile")
@@ -122,8 +138,9 @@ class LinuxScanRes(models.Model):
     uid0OnlyRootOrArray=models.CharField(max_length=300,verbose_name="uid0OnlyRootOrArray")
     pathDirIfNotHasDot=models.CharField(max_length=600,verbose_name="pathDirIfNotHasDot")
     pathDirPermissionHasGWArray=models.CharField(max_length=600,verbose_name="pathDirPermissionHasGWArray")
-    pathDIrPermissionHasOWArray=models.CharField(max_length=600,verbose_name="pathDirPermissionHasOWArray")
+    pathDirPermissionHasOWArray=models.CharField(max_length=600,verbose_name="pathDirPermissionHasOWArray")
     pathDirOwnerIsNotRootArray=models.CharField(max_length=600,verbose_name="pathDirOwnerIsNotRootArray")
+    pathDirDoesNotExistOrNotDirArray=models.CharField(max_length=600,verbose_name="pathDirDoesNotExistOrNotDirArray")
     userArray=models.CharField(max_length=300,verbose_name="userArray")
     userHomeDirIfExistArray=models.CharField(max_length=600,verbose_name="userHomeDirIfExistArray")
     userHomeDirPermissionArray=models.CharField(max_length=600,verbose_name="userHomeDirPermissionArray")
@@ -135,4 +152,7 @@ class LinuxScanRes(models.Model):
     groupsIfHasUniqueGIDArray=models.CharField(max_length=300,verbose_name="groupsIfHasUniqueGIDArray")
 
     def __str__(self):
-        return '%s' % "LinuxScanResult"
+        return '%s %s' % (self.scanTime,self.macaddr) #"LinuxScanResult"
+    class Meta:
+        verbose_name = "Linux安全基线扫描结果数据"
+        verbose_name_plural = "Linux安全基线扫描结果数据"
