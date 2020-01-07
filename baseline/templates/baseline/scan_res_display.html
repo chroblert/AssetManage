@@ -1,6 +1,6 @@
 {% extends 'base.html'%}
 {% load static%}
-
+{% load base64_jc %}
 {% block title %}基线检查记录{% endblock %}
 {% block css %}
      <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
@@ -60,7 +60,7 @@
                        <td>{{ scanRes.ipList }}</td>
                        <!-- MAC地址-->
                        <td>{{ scanRes.macaddr }}</td>
-                       <td><a href="{% url 'baseline:check_res_display' %}?osVersion={{ scanRes.osVersion }}&scanTime={{ scanRes.scanTime }}&macaddr={{ scanRes.macaddr }}">Click Me</a></td>
+                       <td><a href='{% url "baseline:check_res_display" %}?scanType={{scanRes.scanType|base64:"encode"}}&osVersion={{ scanRes.osVersion|base64:"encode" }}&macaddr={{ scanRes.macaddr|base64:"encode" }}&scanTime={{ scanRes.scanTime|base64:"encode"}}'>Click Me</a></td>
                     </tr>
                     {% empty %}
                     <tr>没有数据</tr>

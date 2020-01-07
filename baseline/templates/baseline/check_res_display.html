@@ -25,16 +25,16 @@
         <div class="box-body">
           <table class="table table-bordered table-striped dataTable">
             <tr>
-              <td>扫描时间:scanTime</td>
-              <td>项目类型:scanType</td>
+              <td>扫描时间:{{scanRes.scanTime}}</td>
+              <td>项目类型:{{scanType}}</td>
             </tr>
             <tr>
-              <td>主机名:hostname</td>
-              <td>系统版本:{{ osVersion }}</td>
+              <td>主机名:{{scanRes.hostname}}</td>
+              <td>系统版本:{{ scanRes.osVersion }}</td>
             </tr>
             <tr>
-              <td>MAC地址:macaddr</td>
-              <td>IP地址:ipList</td>
+              <td>MAC地址:{{scanRes.macaddr}}</td>
+              <td>IP地址:{{scanRes.ipList}}</td>
             </tr>
           </table>
         </div>
@@ -65,27 +65,27 @@
                </thead>
                <tr>
                  <td>强制密码历史不少于5次</td>
-                 <td>passwordHistorySize</td>
+                 <td>{{scanRes.passwordHistorySize}}</td>
                </tr>
                <tr>
                  <td>密码最长使用期限不多于90天</td>
-                 <td>maximumPasswordAge</td>
+                 <td>{{scanRes.maximumPasswordAge}}</td>
                </tr>
                <tr>
                  <td>密码最短使用期限不少于1天</td>
-                 <td>minimumPasswordAge</td>
+                 <td>{{scanRes.minimumPasswordAge}}</td>
                </tr>
                <tr>
                  <td>密码是否符合复杂度要求</td>
-                 <td>passwordComplexity</td>
+                 <td>{{scanRes.passwordComplexity}}</td>
                </tr>
                <tr>
                  <td>不可用可还原的加密来存储密码</td>
-                 <td>clearTextPassword</td>
+                 <td>{{scanRes.clearTextPassword}}</td>
                </tr>
                <tr>
                  <td>密码长度不低于8位</td>
-                 <td>minimumPasswordLength</td>
+                 <td>{{scanRes.minimumPasswordLength}}</td>
                </tr>
              </table>
            </div>
@@ -115,15 +115,15 @@
                 </thead>
                 <tr>
                   <td>账户锁定时间不低于15分钟</td>
-                  <td>lockoutDuration</td>
+                  <td>{{scanRes.lockoutDuration}}</td>
                 </tr>
                 <tr>
                   <td>账户锁定阈值不多于5次</td>
-                  <td>lockoutBadCount</td>
+                  <td>{{scanRes.lockoutBadCount}}</td>
                 </tr>
                 <tr>
                   <td>重置账户锁定计数器</td>
-                  <td>resetLockoutCount</td>
+                  <td>{{scanRes.resetLockoutCount}}</td>
                 </tr>
               </table>
             </div>
@@ -155,35 +155,35 @@
                 </thead>
                 <tr>
                   <td>审核策略更改：成功</td>
-                  <td>auditPolicyChange</td>
+                  <td>{{scanRes.auditPolicyChange}}</td>
                 </tr>
                 <tr>
                   <td>审核登录时间：成功，失败</td>
-                  <td>auditLogonEvents</td>
+                  <td>{{scanRes.auditLogonEvents}}</td>
                 </tr>
                 <tr>
                   <td>审核对象访问：成功</td>
-                  <td>auditObjectAccess</td>
+                  <td>{{scanRes.auditObjectAccess}}</td>
                 </tr>
                 <tr>
                   <td>审核进程跟踪：成功，失败</td>
-                  <td>auditProcessTracking</td>
+                  <td>{{scanRes.auditProcessTracking}}</td>
                 </tr>
                 <tr>
                   <td>审核目录服务访问：成功，失败</td>
-                  <td>auditDSAccess</td>
+                  <td>{{scanRes.auditDSAccess}}</td>
                 </tr>
                 <tr>
                   <td>审核系统事件：成功，失败</td>
-                  <td>auditSystemEvents</td>
+                  <td>{{scanRes.auditSystemEvents}}</td>
                 </tr>
                 <tr>
                   <td>审核账户登录事件：成功，失败</td>
-                  <td>auditAccountLogon</td>
+                  <td>{{scanRes.auditAccountLogon}}</td>
                 </tr>
                 <tr>
                   <td>审核账户管理事件：成功，失败</td>
-                  <td>auditAccountManage</td>
+                  <td>{{scanRes.auditAccountManage}}</td>
                 </tr>
               </table>
             </div>
@@ -212,43 +212,43 @@
                 </thead>
                 <tr>
                   <td>确保“作为受信任的呼叫方访问凭据管理器”值为空，没有设置用户</td>
-                  <td>seTrustedCredManAccessPrivilege</td>
+                  <td>{{scanRes.seTrustedCredManAccessPrivilege}}</td>
                 </tr>
                 <tr>
                   <td>确保“以操作系统方式执行”值为空</td>
-                  <td>seTcbPrivilege</td>
+                  <td>{{scanRes.seTcbPrivilege}}</td>
                 </tr>
                 <tr>
                   <td>确保“将工作站添加到域”值仅为特定的用户或用户组，不能有513，514，515</td>
-                  <td>seMachineAccountPrivilege</td>
+                  <td>{{scanRes.seMachineAccountPrivilege}}</td>
                 </tr>
                 <tr>
                   <td>确保“创建全局对象”值为空</td>
-                  <td>seCreateGlobalPrivilege</td>
+                  <td>{{scanRes.seCreateGlobalPrivilege}}</td>
                 </tr>
                 <tr>
                   <td>确保“拒绝作为批处理作业登录”包含Guests</td>
-                  <td>seDenyBatchLogonRight</td>
+                  <td>{{scanRes.seDenyBatchLogonRight}}</td>
                 </tr>
                 <tr>
                   <td>确保“拒绝以服务身份登录”包含Guests</td>
-                  <td>seDenyServiceLogonRight</td>
+                  <td>{{scanRes.seDenyServiceLogonRight}}</td>
                 </tr>
                 <tr>
                   <td>确保“拒绝本地登录”包含Guests</td>
-                  <td>seDenyInteractiveLogonRight</td>
+                  <td>{{scanRes.seDenyInteractiveLogonRight}}</td>
                 </tr>
                 <tr>
                   <td>确保“从远程系统强制关机”值为“administrator”本地组和s-1-5-32-549</td>
-                  <td>seRemoteShutdownPrivilege</td>
+                  <td>{{scanRes.seRemoteShutdownPrivilege}}</td>
                 </tr>
                 <tr>
                   <td>确保“修改对象标签”值为空</td>
-                  <td>seRelabelPrivilege</td>
+                  <td>{{scanRes.seRelabelPrivilege}}</td>
                 </tr>
                 <tr>
                   <td>确保“同步目录服务数据”值为空</td>
-                  <td>seSyncAgentPrivilege</td>
+                  <td>{{scanRes.seSyncAgentPrivilege}}</td>
                 </tr>
               </table>
             </div>
@@ -277,7 +277,7 @@
               </thead>
               <tr>
                 <td>修改RDP默认端口，不可为3389</td>
-                <td>rdpPort</td>
+                <td>{{scanRes.rdpPort}}</td>
               </tr>
             </table>
           </div>
@@ -303,7 +303,7 @@
               </thead>
               <tr>
                 <td>禁止自动播放</td>
-                <td>autoRunRes</td>
+                <td>{{scanRes.autoRunRes}}</td>
               </tr>
             </table>
           </div>

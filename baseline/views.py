@@ -4,20 +4,23 @@ import json
 import time
 from CMDB import settings 
 from baseline import models
+import base64
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 # Create your views here.
 def check_res_display(request):
-    osVersion=request.GET['osVersion']
-    scanResAll = models.AllScanResRecord.objects.all()
-    return render(request,'baseline/check_res_display.html',locals())
+    osVersion=str(base64.urlsafe_b64decode(bytes(request.GET['osVersion'],encoding="utf-8")),encoding="utf-8")
+    scanTime=str(base64.urlsafe_b64decode(bytes(request.GET['scanTime'],encoding="utf-8")),encoding="utf-8")
+    macaddr=str(base64.urlsafe_b64decode(bytes(request.GET['macaddr'],encoding="utf-8")),encoding="utf-8")
+    scanType=str(base64.urlsafe_b64decode(bytes(request.GET['scanType'],encoding="utf-8")),encoding="utf-8")
+    if scanType == "OS":
+        if "Window" in osVersion:
+            scanRes = models.WindowsScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)[0]
+            return render(request,'baseline/check_res_display.html',locals())
+        else:
+            scanRes = models.LinuxScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)
+            return render(request,'baseline/check_res_display.html',locals())
 def scan_res_display(request):
-    #scanResAll = models.LinuxScanRes.objects.all()
     scanResAll = models.AllScanResRecord.objects.all()
-    #scanResList = []
-    #for scanRes in scanResAll:
-
-    #    pass
-
     return render(request,'baseline/scan_res_display.html',locals())
 
 
