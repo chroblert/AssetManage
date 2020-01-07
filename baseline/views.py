@@ -7,6 +7,7 @@ from baseline import models
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 # Create your views here.
 def check_res_display(request):
+    osVersion=request.GET['osVersion']
     scanResAll = models.AllScanResRecord.objects.all()
     return render(request,'baseline/check_res_display.html',locals())
 def scan_res_display(request):
