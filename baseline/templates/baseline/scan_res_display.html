@@ -1,10 +1,23 @@
 {% extends 'base.html'%}
 {% load static%}
 
-{% block title %}上传文件数据{% endblock %}
+{% block title %}基线检查记录{% endblock %}
 {% block css %}
      <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
 {% endblock %}
+{% block breadcrumb %}
+<!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>
+        基线扫描结果
+        <small>dashboard</small>
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> 主页</a></li>
+        <li class="active">基线扫描结果</li>
+      </ol>
+    </section>
+{% endblock%}
 {% block content %}
    <!-- Main content -->
    <section class="content">
@@ -23,10 +36,12 @@
                    <tr>
                        <th>序号</th>
                        <th>扫描时间</th>
+                       <th>扫描类型</th>
                        <th>操作系统</th>
                        <th>服务器名称</th>
                        <th>IP信息</th>
                        <th>MAC地址</th>
+                       <th>Result</th>
                    </tr>
                </thead>
                <tbody>
@@ -36,6 +51,7 @@
                        <td>{{ forloop.counter }}</td>
                        <!-- 扫描时间-->
                        <td>{{ scanRes.scanTime }}</td>
+                       <td>{{ scanRes.scanType}}</td>
                        <!-- 操作系统-->
                        <td>{{ scanRes.osVersion }}</td>
                        <!-- 服务器名称-->
@@ -44,6 +60,7 @@
                        <td>{{ scanRes.ipList }}</td>
                        <!-- MAC地址-->
                        <td>{{ scanRes.macaddr }}</td>
+                       <td><a href="{% url 'baseline:check_res_display' %}">Click Me</a></td>
                     </tr>
                     {% empty %}
                     <tr>没有数据</tr>
@@ -53,10 +70,12 @@
                    <tr>
                        <th>序号</th>
                        <th>扫描时间</th>
+                       <th>扫描类型</th>
                        <th>操作系统</th>
                        <th>服务器名称</th>
                        <th>IP信息</th>
                        <th>MAC地址</th>
+                       <th>Result</th>
                    </tr>
                </tfoot>
            </table>

@@ -6,8 +6,12 @@ from CMDB import settings
 from baseline import models
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 # Create your views here.
+def check_res_display(request):
+    scanResAll = models.AllScanResRecord.objects.all()
+    return render(request,'baseline/check_res_display.html',locals())
 def scan_res_display(request):
-    scanResAll = models.LinuxScanRes.objects.all()
+    #scanResAll = models.LinuxScanRes.objects.all()
+    scanResAll = models.AllScanResRecord.objects.all()
     #scanResList = []
     #for scanRes in scanResAll:
 
@@ -15,6 +19,75 @@ def scan_res_display(request):
 
     return render(request,'baseline/scan_res_display.html',locals())
 
+
+@csrf_exempt
+def windows_scan_res_report(request):
+    if request.method == "POST":
+        bodyData=request.body
+        windowsScanResDict=json.loads(bodyData)
+        basic_info=windowsScanResDict['basic_info']
+        scanTime=basic_info['scanTime']
+        osVersion=basic_info['osVersion']
+        hostname=basic_info['hostname']
+        macaddr=basic_info['macaddr']
+        ipList=basic_info['ipList']
+        account_check_res=windowsScanResDict['account_check_res']
+        password_check_info=account_check_res['password_check_info']
+        passwordHistorySize=password_check_info['passwordHistorySize']
+        maximumPasswordAge=password_check_info['maximumPasswordAge']
+        minimumPasswordAge=password_check_info['minimumPasswordAge']
+        passwordComplexity=password_check_info['passwordComplexity']
+        clearTextPassword=password_check_info['clearTextPassword']
+        minimumPasswordLength=password_check_info['minimumPasswordLength']
+        account_lockout_info=account_check_res['account_lockout_info']
+        lockoutDuration=account_lockout_info['lockoutDuration']
+        lockoutBadCount=account_lockout_info['lockoutBadCount']
+        resetLockoutCount=account_lockout_info['resetLockoutCount']
+        audit_check_res=windowsScanResDict['audit_check_res']
+        auditPolicyChange=audit_check_res['auditPolicyChange']
+        auditLogonEvents=audit_check_res['auditLogonEvents']
+        auditObjectAccess=audit_check_res['auditObjectAccess']
+        auditProcessTracking=audit_check_res['auditProcessTracking']
+        auditDSAccess=audit_check_res['auditDSAccess']
+        auditSystemEvents=audit_check_res['auditSystemEvents']
+        auditAccountLogon=audit_check_res['auditAccountLogon']
+        auditAccountManage=audit_check_res['auditAccountManage']
+        userright_check_res=windowsScanResDict['userright_check_res']
+        seTrustedCredManAccessPrivilegeIFNone=userright_check_res['seTrustedCredManAccessPrivilegeIFNone']
+        seTcbPrivilegeIFNone=userright_check_res['seTcbPrivilegeIFNone']
+        seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=userright_check_res['seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray']
+        seCreateGlobalPrivilegeIFNone=userright_check_res['seCreateGlobalPrivilegeIFNone']
+        seDenyBatchLogonRightIFContainGuests=userright_check_res['seDenyBatchLogonRightIFContainGuests']
+        seDenyServiceLogonRightIFContainGuests=userright_check_res['seDenyServiceLogonRightIFContainGuests']
+        seDenyInteractiveLogonRightIFContainGuests=userright_check_res['seDenyInteractiveLogonRightIFContainGuests']
+        seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=userright_check_res['seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray']
+        seRelabelPrivilegeIFNone=userright_check_res['seRelabelPrivilegeIFNone']
+        seSyncAgentPrivilegeIFNone=userright_check_res['seSyncAgentPrivilegeIFNone']
+        secureoption_check_res=windowsScanResDict['secureoption_check_res']
+        enableGuestAccount=secureoption_check_res['enableGuestAccount']
+        limitBlankPasswordUse=secureoption_check_res['limitBlankPasswordUse']
+        newAdministratorName=secureoption_check_res['newAdministratorName']
+        newGuestName=secureoption_check_res['newGuestName']
+        dontDisplayLastUserName=secureoption_check_res['dontDisplayLastUserName']
+        disableCAD=secureoption_check_res['disableCAD']
+        inactivityTimeoutSecs=secureoption_check_res['inactivityTimeoutSecs']
+        enablePlainTextPassword=secureoption_check_res['enablePlainTextPassword']
+        autoDisconnect=secureoption_check_res['autoDisconnect']
+        noLMHash=secureoption_check_res['noLMHash']
+        lsaAnonymousNameLookup=secureoption_check_res['lsaAnonymousNameLookup']
+        restrictAnonymousSAM=secureoption_check_res['restrictAnonymousSAM']
+        restrictAnonymous=secureoption_check_res['restrictAnonymous']
+        clearPageFileAtShutdown=secureoption_check_res['clearPageFileAtShutdown']
+        portsecure_check_res=windowsScanResDict['portsecure_check_res']
+        rdpPort=portsecure_check_res['rdpPort']
+        systemsecure_check_res=windowsScanResDict['systemsecure_check_res']
+        autoRunRes=systemsecure_check_res['autoRunRes']
+        models.WindowsScanResMeta.objects.get_or_create(scanTime=scanTime,macaddr=macaddr,windowsScanResMetaData=bodyData)
+        models.WindowsScanRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,passwordHistorySize=passwordHistorySize,maximumPasswordAge=maximumPasswordAge,minimumPasswordAge=minimumPasswordAge,passwordComplexity=passwordComplexity,clearTextPassword=clearTextPassword,minimumPasswordLength=minimumPasswordLength,lockoutDuration=lockoutDuration,lockoutBadCount=lockoutBadCount,resetLockoutCount=resetLockoutCount,auditPolicyChange=auditPolicyChange,auditLogonEvents=auditLogonEvents,auditObjectAccess=auditObjectAccess,auditProcessTracking=auditProcessTracking,auditDSAccess=auditDSAccess,auditSystemEvents=auditSystemEvents,auditAccountLogon=auditAccountLogon,auditAccountManage=auditAccountManage,seTrustedCredManAccessPrivilegeIFNone=seTrustedCredManAccessPrivilegeIFNone,seTcbPrivilegeIFNone=seTcbPrivilegeIFNone,seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray,seCreateGlobalPrivilegeIFNone=seCreateGlobalPrivilegeIFNone,seDenyBatchLogonRightIFContainGuests=seDenyBatchLogonRightIFContainGuests,seDenyServiceLogonRightIFContainGuests=seDenyServiceLogonRightIFContainGuests,seDenyInteractiveLogonRightIFContainGuests=seDenyInteractiveLogonRightIFContainGuests,seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray,seRelabelPrivilegeIFNone=seRelabelPrivilegeIFNone,seSyncAgentPrivilegeIFNone=seSyncAgentPrivilegeIFNone,enableGuestAccount=enableGuestAccount,limitBlankPasswordUse=limitBlankPasswordUse,newAdministratorName=newAdministratorName,newGuestName=newGuestName,dontDisplayLastUserName=dontDisplayLastUserName,disableCAD=disableCAD,inactivityTimeoutSecs=inactivityTimeoutSecs,enablePlainTextPassword=enablePlainTextPassword,autoDisconnect=autoDisconnect,noLMHash=noLMHash,lsaAnonymousNameLookup=lsaAnonymousNameLookup,restrictAnonymousSAM=restrictAnonymousSAM,restrictAnonymous=restrictAnonymous,clearPageFileAtShutdown=clearPageFileAtShutdown,rdpPort=rdpPort,autoRunRes=autoRunRes)
+        models.AllScanResRecord.objects.get_or_create(scanTime=scanTime,scanType="OS",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList)
+        return HttpResponse("success")
+    else:
+        return HttpResponse("0oops,something is wrong")
 
 @csrf_exempt
 def linux_scan_res_report(request):
@@ -154,6 +227,7 @@ def linux_scan_res_report(request):
         # 向LinuxScanResMeta表中插入数据
         models.LinuxScanResMeta.objects.get_or_create(scanTime=scanTime,macaddr=macaddr,linuxScanResMetaData=bodyData)
         models.LinuxScanRes.objects.get_or_create(scanTime=scanTime,hostname=hostname,macaddr=macaddr,ipList=ipList,kernelVersion=kernelVersion,osVersion=osVersion,tmpIfSeparate=tmpIfSeparate,tmpIfNoexec=tmpIfNoexec,tmpIfNosuid=tmpIfNosuid,grubcfgIfExist=grubcfgIfExist,grubcfgPermission=grubcfgPermission,grubcfgIfSetPasswd=grubcfgIfSetPasswd,singleUserModeIfNeedAuth=singleUserModeIfNeedAuth,selinuxStateIfEnforcing=selinuxStateIfEnforcing,selinuxPolicyIfConfigured=selinuxPolicyIfConfigured,timeSyncServerIfConfigured=timeSyncServerIfConfigured,x11windowIfNotInstalled=x11windowIfNotInstalled,hostsAllowFileIfExist=hostsAllowFileIfExist,hostsAllowFilePermission=hostsAllowFilePermission,hostsAllowFileIfConfigured=hostsAllowFileIfConfigured,hostsDenyFileIfExist=hostsDenyFileIfExist,hostsDenyFilePermission=hostsDenyFilePermission,hostsDenyFileIfConfigured=hostsDenyFileIfConfigured,iptablesIfInstalled=iptablesIfInstalled,iptablesInputPolicyIfDrop=iptablesInputPolicyIfDrop,iptablesOutputPolicyIfDrop=iptablesOutputPolicyIfDrop,auditdIfEnabled=auditdIfEnabled,auditdconfIfExist=auditdconfIfExist,auditdIfSetMaxLogFile=auditdIfSetMaxLogFile,auditdIfSetMaxLogFileAction=auditdIfSetMaxLogFileAction,auditdIfSetSpaceLeftAction=auditdIfSetSpaceLeftAction,auditdIfSetNumLogs=auditdIfSetNumLogs,auditdRulesIfExist=auditdRulesIfExist,auditdRulesIfNotNull=auditdRulesIfNotNull,auditdIfCheckTimechange=auditdIfCheckTimechange,auditdRulesCheckedUserandgroupfile=auditdRulesCheckedUserandgroupfile,auditdRulesNotCheckedUserandgroupfile=auditdRulesNotCheckedUserandgroupfile,auditdRulesCheckedNetworkenv=auditdRulesCheckedNetworkenv,auditdRulesNotCheckedNetworkenv=auditdRulesNotCheckedNetworkenv,auditdRulesCheckedMACchange=auditdRulesCheckedMACchange,auditdRulesNotCheckedMACchange=auditdRulesNotCheckedMACchange,auditdRulesCheckedLoginoutEvents=auditdRulesCheckedLoginoutEvents,auditdRulesNotCheckedLoginoutEvents=auditdRulesNotCheckedLoginoutEvents,auditdRulesCheckedDACChangeSyscall=auditdRulesCheckedDACChangeSyscall,auditdRulesNotCheckedDACChangeSyscall=auditdRulesNotCheckedDACChangeSyscall,auditdRulesCheckedFileAccessAttemptSyscall=auditdRulesCheckedFileAccessAttemptSyscall,auditdRulesNotCheckedFileAccessAttemptSyscall=auditdRulesNotCheckedFileAccessAttemptSyscall,auditdRulesCheckedPrivilegedCommand=auditdRulesCheckedPrivilegedCommand,auditdRulesNotCheckedPrivilegedCommand=auditdRulesNotCheckedPrivilegedCommand,auditdRulesCheckedSudoerFile=auditdRulesCheckedSudoerFile,auditdRulesNotCheckedSudoerFile=auditdRulesNotCheckedSudoerFile,auditdRulesIfImmutable=auditdRulesIfImmutable,rsyslogIfEnabled=rsyslogIfEnabled,crondIfEnabled=crondIfEnabled,crondConfigFilenameArray=crondConfigFilenameArray,crondConfigFilePermissionArray=crondConfigFilePermissionArray,crondallowdenyFilenameArray=crondallowdenyFilenameArray,crondallowdenyFileIfExistArray=crondallowdenyFileIfExistArray,crondallowdenyFilePermissionArray=crondallowdenyFilePermissionArray,crondallowdenyFileOwnerArray=crondallowdenyFileOwnerArray,sshdIfEnabled=sshdIfEnabled,sshdConfigFilePermission=sshdConfigFilePermission,sshdIfDisableX11forwarding=sshdIfDisableX11forwarding,sshdIfSetMaxAuthTries=sshdIfSetMaxAuthTries,sshdIfEnableIgnoreRhosts=sshdIfEnableIgnoreRhosts,sshdIfDisableHostbasedAuthentication=sshdIfDisableHostbasedAuthentication,sshdIfDisablePermitRootLogin=sshdIfDisablePermitRootLogin,sshdIfDisablePermitEmptyPasswords=sshdIfDisablePermitEmptyPasswords,sshdIfDisablePermitUserEnvironment=sshdIfDisablePermitUserEnvironment,sshdIfSpecificMACs=sshdIfSpecificMACs,sshdIfSetClientAliveInterval=sshdIfSetClientAliveInterval,sshdIfSetLoginGraceTime=sshdIfSetLoginGraceTime,pamPwqualityconfIfExist=pamPwqualityconfIfExist,pamIfSetMinlen=pamIfSetMinlen,pamIfSetMinclass=pamIfSetMinclass,sshdSetedLockAndUnlockTimeFiles=sshdSetedLockAndUnlockTimeFiles,sshdNotSetedLockAndUnlockTimeFiles=sshdNotSetedLockAndUnlockTimeFiles,sshdPamdFileArray=sshdPamdFileArray,sshdPamdFileReuseLimitArray=sshdPamdFileReuseLimitArray,sshdPamdFileIfSetSha512Array=sshdPamdFileIfSetSha512Array,accountPassMaxDays=accountPassMaxDays,accountPassMinDays=accountPassMinDays,accountPassWarnDays=accountPassWarnDays,accountPassAutolockInactiveDays=accountPassAutolockInactiveDays,accountShouldUnloginArray=accountShouldUnloginArray,accountGIDOfRoot=accountGIDOfRoot,accountProfileFileArray=accountProfileFileArray,accountProfileTMOUTArray=accountProfileTMOUTArray,accountIfSetUsersCanAccessSuCommand=accountIfSetUsersCanAccessSuCommand,importantFilenameArray=importantFilenameArray,importantFilePermissionArray=importantFilePermissionArray,importantFileUidgidArray=importantFileUidgidArray,userIfSetPasswdOrArray=userIfSetPasswdOrArray,uid0OnlyRootOrArray=uid0OnlyRootOrArray,pathDirIfNotHasDot=pathDirIfNotHasDot,pathDirPermissionHasGWArray=pathDirPermissionHasGWArray,pathDirPermissionHasOWArray=pathDirPermissionHasOWArray,pathDirOwnerIsNotRootArray=pathDirOwnerIsNotRootArray,pathDirDoesNotExistOrNotDirArray=pathDirDoesNotExistOrNotDirArray,userArray=userArray,userHomeDirIfExistArray=userHomeDirIfExistArray,userHomeDirPermissionArray=userHomeDirPermissionArray,userIfOwnTheirHomeDirArray=userIfOwnTheirHomeDirArray,userHomeDirIfHasGWorOWDotFileArray=userHomeDirIfHasGWorOWDotFileArray,userHomeDirIfHasOtherFileArray=userHomeDirIfHasOtherFileArray,groupNotExistInetcgroup=groupNotExistInetcgroup,usersIfHasUniqueUIDArray=usersIfHasUniqueUIDArray,groupsIfHasUniqueGIDArray=groupsIfHasUniqueGIDArray)
+        models.AllScanResRecord.objects.get_or_create(scanTime=scanTime,scanType="OS",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList)
         return HttpResponse("Success.")
         #return render(request,'baseline/show.html',locals())
     else:

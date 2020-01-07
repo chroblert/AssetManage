@@ -1,6 +1,103 @@
 from django.db import models
 
+
 # Create your models here.
+class AllScanResRecord(models.Model):
+    scanTime=models.DateTimeField(verbose_name="scanTime")
+    scanType=models.CharField(max_length=50,verbose_name="scanTime")
+    hostname=models.CharField(max_length=100,verbose_name="hostname")
+    osVersion=models.CharField(max_length=100,verbose_name="osVersion")
+    ipList=models.CharField(max_length=100,verbose_name="ipList")
+    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    def __str__(self):
+        return '%s %s' %(self.scanTime,self.macaddr)
+    class Meta:
+        verbose_name="所有安全基线的扫描记录"
+        verbose_name_plural="所有安全基线的扫描记录"
+class WindowsScanResMeta(models.Model):
+    # 时间
+    scanTime=models.DateTimeField(verbose_name="scanTime")
+    # macaddr
+    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    # 扫描结果
+    windowsScanResMetaData=models.CharField(max_length=100000,verbose_name="windowsScanResMeta")
+    def __str__(self):
+        return '%s %s'%(self.scanTime,self.macaddr)
+    class Meta:
+        verbose_name="windows安全基线扫描结果元数据"
+        verbose_name_plural="Windows安全基线扫描结果元数据"
+
+class WindowsScanRes(models.Model):
+    # basic_info
+    scanTime=models.DateTimeField(verbose_name="scanTime")
+    hostname=models.CharField(max_length=100,verbose_name="hostname")
+    osVersion=models.CharField(max_length=100,verbose_name="osVersion")
+    ipList=models.CharField(max_length=100,verbose_name="ipList")
+    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+
+    # account_check_res
+    ## password_check_info
+    passwordHistorySize=models.IntegerField(verbose_name="passwordHistorySize")
+    maximumPasswordAge=models.IntegerField(verbose_name="maximumPasswordAge")
+    minimumPasswordAge=models.IntegerField(verbose_name="minimumPasswordAge")
+    passwordComplexity=models.IntegerField(verbose_name="passwordComplexity")
+    clearTextPassword=models.IntegerField(verbose_name="clearTextPassword")
+    minimumPasswordLength=models.IntegerField(verbose_name="minimumPasswordLength")
+    ## account_lockout_info
+    lockoutDuration=models.IntegerField(verbose_name="lockoutDuration")
+    lockoutBadCount=models.IntegerField(verbose_name="lockoutBadCount")
+    resetLockoutCount=models.IntegerField(verbose_name="resetLockoutCount")
+
+    # audit_check_res
+    auditPolicyChange=models.IntegerField(verbose_name="auditPolicyChange")
+    auditLogonEvents=models.IntegerField(verbose_name="auditLogonEvents")
+    auditObjectAccess=models.IntegerField(verbose_name="auditObjectAccess")
+    auditProcessTracking=models.IntegerField(verbose_name="auditProcessTracking")
+    auditDSAccess=models.IntegerField(verbose_name="auditDSAccess")
+    auditSystemEvents=models.IntegerField(verbose_name="auditSystemEvents")
+    auditAccountLogon=models.IntegerField(verbose_name="auditAccontLogon")
+    auditAccountManage=models.IntegerField(verbose_name="auditAccountManage")
+
+    # userright_check_res
+    seTrustedCredManAccessPrivilegeIFNone=models.CharField(max_length=100,verbose_name="seTrustedCredManAccessPrivilegeIFNone")
+    seTcbPrivilegeIFNone=models.CharField(max_length=100,verbose_name="seTcbPrivilegeIFNone")
+    seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=models.CharField(max_length=100,verbose_name="seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray")
+    seCreateGlobalPrivilegeIFNone=models.CharField(max_length=100,verbose_name="seCreateGlobalPrivilegeIFNone")
+    seDenyBatchLogonRightIFContainGuests=models.BooleanField(verbose_name="seDenyBatchLogonRightIFContainGuests")
+    seDenyServiceLogonRightIFContainGuests=models.BooleanField(verbose_name="seDenyServiceLogonRightIFContainGuests")
+    seDenyInteractiveLogonRightIFContainGuests=models.BooleanField(verbose_name="seDenyInteractiveLogonRightIFContainGuests")
+    seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=models.CharField(max_length=100,verbose_name="seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray")
+    seRelabelPrivilegeIFNone=models.CharField(max_length=100,verbose_name="seRelabelPrivilegeIFNone")
+    seSyncAgentPrivilegeIFNone=models.CharField(max_length=100,verbose_name="seSyncAgentPrivilegeIFNone")
+
+    # secureoption_check_res
+    enableGuestAccount=models.BooleanField(verbose_name="enableGuestAccount")
+    limitBlankPasswordUse=models.BooleanField(verbose_name="limitBlankPasswordUse")
+    newAdministratorName=models.BooleanField(verbose_name="newAdministratorName")
+    newGuestName=models.BooleanField(verbose_name="newGuestName")
+    dontDisplayLastUserName=models.BooleanField(verbose_name="dontDisplayLastUserName")
+    disableCAD=models.BooleanField(verbose_name="disableCAD")
+    inactivityTimeoutSecs=models.CharField(max_length=100,verbose_name="inactivityTimeoutSecs")
+    enablePlainTextPassword=models.BooleanField(verbose_name="enablePlainTextPassword")
+    autoDisconnect=models.CharField(max_length=100,verbose_name="autoDisconnect")
+    noLMHash=models.BooleanField(verbose_name="noLMHash")
+    lsaAnonymousNameLookup=models.BooleanField(verbose_name="lsaAnonymousNameLookup")
+    restrictAnonymousSAM=models.BooleanField(verbose_name="restrictAnonymousSAM")
+    restrictAnonymous=models.BooleanField(verbose_name="restrictAnonymous")
+    clearPageFileAtShutdown=models.BooleanField(verbose_name="clearPageFileAtShutdown")
+
+    # portsecure_check_res
+    rdpPort=models.CharField(max_length=10,verbose_name="rdpPort")
+
+    # systemsecure_check_res
+    autoRunRes=models.CharField(max_length=10,verbose_name="autoRunRes")
+
+    def __str__(self):
+        return '%s %s'%(self.scanTime,self.macaddr)
+    class Meta:
+        verbose_name="windows安全基线扫描结果元数据"
+        verbose_name_plural="Windows安全基线扫描结果元数据"
+
 class LinuxScanResMeta(models.Model):
     # 时间
     scanTime=models.DateTimeField(verbose_name="scanTime")
