@@ -11,3 +11,6 @@ db.sqlite3
 baseline/migrations/0009_windowsscanres_windowsscanresmeta.py
 baseline/migrations/0010_auto_20200106_1316.py
 db.sqlite3
+baseline/migrations/0011_windowscheckres.py
+baseline/migrations/0012_auto_20200107_1555.py
+baseline/migrations/0013_auto_20200107_1657.py

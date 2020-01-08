@@ -11,5 +11,15 @@ def base64_jc(value,arg):
         return base64.urlsafe_b64decode(value).decode("utf-8")
     return "请输入正确参数"
 
-
+def checkResDisplay(value):
+    if value == "True":
+        return "通过"
+    else:
+        return "未通过"
+def setclass(value):
+    if value != "True":
+        classstr='class=jc-red-badge'
+        return classstr
 register.filter('base64',base64_jc)
+register.filter('checkres',checkResDisplay)
+register.filter('setclass',setclass)

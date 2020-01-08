@@ -15,14 +15,24 @@ def check_res_display(request):
     if scanType == "OS":
         if "Window" in osVersion:
             scanRes = models.WindowsScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)[0]
+            checkRes = models.WindowsCheckRes.objects.filter(scanTime=scanTime,macaddr=macaddr)[0]
+            checkNum=len(checkRes.__dict__.keys()) - 6
+            # checkNum=checkRes.__dict__['_state']
+            passNum=0
+            for i in checkRes.__dict__.keys():
+                if checkRes.__dict__[i] == "True":
+                    passNum = passNum + 1
+            failNum=checkNum - passNum - 1
+            checkScore=str(int(passNum/checkNum*100))
             return render(request,'baseline/check_res_display.html',locals())
         else:
-            scanRes = models.LinuxScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)
+            scanRes = models.LinuxScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)[0]
             return render(request,'baseline/check_res_display.html',locals())
 def scan_res_display(request):
     scanResAll = models.AllScanResRecord.objects.all()
     return render(request,'baseline/scan_res_display.html',locals())
-
+def windows_baseline_check(request):
+    pass
 
 @csrf_exempt
 def windows_scan_res_report(request):
@@ -38,56 +48,229 @@ def windows_scan_res_report(request):
         account_check_res=windowsScanResDict['account_check_res']
         password_check_info=account_check_res['password_check_info']
         passwordHistorySize=password_check_info['passwordHistorySize']
+        if int(passwordHistorySize) >= 5:
+            ck_passwordHistorySize="True"
+        else:
+            ck_passwordHistorySize="False"
         maximumPasswordAge=password_check_info['maximumPasswordAge']
+        if int(maximumPasswordAge) <= 90:
+            ck_maximumPasswordAge="True"
+        else:
+            ck_maximumPasswordAge="False"
         minimumPasswordAge=password_check_info['minimumPasswordAge']
+        if int(minimumPasswordAge) >= 1:
+            ck_minimumPasswordAge="True"
+        else:
+            ck_minimumPasswordAge="False"
         passwordComplexity=password_check_info['passwordComplexity']
+        if int(passwordComplexity) == 1:
+            ck_passwordComplexity="True"
+        else:
+            ck_passwordComplexity="False"
         clearTextPassword=password_check_info['clearTextPassword']
+        if int(clearTextPassword) == 1:
+            ck_clearTextPassword="True"
+        else:
+            ck_clearTextPassword="False"
         minimumPasswordLength=password_check_info['minimumPasswordLength']
+        if int(minimumPasswordLength) >= 8:
+            ck_minimumPasswordLength="True"
+        else:
+            ck_minimumPasswordLength="False"
         account_lockout_info=account_check_res['account_lockout_info']
         lockoutDuration=account_lockout_info['lockoutDuration']
+        if int(lockoutDuration) >= 15:
+            ck_lockoutDuration="True"
+        else:
+            ck_lockoutDuration="False"
         lockoutBadCount=account_lockout_info['lockoutBadCount']
+        if int(lockoutBadCount) <= 5:
+            ck_lockoutBadCount="True"
+        else:
+            ck_lockoutBadCount="False"
         resetLockoutCount=account_lockout_info['resetLockoutCount']
+        if int(resetLockoutCount) >=15 and int(resetLockoutCount) <= int(lockoutDuration):
+            ck_resetLockoutCount="True"
+        else:
+            ck_resetLockoutCount="False"
         audit_check_res=windowsScanResDict['audit_check_res']
         auditPolicyChange=audit_check_res['auditPolicyChange']
+        if int(auditPolicyChange) >= 1:
+            ck_auditPolicyChange="True"
+        else:
+            ck_auditPolicyChange="False"
         auditLogonEvents=audit_check_res['auditLogonEvents']
+        if int(auditLogonEvents) == 3:
+            ck_auditLogonEvents="True"
+        else:
+            ck_auditLogonEvents="False"
         auditObjectAccess=audit_check_res['auditObjectAccess']
+        if int(auditObjectAccess) >= 1:
+            ck_auditObjectAccess="True"
+        else:
+            ck_auditObjectAccess="False"
         auditProcessTracking=audit_check_res['auditProcessTracking']
+        if int(auditProcessTracking) == 3:
+            ck_auditProcessTracking="True"
+        else:
+            ck_auditProcessTracking="False"
         auditDSAccess=audit_check_res['auditDSAccess']
+        if int(auditDSAccess) == 3:
+            ck_auditDSAccess="True"
+        else:
+            ck_auditDSAccess="False"
         auditSystemEvents=audit_check_res['auditSystemEvents']
+        if int(auditSystemEvents) == 3:
+            ck_auditSystemEvents="True"
+        else:
+            ck_auditSystemEvents="False"
         auditAccountLogon=audit_check_res['auditAccountLogon']
+        if int(auditAccountLogon) == 3:
+            ck_auditAccountLogon="True"
+        else:
+            ck_auditAccountLogon="False"
         auditAccountManage=audit_check_res['auditAccountManage']
+        if int(auditAccountManage) == 3:
+            ck_auditAccountManage="True"
+        else:
+            ck_auditAccountManage="False"
         userright_check_res=windowsScanResDict['userright_check_res']
         seTrustedCredManAccessPrivilegeIFNone=userright_check_res['seTrustedCredManAccessPrivilegeIFNone']
+        if seTrustedCredManAccessPrivilegeIFNone == "True":
+            ck_seTrustedCredManAccessPrivilegeIFNone="True"
+        else:
+            ck_seTrustedCredManAccessPrivilegeIFNone="False"
         seTcbPrivilegeIFNone=userright_check_res['seTcbPrivilegeIFNone']
+        if seTcbPrivilegeIFNone == "True":
+            ck_seTcbPrivilegeIFNone="True"
+        else:
+            ck_seTcbPrivilegeIFNone="False"
         seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=userright_check_res['seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray']
+        if seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray == "True":
+            ck_seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray="True"
+        else:
+            ck_seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray="False"
         seCreateGlobalPrivilegeIFNone=userright_check_res['seCreateGlobalPrivilegeIFNone']
+        if seCreateGlobalPrivilegeIFNone == "True":
+            ck_seCreateGlobalPrivilegeIFNone="True"
+        else:
+            ck_seCreateGlobalPrivilegeIFNone="False"
         seDenyBatchLogonRightIFContainGuests=userright_check_res['seDenyBatchLogonRightIFContainGuests']
+        if seDenyBatchLogonRightIFContainGuests == "True":
+            ck_seDenyBatchLogonRightIFContainGuests="True"
+        else:
+            ck_seDenyBatchLogonRightIFContainGuests="False"
         seDenyServiceLogonRightIFContainGuests=userright_check_res['seDenyServiceLogonRightIFContainGuests']
+        if seDenyServiceLogonRightIFContainGuests == "True":
+            ck_seDenyServiceLogonRightIFContainGuests="True"
+        else:
+            ck_seDenyServiceLogonRightIFContainGuests="False"
         seDenyInteractiveLogonRightIFContainGuests=userright_check_res['seDenyInteractiveLogonRightIFContainGuests']
+        if seDenyInteractiveLogonRightIFContainGuests == "True":
+            ck_seDenyInteractiveLogonRightIFContainGuests="True"
+        else:
+            ck_seDenyInteractiveLogonRightIFContainGuests="False"
         seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=userright_check_res['seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray']
+        if seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray == "True":
+            ck_seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray="True"
+        else:
+            ck_seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray="False"
         seRelabelPrivilegeIFNone=userright_check_res['seRelabelPrivilegeIFNone']
+        if seRelabelPrivilegeIFNone == "True":
+            ck_seRelabelPrivilegeIFNone="True"
+        else:
+            ck_seRelabelPrivilegeIFNone="False"
         seSyncAgentPrivilegeIFNone=userright_check_res['seSyncAgentPrivilegeIFNone']
+        if seSyncAgentPrivilegeIFNone == "True":
+            ck_seSyncAgentPrivilegeIFNone="True"
+        else:
+            ck_seSyncAgentPrivilegeIFNone="False"
         secureoption_check_res=windowsScanResDict['secureoption_check_res']
         enableGuestAccount=secureoption_check_res['enableGuestAccount']
+        if enableGuestAccount == "True":
+            ck_enableGuestAccount="True"
+        else:
+            ck_enableGuestAccount="False"
         limitBlankPasswordUse=secureoption_check_res['limitBlankPasswordUse']
+        if limitBlankPasswordUse == "True":
+            ck_limitBlankPasswordUse="True"
+        else:
+            ck_limitBlankPasswordUse="False"
         newAdministratorName=secureoption_check_res['newAdministratorName']
+        if newAdministratorName == "True":
+            ck_newAdministratorName="True"
+        else:
+            ck_newAdministratorName="False"
         newGuestName=secureoption_check_res['newGuestName']
+        if newGuestName == "True":
+            ck_newGuestName="True"
+        else:
+            ck_newGuestName="False"
         dontDisplayLastUserName=secureoption_check_res['dontDisplayLastUserName']
+        if dontDisplayLastUserName == "True":
+            ck_dontDisplayLastUserName="True"
+        else:
+            ck_dontDisplayLastUserName="False"
         disableCAD=secureoption_check_res['disableCAD']
+        if disableCAD == "True":
+            ck_disableCAD="True"
+        else:
+            ck_disableCAD="False"
         inactivityTimeoutSecs=secureoption_check_res['inactivityTimeoutSecs']
+        if inactivityTimeoutSecs != "False" and int(inactivityTimeoutSecs) <= 900:
+            ck_inactivityTimeoutSecs="True"
+        else:
+            ck_inactivityTimeoutSecs="False"
         enablePlainTextPassword=secureoption_check_res['enablePlainTextPassword']
+        if enablePlainTextPassword == "True":
+            ck_enablePlainTextPassword="True"
+        else:
+            ck_enablePlainTextPassword="False"
         autoDisconnect=secureoption_check_res['autoDisconnect']
+        if autoDisconnect != "False" and int(autoDisconnect) >= 15:
+            ck_autoDisconnect="True"
+        else:
+            ck_autoDisconnect="False"
         noLMHash=secureoption_check_res['noLMHash']
+        if noLMHash == "True":
+            ck_noLMHash="True"
+        else:
+            ck_noLMHash="False"
         lsaAnonymousNameLookup=secureoption_check_res['lsaAnonymousNameLookup']
+        if lsaAnonymousNameLookup == "True":
+            ck_lsaAnonymousNameLookup="True"
+        else:
+            ck_lsaAnonymousNameLookup="False"
         restrictAnonymousSAM=secureoption_check_res['restrictAnonymousSAM']
+        if restrictAnonymousSAM == "True":
+            ck_restrictAnonymousSAM="True"
+        else:
+            ck_restrictAnonymousSAM="False"
         restrictAnonymous=secureoption_check_res['restrictAnonymous']
+        if restrictAnonymous == "True":
+            ck_restrictAnonymous="True"
+        else:
+            ck_restrictAnonymous="False"
         clearPageFileAtShutdown=secureoption_check_res['clearPageFileAtShutdown']
+        if clearPageFileAtShutdown == "True":
+            ck_clearPageFileAtShutdown="True"
+        else:
+            ck_clearPageFileAtShutdown="False"
         portsecure_check_res=windowsScanResDict['portsecure_check_res']
         rdpPort=portsecure_check_res['rdpPort']
+        if int(rdpPort) != 3389:
+            ck_rdpPort="True"
+        else:
+            ck_rdpPort="False"
         systemsecure_check_res=windowsScanResDict['systemsecure_check_res']
         autoRunRes=systemsecure_check_res['autoRunRes']
+        if int(autoRunRes) >= 233:
+            ck_autoRunRes="True"
+        else:
+            ck_autoRunRes="False"
         models.WindowsScanResMeta.objects.get_or_create(scanTime=scanTime,macaddr=macaddr,windowsScanResMetaData=bodyData)
         models.WindowsScanRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,passwordHistorySize=passwordHistorySize,maximumPasswordAge=maximumPasswordAge,minimumPasswordAge=minimumPasswordAge,passwordComplexity=passwordComplexity,clearTextPassword=clearTextPassword,minimumPasswordLength=minimumPasswordLength,lockoutDuration=lockoutDuration,lockoutBadCount=lockoutBadCount,resetLockoutCount=resetLockoutCount,auditPolicyChange=auditPolicyChange,auditLogonEvents=auditLogonEvents,auditObjectAccess=auditObjectAccess,auditProcessTracking=auditProcessTracking,auditDSAccess=auditDSAccess,auditSystemEvents=auditSystemEvents,auditAccountLogon=auditAccountLogon,auditAccountManage=auditAccountManage,seTrustedCredManAccessPrivilegeIFNone=seTrustedCredManAccessPrivilegeIFNone,seTcbPrivilegeIFNone=seTcbPrivilegeIFNone,seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray,seCreateGlobalPrivilegeIFNone=seCreateGlobalPrivilegeIFNone,seDenyBatchLogonRightIFContainGuests=seDenyBatchLogonRightIFContainGuests,seDenyServiceLogonRightIFContainGuests=seDenyServiceLogonRightIFContainGuests,seDenyInteractiveLogonRightIFContainGuests=seDenyInteractiveLogonRightIFContainGuests,seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray,seRelabelPrivilegeIFNone=seRelabelPrivilegeIFNone,seSyncAgentPrivilegeIFNone=seSyncAgentPrivilegeIFNone,enableGuestAccount=enableGuestAccount,limitBlankPasswordUse=limitBlankPasswordUse,newAdministratorName=newAdministratorName,newGuestName=newGuestName,dontDisplayLastUserName=dontDisplayLastUserName,disableCAD=disableCAD,inactivityTimeoutSecs=inactivityTimeoutSecs,enablePlainTextPassword=enablePlainTextPassword,autoDisconnect=autoDisconnect,noLMHash=noLMHash,lsaAnonymousNameLookup=lsaAnonymousNameLookup,restrictAnonymousSAM=restrictAnonymousSAM,restrictAnonymous=restrictAnonymous,clearPageFileAtShutdown=clearPageFileAtShutdown,rdpPort=rdpPort,autoRunRes=autoRunRes)
+        models.WindowsCheckRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,passwordHistorySize=ck_passwordHistorySize,maximumPasswordAge=ck_maximumPasswordAge,minimumPasswordAge=ck_minimumPasswordAge,passwordComplexity=ck_passwordComplexity,clearTextPassword=ck_clearTextPassword,minimumPasswordLength=ck_minimumPasswordLength,lockoutDuration=ck_lockoutDuration,lockoutBadCount=ck_lockoutBadCount,resetLockoutCount=ck_resetLockoutCount,auditPolicyChange=ck_auditPolicyChange,auditLogonEvents=ck_auditLogonEvents,auditObjectAccess=ck_auditObjectAccess,auditProcessTracking=ck_auditProcessTracking,auditDSAccess=ck_auditDSAccess,auditSystemEvents=ck_auditSystemEvents,auditAccountLogon=ck_auditAccountLogon,auditAccountManage=ck_auditAccountManage,seTrustedCredManAccessPrivilegeIFNone=ck_seTrustedCredManAccessPrivilegeIFNone,seTcbPrivilegeIFNone=ck_seTcbPrivilegeIFNone,seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=ck_seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray,seCreateGlobalPrivilegeIFNone=ck_seCreateGlobalPrivilegeIFNone,seDenyBatchLogonRightIFContainGuests=ck_seDenyBatchLogonRightIFContainGuests,seDenyServiceLogonRightIFContainGuests=ck_seDenyServiceLogonRightIFContainGuests,seDenyInteractiveLogonRightIFContainGuests=ck_seDenyInteractiveLogonRightIFContainGuests,seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=ck_seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray,seRelabelPrivilegeIFNone=ck_seRelabelPrivilegeIFNone,seSyncAgentPrivilegeIFNone=ck_seSyncAgentPrivilegeIFNone,enableGuestAccount=ck_enableGuestAccount,limitBlankPasswordUse=ck_limitBlankPasswordUse,newAdministratorName=ck_newAdministratorName,newGuestName=ck_newGuestName,dontDisplayLastUserName=ck_dontDisplayLastUserName,disableCAD=ck_disableCAD,inactivityTimeoutSecs=ck_inactivityTimeoutSecs,enablePlainTextPassword=ck_enablePlainTextPassword,autoDisconnect=ck_autoDisconnect,noLMHash=ck_noLMHash,lsaAnonymousNameLookup=ck_lsaAnonymousNameLookup,restrictAnonymousSAM=ck_restrictAnonymousSAM,restrictAnonymous=ck_restrictAnonymous,clearPageFileAtShutdown=ck_clearPageFileAtShutdown,rdpPort=ck_rdpPort,autoRunRes=ck_autoRunRes)
         models.AllScanResRecord.objects.get_or_create(scanTime=scanTime,scanType="OS",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList)
         return HttpResponse("success")
     else:
