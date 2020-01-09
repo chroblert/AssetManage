@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.db import transaction,DatabaseError
 import json
 import time
 from CMDB import settings 
@@ -24,10 +25,10 @@ def check_res_display(request):
                     passNum = passNum + 1
             failNum=checkNum - passNum - 1
             checkScore=str(int(passNum/checkNum*100))
-            return render(request,'baseline/check_res_display.html',locals())
+            return render(request,'baseline/windows_check_res_display.html',locals())
         else:
             scanRes = models.LinuxScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)[0]
-            return render(request,'baseline/check_res_display.html',locals())
+            return render(request,'baseline/linux_check_res_display.html',locals())
 def scan_res_display(request):
     scanResAll = models.AllScanResRecord.objects.all()
     return render(request,'baseline/scan_res_display.html',locals())
@@ -264,14 +265,20 @@ def windows_scan_res_report(request):
             ck_rdpPort="False"
         systemsecure_check_res=windowsScanResDict['systemsecure_check_res']
         autoRunRes=systemsecure_check_res['autoRunRes']
-        if int(autoRunRes) >= 233:
+        if autoRunRes != "False" and int(autoRunRes) >= 233:
             ck_autoRunRes="True"
         else:
             ck_autoRunRes="False"
-        models.WindowsScanResMeta.objects.get_or_create(scanTime=scanTime,macaddr=macaddr,windowsScanResMetaData=bodyData)
-        models.WindowsScanRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,passwordHistorySize=passwordHistorySize,maximumPasswordAge=maximumPasswordAge,minimumPasswordAge=minimumPasswordAge,passwordComplexity=passwordComplexity,clearTextPassword=clearTextPassword,minimumPasswordLength=minimumPasswordLength,lockoutDuration=lockoutDuration,lockoutBadCount=lockoutBadCount,resetLockoutCount=resetLockoutCount,auditPolicyChange=auditPolicyChange,auditLogonEvents=auditLogonEvents,auditObjectAccess=auditObjectAccess,auditProcessTracking=auditProcessTracking,auditDSAccess=auditDSAccess,auditSystemEvents=auditSystemEvents,auditAccountLogon=auditAccountLogon,auditAccountManage=auditAccountManage,seTrustedCredManAccessPrivilegeIFNone=seTrustedCredManAccessPrivilegeIFNone,seTcbPrivilegeIFNone=seTcbPrivilegeIFNone,seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray,seCreateGlobalPrivilegeIFNone=seCreateGlobalPrivilegeIFNone,seDenyBatchLogonRightIFContainGuests=seDenyBatchLogonRightIFContainGuests,seDenyServiceLogonRightIFContainGuests=seDenyServiceLogonRightIFContainGuests,seDenyInteractiveLogonRightIFContainGuests=seDenyInteractiveLogonRightIFContainGuests,seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray,seRelabelPrivilegeIFNone=seRelabelPrivilegeIFNone,seSyncAgentPrivilegeIFNone=seSyncAgentPrivilegeIFNone,enableGuestAccount=enableGuestAccount,limitBlankPasswordUse=limitBlankPasswordUse,newAdministratorName=newAdministratorName,newGuestName=newGuestName,dontDisplayLastUserName=dontDisplayLastUserName,disableCAD=disableCAD,inactivityTimeoutSecs=inactivityTimeoutSecs,enablePlainTextPassword=enablePlainTextPassword,autoDisconnect=autoDisconnect,noLMHash=noLMHash,lsaAnonymousNameLookup=lsaAnonymousNameLookup,restrictAnonymousSAM=restrictAnonymousSAM,restrictAnonymous=restrictAnonymous,clearPageFileAtShutdown=clearPageFileAtShutdown,rdpPort=rdpPort,autoRunRes=autoRunRes)
-        models.WindowsCheckRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,passwordHistorySize=ck_passwordHistorySize,maximumPasswordAge=ck_maximumPasswordAge,minimumPasswordAge=ck_minimumPasswordAge,passwordComplexity=ck_passwordComplexity,clearTextPassword=ck_clearTextPassword,minimumPasswordLength=ck_minimumPasswordLength,lockoutDuration=ck_lockoutDuration,lockoutBadCount=ck_lockoutBadCount,resetLockoutCount=ck_resetLockoutCount,auditPolicyChange=ck_auditPolicyChange,auditLogonEvents=ck_auditLogonEvents,auditObjectAccess=ck_auditObjectAccess,auditProcessTracking=ck_auditProcessTracking,auditDSAccess=ck_auditDSAccess,auditSystemEvents=ck_auditSystemEvents,auditAccountLogon=ck_auditAccountLogon,auditAccountManage=ck_auditAccountManage,seTrustedCredManAccessPrivilegeIFNone=ck_seTrustedCredManAccessPrivilegeIFNone,seTcbPrivilegeIFNone=ck_seTcbPrivilegeIFNone,seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=ck_seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray,seCreateGlobalPrivilegeIFNone=ck_seCreateGlobalPrivilegeIFNone,seDenyBatchLogonRightIFContainGuests=ck_seDenyBatchLogonRightIFContainGuests,seDenyServiceLogonRightIFContainGuests=ck_seDenyServiceLogonRightIFContainGuests,seDenyInteractiveLogonRightIFContainGuests=ck_seDenyInteractiveLogonRightIFContainGuests,seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=ck_seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray,seRelabelPrivilegeIFNone=ck_seRelabelPrivilegeIFNone,seSyncAgentPrivilegeIFNone=ck_seSyncAgentPrivilegeIFNone,enableGuestAccount=ck_enableGuestAccount,limitBlankPasswordUse=ck_limitBlankPasswordUse,newAdministratorName=ck_newAdministratorName,newGuestName=ck_newGuestName,dontDisplayLastUserName=ck_dontDisplayLastUserName,disableCAD=ck_disableCAD,inactivityTimeoutSecs=ck_inactivityTimeoutSecs,enablePlainTextPassword=ck_enablePlainTextPassword,autoDisconnect=ck_autoDisconnect,noLMHash=ck_noLMHash,lsaAnonymousNameLookup=ck_lsaAnonymousNameLookup,restrictAnonymousSAM=ck_restrictAnonymousSAM,restrictAnonymous=ck_restrictAnonymous,clearPageFileAtShutdown=ck_clearPageFileAtShutdown,rdpPort=ck_rdpPort,autoRunRes=ck_autoRunRes)
-        models.AllScanResRecord.objects.get_or_create(scanTime=scanTime,scanType="OS",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList)
+        try:
+            with transaction.atomic():
+                models.WindowsScanResMeta.objects.get_or_create(scanTime=scanTime,macaddr=macaddr,windowsScanResMetaData=bodyData)
+                models.WindowsScanRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,passwordHistorySize=passwordHistorySize,maximumPasswordAge=maximumPasswordAge,minimumPasswordAge=minimumPasswordAge,passwordComplexity=passwordComplexity,clearTextPassword=clearTextPassword,minimumPasswordLength=minimumPasswordLength,lockoutDuration=lockoutDuration,lockoutBadCount=lockoutBadCount,resetLockoutCount=resetLockoutCount,auditPolicyChange=auditPolicyChange,auditLogonEvents=auditLogonEvents,auditObjectAccess=auditObjectAccess,auditProcessTracking=auditProcessTracking,auditDSAccess=auditDSAccess,auditSystemEvents=auditSystemEvents,auditAccountLogon=auditAccountLogon,auditAccountManage=auditAccountManage,seTrustedCredManAccessPrivilegeIFNone=seTrustedCredManAccessPrivilegeIFNone,seTcbPrivilegeIFNone=seTcbPrivilegeIFNone,seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray,seCreateGlobalPrivilegeIFNone=seCreateGlobalPrivilegeIFNone,seDenyBatchLogonRightIFContainGuests=seDenyBatchLogonRightIFContainGuests,seDenyServiceLogonRightIFContainGuests=seDenyServiceLogonRightIFContainGuests,seDenyInteractiveLogonRightIFContainGuests=seDenyInteractiveLogonRightIFContainGuests,seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray,seRelabelPrivilegeIFNone=seRelabelPrivilegeIFNone,seSyncAgentPrivilegeIFNone=seSyncAgentPrivilegeIFNone,enableGuestAccount=enableGuestAccount,limitBlankPasswordUse=limitBlankPasswordUse,newAdministratorName=newAdministratorName,newGuestName=newGuestName,dontDisplayLastUserName=dontDisplayLastUserName,disableCAD=disableCAD,inactivityTimeoutSecs=inactivityTimeoutSecs,enablePlainTextPassword=enablePlainTextPassword,autoDisconnect=autoDisconnect,noLMHash=noLMHash,lsaAnonymousNameLookup=lsaAnonymousNameLookup,restrictAnonymousSAM=restrictAnonymousSAM,restrictAnonymous=restrictAnonymous,clearPageFileAtShutdown=clearPageFileAtShutdown,rdpPort=rdpPort,autoRunRes=autoRunRes)
+                models.WindowsCheckRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,passwordHistorySize=ck_passwordHistorySize,maximumPasswordAge=ck_maximumPasswordAge,minimumPasswordAge=ck_minimumPasswordAge,passwordComplexity=ck_passwordComplexity,clearTextPassword=ck_clearTextPassword,minimumPasswordLength=ck_minimumPasswordLength,lockoutDuration=ck_lockoutDuration,lockoutBadCount=ck_lockoutBadCount,resetLockoutCount=ck_resetLockoutCount,auditPolicyChange=ck_auditPolicyChange,auditLogonEvents=ck_auditLogonEvents,auditObjectAccess=ck_auditObjectAccess,auditProcessTracking=ck_auditProcessTracking,auditDSAccess=ck_auditDSAccess,auditSystemEvents=ck_auditSystemEvents,auditAccountLogon=ck_auditAccountLogon,auditAccountManage=ck_auditAccountManage,seTrustedCredManAccessPrivilegeIFNone=ck_seTrustedCredManAccessPrivilegeIFNone,seTcbPrivilegeIFNone=ck_seTcbPrivilegeIFNone,seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=ck_seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray,seCreateGlobalPrivilegeIFNone=ck_seCreateGlobalPrivilegeIFNone,seDenyBatchLogonRightIFContainGuests=ck_seDenyBatchLogonRightIFContainGuests,seDenyServiceLogonRightIFContainGuests=ck_seDenyServiceLogonRightIFContainGuests,seDenyInteractiveLogonRightIFContainGuests=ck_seDenyInteractiveLogonRightIFContainGuests,seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=ck_seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray,seRelabelPrivilegeIFNone=ck_seRelabelPrivilegeIFNone,seSyncAgentPrivilegeIFNone=ck_seSyncAgentPrivilegeIFNone,enableGuestAccount=ck_enableGuestAccount,limitBlankPasswordUse=ck_limitBlankPasswordUse,newAdministratorName=ck_newAdministratorName,newGuestName=ck_newGuestName,dontDisplayLastUserName=ck_dontDisplayLastUserName,disableCAD=ck_disableCAD,inactivityTimeoutSecs=ck_inactivityTimeoutSecs,enablePlainTextPassword=ck_enablePlainTextPassword,autoDisconnect=ck_autoDisconnect,noLMHash=ck_noLMHash,lsaAnonymousNameLookup=ck_lsaAnonymousNameLookup,restrictAnonymousSAM=ck_restrictAnonymousSAM,restrictAnonymous=ck_restrictAnonymous,clearPageFileAtShutdown=ck_clearPageFileAtShutdown,rdpPort=ck_rdpPort,autoRunRes=ck_autoRunRes)
+                models.AllScanResRecord.objects.get_or_create(scanTime=scanTime,scanType="OS",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList)
+                raise DatabaseError
+        except DatabaseError:
+            return HttpResponse("0oops,something is wrong")
+            pass
         return HttpResponse("success")
     else:
         return HttpResponse("0oops,something is wrong")
@@ -295,67 +302,118 @@ def linux_scan_res_report(request):
         init_check_res=linuxScanResDict['init_check_res']
         tmp_partition_info=init_check_res['tmp_partition_info']
         tmpIfSeparate=tmp_partition_info['tmpIfSeparate']
+        if tmpIfSeparate == "True":
+            ck_tmpIfSeparate = "True"
+        else:
+            ck_tmpIfSeparate="False"
         tmpIfNoexec=tmp_partition_info['tmpIfNoexec']
+        if tmpIfNoexec == "True":
+            ck_tmpIfNoexec="True"
+        else:
+            ck_tmpIfNoexec="False"
         tmpIfNosuid=tmp_partition_info['tmpIfNosuid']
+        ck_tmpIfNosuid="True" if tmpIfNosuid == "True" else "False"
         boot_secure_info=init_check_res['boot_secure_info']
         grubcfgIfExist=boot_secure_info['grubcfgIfExist']
         grubcfgPermission=boot_secure_info['grubcfgPermission']
+        ck_grubcfgPermissionLE600="True" if grubcfgIfExist == "True" and int(grubcfgPermission) <= 600 else "False"
         grubcfgIfSetPasswd=boot_secure_info['grubcfgIfSetPasswd']
+        ck_grubcfgIfSetPasswd="True" if grubcfgIfExist == "True" and grubcfgIfSetPasswd == "True" else "False"
         singleUserModeIfNeedAuth=boot_secure_info['singleUserModeIfNeedAuth']
+        ck_singleUserModeIfNeedAuth="True" if singleUserModeIfNeedAuth == "True" else "False"
         selinuxStateIfEnforcing=boot_secure_info['selinuxStateIfEnforcing']
+        ck_selinuxStateIfEnforcing="True" if selinuxStateIfEnforcing == "True" else "False"
         selinuxPolicyIfConfigured=boot_secure_info['selinuxPolicyIfConfigured']
+        ck_selinuxPolicyIfConfigured="True" if selinuxPolicyIfConfigured == "True" else "False"
         service_check_res=linuxScanResDict['service_check_res']
         timeSyncServerIfConfigured=service_check_res['timeSyncServerIfConfigured']
+        ck_timeSyncServerIfConfigured="True" if timeSyncServerIfConfigured == "True" else "False"
         x11windowIfNotInstalled=service_check_res['x11windowIfNotInstalled']
+        ck_x11windowIfNotInstalled="True" if x11windowIfNotInstalled == "True" else "False"
         network_check_res=linuxScanResDict['network_check_res']
         hostsAllowFileIfExist=network_check_res['hostsAllowFileIfExist']
         hostsAllowFilePermission=network_check_res['hostsAllowFilePermission']
+        ck_hostsAllowFilePermission="True" if hostsAllowFileIfExist == "True" and int(hostsAllowFilePermission) <= 644 else "False"
         hostsAllowFileIfConfigured=network_check_res['hostsAllowFileIfConfigured']
+        ck_hostsAllowFileIfConfigured="True" if hostsAllowFileIfExist == "True" and hostsAllowFileIfConfigured == "True" else "False"
         hostsDenyFileIfExist=network_check_res['hostsDenyFileIfExist']
         hostsDenyFilePermission=network_check_res['hostsDenyFilePermission']
+        ck_hostsDenyFilePermission="True" if hostsDenyFileIfExist == "True" and int(hostsDenyFilePermission) <= 644 else "False"
         hostsDenyFileIfConfigured=network_check_res['hostsDenyFileIfConfigured']
+        ck_hostsDenyFileIfConfigured="True" if hostsDenyFileIfExist == "True" and hostsDenyFileIfConfigured == "True" else "False"
         iptablesIfInstalled=network_check_res['iptablesIfInstalled']
+        ck_iptablesIfInstalled="True" if iptablesIfInstalled == "True" else "False"
         iptablesInputPolicyIfDrop=network_check_res['iptablesInputPolicyIfDrop']
+        ck_iptablesInputPolicyIfDrop="True" if iptablesIfInstalled == "True" and iptablesInputPolicyIfDrop == "True" else "False"
         iptablesOutputPolicyIfDrop=network_check_res['iptablesOutputPolicyIfDrop']
+        ck_iptablesOutputPolicyIfDrop="True" if iptablesIfInstalled == "True" and iptablesOutputPolicyIfDrop == "True" else "False"
         auditd_check_res=linuxScanResDict['auditd_check_res']
         auditd_config_info=auditd_check_res['auditd_config_info']
         auditdIfEnabled=auditd_config_info['auditdIfEnabled']
+        ck_auditdIfEnabled="True" if auditdIfEnabled == "True" else "False"
         auditdconfIfExist=auditd_config_info['auditdconfIfExist']
         auditdIfSetMaxLogFile=auditd_config_info['auditdIfSetMaxLogFile']
+        ck_auditdIfSetMaxLogFile="True" if auditdconfIfExist == "True" and auditdIfSetMaxLogFile != "False" and int(auditdIfSetMaxLogFile) >= 8 else "False"
         auditdIfSetMaxLogFileAction=auditd_config_info['auditdIfSetMaxLogFileAction']
+        ck_auditdIfSetMaxLogFileAction="True" if auditdconfIfExist == "True" and ("keep_logs" in auditdIfSetMaxLogFileAction.lower() or "rotate" in auditdIfSetMaxLogFileAction.lower()) else "False"
         auditdIfSetSpaceLeftAction=auditd_config_info['auditdIfSetSpaceLeftAction']
+        ck_auditdIfSetSpaceLeftAction="True" if auditdconfIfExist == "True" and "ignore" not in auditdIfSetSpaceLeftAction.lower() and "rotate" not in auditdIfSetSpaceLeftAction.lower() else "False"
         auditdIfSetNumLogs=auditd_config_info['auditdIfSetNumLogs']
+        ck_auditdIfSetNumLogs="True" if auditdconfIfExist == "True" and int(auditdIfSetNumLogs) >= 5 else "False"
         auditd_rules_info=auditd_check_res['auditd_rules_info']
         auditdRulesIfExist=auditd_rules_info['auditdRulesIfExist']
         auditdRulesIfNotNull=auditd_rules_info['auditdRulesIfNotNull']
         auditdIfCheckTimechange=auditd_rules_info['auditdIfCheckTimechange']
+        ck_auditdIfCheckTimechange="True" if auditdRulesIfNotNull == "True" and auditdIfCheckTimechange == "True" else "False"
         auditdRulesCheckedUserandgroupfile=auditd_rules_info['auditdRulesCheckedUserandgroupfile']
         auditdRulesNotCheckedUserandgroupfile=auditd_rules_info['auditdRulesNotCheckedUserandgroupfile']
+        ck_auditdRulesNotCheckedUserandgroupfile="True" if auditdRulesIfNotNull == "True"  and len(auditdRulesNotCheckedUserandgroupfile) == 0 else "False"
         auditdRulesCheckedNetworkenv=auditd_rules_info['auditdRulesCheckedNetworkenv']
         auditdRulesNotCheckedNetworkenv=auditd_rules_info['auditdRulesNotCheckedNetworkenv']
+        ck_auditdRulesNotCheckedNetworkenv="True" if auditdRulesIfNotNull == "True" and len(auditdRulesNotCheckedNetworkenv) == 0 else "False"
         auditdRulesCheckedMACchange=auditd_rules_info['auditdRulesCheckedMACchange']
         auditdRulesNotCheckedMACchange=auditd_rules_info['auditdRulesNotCheckedMACchange']
+        ck_auditdRulesNotCheckedMACchange="True" if auditdRulesIfNotNull == "True" and len(auditdRulesNotCheckedMACchange) == 0 else "False"
         auditdRulesCheckedLoginoutEvents=auditd_rules_info['auditdRulesCheckedLoginoutEvents']
         auditdRulesNotCheckedLoginoutEvents=auditd_rules_info['auditdRulesNotCheckedLoginoutEvents']
+        ck=auditdRulesNotCheckedLoginoutEvents="True" if auditdRulesIfNotNull == "True" and len(auditdRulesNotCheckedMACchange) == 0 else "False"
         auditdRulesCheckedDACChangeSyscall=auditd_rules_info['auditdRulesCheckedDACChangeSyscall']
         auditdRulesNotCheckedDACChangeSyscall=auditd_rules_info['auditdRulesNotCheckedDACChangeSyscall']
+        ck_auditdRulesNotCheckedDACChangeSyscall="True" if auditdRulesIfNotNull == "True" and len(auditdRulesNotCheckedDACChangeSyscall) == 0 else "False"
         auditdRulesCheckedFileAccessAttemptSyscall=auditd_rules_info['auditdRulesCheckedFileAccessAttemptSyscall']
         auditdRulesNotCheckedFileAccessAttemptSyscall=auditd_rules_info['auditdRulesNotCheckedFileAccessAttemptSyscall']
+        ck_auditdRulesNotCheckedFileAccessAttemptSyscall="True" if auditdRulesIfNotNull == "True" and len(auditdRulesNotCheckedFileAccessAttemptSyscall) == 0 else "False"
         auditdRulesCheckedPrivilegedCommand=auditd_rules_info['auditdRulesCheckedPrivilegedCommand']
         auditdRulesNotCheckedPrivilegedCommand=auditd_rules_info['auditdRulesNotCheckedPrivilegedCommand']
+        ck_auditdRulesNotCheckedPrivilegedCommand="True" if auditdRulesIfNotNull == "True" and len(auditdRulesCheckedPrivilegedCommand) == 0 else "False"
         auditdRulesCheckedSudoerFile=auditd_rules_info['auditdRulesCheckedSudoerFile']
         auditdRulesNotCheckedSudoerFile=auditd_rules_info['auditdRulesNotCheckedSudoerFile']
+        ck_auditdRulesNotCheckedSudoerFile="True" if auditdRulesIfNotNull == "True" and len(auditdRulesNotCheckedSudoerFile) == 0 else "False"
         auditdRulesIfImmutable=auditd_rules_info['auditdRulesIfImmutable']
+        ck_auditdRulesIfImmutable="True" if auditdRulesIfNotNull == "True" and auditdRulesIfImmutable == "True" else "False"
         log_check_res=linuxScanResDict['log_check_res']
         rsyslogIfEnabled=log_check_res['rsyslogIfEnabled']
+        ck_rsyslogIfEnabled="True" if rsyslogIfEnabled == "True" else "False"
         authentication_check_res=linuxScanResDict['authentication_check_res']
         crond_config_info=authentication_check_res['crond_config_info']
         crondIfEnabled=crond_config_info['crondIfEnabled']
+        ck_crondIfEnabled="True" if crondIfEnabled == "True" else "False"
         crondConfigFilenameArray=crond_config_info['crondConfigFilenameArray']
         crondConfigFilePermissionArray=crond_config_info['crondConfigFilePermissionArray']
+        ck_crondConfigFilePermissionArray="True"
+        for fPerm in crondConfigFilePermissionArray.split(";"):
+            if len(fPerm) != 0:
+                if int(fPerm) > 700:
+                    ck_crondConfigFilePermissionArray="False"
+                    break
         crondallowdenyFilenameArray=crond_config_info['crondallowdenyFilenameArray']
         crondallowdenyFileIfExistArray=crond_config_info['crondallowdenyFileIfExistArray']
         crondallowdenyFilePermissionArray=crond_config_info['crondallowdenyFilePermissionArray']
+        ck_crondallowdenyFilePermissionArray="False"
+        for fPerm in crondallowdenyFilePermissionArray.split(";"):
+            if len(fPerm) != 0:
+                if int(fPerm) > 700:
+                    ck_crondallowdenyFilePermissionArray="False"
         crondallowdenyFileOwnerArray=crond_config_info['crondallowdenyFileOwnerArray']
         sshd_config_info=authentication_check_res['sshd_config_info']
         sshdIfEnabled=sshd_config_info['sshdIfEnabled']
