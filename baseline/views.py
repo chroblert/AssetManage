@@ -15,10 +15,13 @@ def check_res_display(request):
     scanType=str(base64.urlsafe_b64decode(bytes(request.GET['scanType'],encoding="utf-8")),encoding="utf-8")
     if scanType == "OS":
         if "Window" in osVersion:
-            scanRes = models.WindowsScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)[0]
-            checkRes = models.WindowsCheckRes.objects.filter(scanTime=scanTime,macaddr=macaddr)[0]
+            scanRes = models.WindowsScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)
+            checkRes = models.WindowsCheckRes.objects.filter(scanTime=scanTime,macaddr=macaddr)
+            if len(scanRes) ==0 or len(checkRes) == 0:
+                return HttpResponse("0oops,something is wrong")
+            scanRes=scanRes[0]
+            checkRes=checkRes[0]
             checkNum=len(checkRes.__dict__.keys()) - 6
-            # checkNum=checkRes.__dict__['_state']
             passNum=0
             for i in checkRes.__dict__.keys():
                 if checkRes.__dict__[i] == "True":
@@ -27,7 +30,19 @@ def check_res_display(request):
             checkScore=str(int(passNum/checkNum*100))
             return render(request,'baseline/windows_check_res_display.html',locals())
         else:
-            scanRes = models.LinuxScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)[0]
+            scanRes = models.LinuxScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)
+            checkRes = models.LinuxCheckRes.objects.filter(scanTime=scanTime,macaddr=macaddr)
+            if len(scanRes) ==0 or len(checkRes) == 0:
+                return HttpResponse("0oops,something is wrong")
+            scanRes=scanRes[0]
+            checkRes=checkRes[0]
+            checkNum=len(checkRes.__dict__.keys()) - 7
+            passNum=0
+            for i in checkRes.__dict__.keys():
+                if checkRes.__dict__[i] == "True":
+                    passNum = passNum + 1
+            failNum=checkNum - passNum - 1
+            checkScore=str(int(passNum/checkNum*100))
             return render(request,'baseline/linux_check_res_display.html',locals())
 def scan_res_display(request):
     scanResAll = models.AllScanResRecord.objects.all()
@@ -275,11 +290,10 @@ def windows_scan_res_report(request):
                 models.WindowsScanRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,passwordHistorySize=passwordHistorySize,maximumPasswordAge=maximumPasswordAge,minimumPasswordAge=minimumPasswordAge,passwordComplexity=passwordComplexity,clearTextPassword=clearTextPassword,minimumPasswordLength=minimumPasswordLength,lockoutDuration=lockoutDuration,lockoutBadCount=lockoutBadCount,resetLockoutCount=resetLockoutCount,auditPolicyChange=auditPolicyChange,auditLogonEvents=auditLogonEvents,auditObjectAccess=auditObjectAccess,auditProcessTracking=auditProcessTracking,auditDSAccess=auditDSAccess,auditSystemEvents=auditSystemEvents,auditAccountLogon=auditAccountLogon,auditAccountManage=auditAccountManage,seTrustedCredManAccessPrivilegeIFNone=seTrustedCredManAccessPrivilegeIFNone,seTcbPrivilegeIFNone=seTcbPrivilegeIFNone,seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray,seCreateGlobalPrivilegeIFNone=seCreateGlobalPrivilegeIFNone,seDenyBatchLogonRightIFContainGuests=seDenyBatchLogonRightIFContainGuests,seDenyServiceLogonRightIFContainGuests=seDenyServiceLogonRightIFContainGuests,seDenyInteractiveLogonRightIFContainGuests=seDenyInteractiveLogonRightIFContainGuests,seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray,seRelabelPrivilegeIFNone=seRelabelPrivilegeIFNone,seSyncAgentPrivilegeIFNone=seSyncAgentPrivilegeIFNone,enableGuestAccount=enableGuestAccount,limitBlankPasswordUse=limitBlankPasswordUse,newAdministratorName=newAdministratorName,newGuestName=newGuestName,dontDisplayLastUserName=dontDisplayLastUserName,disableCAD=disableCAD,inactivityTimeoutSecs=inactivityTimeoutSecs,enablePlainTextPassword=enablePlainTextPassword,autoDisconnect=autoDisconnect,noLMHash=noLMHash,lsaAnonymousNameLookup=lsaAnonymousNameLookup,restrictAnonymousSAM=restrictAnonymousSAM,restrictAnonymous=restrictAnonymous,clearPageFileAtShutdown=clearPageFileAtShutdown,rdpPort=rdpPort,autoRunRes=autoRunRes)
                 models.WindowsCheckRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,passwordHistorySize=ck_passwordHistorySize,maximumPasswordAge=ck_maximumPasswordAge,minimumPasswordAge=ck_minimumPasswordAge,passwordComplexity=ck_passwordComplexity,clearTextPassword=ck_clearTextPassword,minimumPasswordLength=ck_minimumPasswordLength,lockoutDuration=ck_lockoutDuration,lockoutBadCount=ck_lockoutBadCount,resetLockoutCount=ck_resetLockoutCount,auditPolicyChange=ck_auditPolicyChange,auditLogonEvents=ck_auditLogonEvents,auditObjectAccess=ck_auditObjectAccess,auditProcessTracking=ck_auditProcessTracking,auditDSAccess=ck_auditDSAccess,auditSystemEvents=ck_auditSystemEvents,auditAccountLogon=ck_auditAccountLogon,auditAccountManage=ck_auditAccountManage,seTrustedCredManAccessPrivilegeIFNone=ck_seTrustedCredManAccessPrivilegeIFNone,seTcbPrivilegeIFNone=ck_seTcbPrivilegeIFNone,seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=ck_seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray,seCreateGlobalPrivilegeIFNone=ck_seCreateGlobalPrivilegeIFNone,seDenyBatchLogonRightIFContainGuests=ck_seDenyBatchLogonRightIFContainGuests,seDenyServiceLogonRightIFContainGuests=ck_seDenyServiceLogonRightIFContainGuests,seDenyInteractiveLogonRightIFContainGuests=ck_seDenyInteractiveLogonRightIFContainGuests,seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=ck_seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray,seRelabelPrivilegeIFNone=ck_seRelabelPrivilegeIFNone,seSyncAgentPrivilegeIFNone=ck_seSyncAgentPrivilegeIFNone,enableGuestAccount=ck_enableGuestAccount,limitBlankPasswordUse=ck_limitBlankPasswordUse,newAdministratorName=ck_newAdministratorName,newGuestName=ck_newGuestName,dontDisplayLastUserName=ck_dontDisplayLastUserName,disableCAD=ck_disableCAD,inactivityTimeoutSecs=ck_inactivityTimeoutSecs,enablePlainTextPassword=ck_enablePlainTextPassword,autoDisconnect=ck_autoDisconnect,noLMHash=ck_noLMHash,lsaAnonymousNameLookup=ck_lsaAnonymousNameLookup,restrictAnonymousSAM=ck_restrictAnonymousSAM,restrictAnonymous=ck_restrictAnonymous,clearPageFileAtShutdown=ck_clearPageFileAtShutdown,rdpPort=ck_rdpPort,autoRunRes=ck_autoRunRes)
                 models.AllScanResRecord.objects.get_or_create(scanTime=scanTime,scanType="OS",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList)
+                return HttpResponse("success")
                 raise DatabaseError
         except DatabaseError:
             return HttpResponse("0oops,something is wrong")
-            pass
-        return HttpResponse("success")
     else:
         return HttpResponse("0oops,something is wrong")
 
@@ -303,7 +317,7 @@ def linux_scan_res_report(request):
         tmp_partition_info=init_check_res['tmp_partition_info']
         tmpIfSeparate=tmp_partition_info['tmpIfSeparate']
         if tmpIfSeparate == "True":
-            ck_tmpIfSeparate = "True"
+            ck_tmpIfSeparate="True"
         else:
             ck_tmpIfSeparate="False"
         tmpIfNoexec=tmp_partition_info['tmpIfNoexec']
@@ -376,7 +390,7 @@ def linux_scan_res_report(request):
         ck_auditdRulesNotCheckedMACchange="True" if auditdRulesIfNotNull == "True" and len(auditdRulesNotCheckedMACchange) == 0 else "False"
         auditdRulesCheckedLoginoutEvents=auditd_rules_info['auditdRulesCheckedLoginoutEvents']
         auditdRulesNotCheckedLoginoutEvents=auditd_rules_info['auditdRulesNotCheckedLoginoutEvents']
-        ck=auditdRulesNotCheckedLoginoutEvents="True" if auditdRulesIfNotNull == "True" and len(auditdRulesNotCheckedMACchange) == 0 else "False"
+        ck_auditdRulesNotCheckedLoginoutEvents="True" if auditdRulesIfNotNull == "True" and len(auditdRulesNotCheckedMACchange) == 0 else "False"
         auditdRulesCheckedDACChangeSyscall=auditd_rules_info['auditdRulesCheckedDACChangeSyscall']
         auditdRulesNotCheckedDACChangeSyscall=auditd_rules_info['auditdRulesNotCheckedDACChangeSyscall']
         ck_auditdRulesNotCheckedDACChangeSyscall="True" if auditdRulesIfNotNull == "True" and len(auditdRulesNotCheckedDACChangeSyscall) == 0 else "False"
@@ -403,79 +417,128 @@ def linux_scan_res_report(request):
         ck_crondConfigFilePermissionArray="True"
         for fPerm in crondConfigFilePermissionArray.split(";"):
             if len(fPerm) != 0:
-                if int(fPerm) > 700:
+                if "False" in fPerm or int(fPerm) > 700:
                     ck_crondConfigFilePermissionArray="False"
                     break
         crondallowdenyFilenameArray=crond_config_info['crondallowdenyFilenameArray']
         crondallowdenyFileIfExistArray=crond_config_info['crondallowdenyFileIfExistArray']
         crondallowdenyFilePermissionArray=crond_config_info['crondallowdenyFilePermissionArray']
-        ck_crondallowdenyFilePermissionArray="False"
+        ck_crondallowdenyFilePermissionArray="True"
         for fPerm in crondallowdenyFilePermissionArray.split(";"):
             if len(fPerm) != 0:
-                if int(fPerm) > 700:
+                if "False" in fPerm or int(fPerm) > 700:
                     ck_crondallowdenyFilePermissionArray="False"
         crondallowdenyFileOwnerArray=crond_config_info['crondallowdenyFileOwnerArray']
         sshd_config_info=authentication_check_res['sshd_config_info']
         sshdIfEnabled=sshd_config_info['sshdIfEnabled']
         sshdConfigFilePermission=sshd_config_info['sshdConfigFilePermission']
+        ck_sshdConfigFilePermission="True" if sshdIfEnabled != "True" or sshdConfigFilePermission != "False" and int(sshdConfigFilePermission) <= 600 else "False"
         sshdIfDisableX11forwarding=sshd_config_info['sshdIfDisableX11forwarding']
+        ck_sshdIfDisableX11forwarding="True" if sshdIfEnabled != "True" or sshdIfDisableX11forwarding == "True" else "False"
         sshdIfSetMaxAuthTries=sshd_config_info['sshdIfSetMaxAuthTries']
+        ck_sshdIfSetMaxAuthTries="True" if sshdIfEnabled != "True" or sshdIfSetMaxAuthTries != "False" and int(sshdIfSetMaxAuthTries) >= 4 else "False"
         sshdIfEnableIgnoreRhosts=sshd_config_info['sshdIfEnableIgnoreRhosts']
+        ck_sshdIfEnableIgnoreRhosts="True" if sshdIfEnabled != "True" or sshdIfEnableIgnoreRhosts == "True" else "False"
         sshdIfDisableHostbasedAuthentication=sshd_config_info['sshdIfDisableHostbasedAuthentication']
+        ck_sshdIfDisableHostbasedAuthentication="True" if sshdIfEnabled != "True" or sshdIfDisableHostbasedAuthentication == "True" else "False"
         sshdIfDisablePermitRootLogin=sshd_config_info['sshdIfDisablePermitRootLogin']
+        ck_sshdIfDisablePermitRootLogin="True" if sshdIfEnabled != "True" or sshdIfDisablePermitRootLogin == "True" else "False"
         sshdIfDisablePermitEmptyPasswords=sshd_config_info['sshdIfDisablePermitEmptyPasswords']
+        ck_sshdIfDisablePermitEmptyPasswords="True" if sshdIfEnabled != "True" or sshdIfDisablePermitEmptyPasswords == "True" else "False"
         sshdIfDisablePermitUserEnvironment=sshd_config_info['sshdIfDisablePermitUserEnvironment']
+        ck_sshdIfDisablePermitUserEnvironment="True" if sshdIfEnabled != "True" or sshdIfDisablePermitUserEnvironment == "True" else "False"
         sshdIfSpecificMACs=sshd_config_info['sshdIfSpecificMACs']
+        ck_sshdIfSpecificMACs="True" if sshdIfEnabled != "True" or sshdIfSpecificMACs == "True" else "False"
         sshdIfSetClientAliveInterval=sshd_config_info['sshdIfSetClientAliveInterval']
+        ck_sshdIfSetClientAliveInterval="True" if sshdIfEnabled != "True" or sshdIfSetClientAliveInterval != "False" and int(sshdIfSetClientAliveInterval) <= 180 else "False"
         sshdIfSetLoginGraceTime=sshd_config_info['sshdIfSetLoginGraceTime']
+        ck_sshdIfSetLoginGraceTime="True" if sshdIfEnabled != "True" or sshdIfSetLoginGraceTime != "False" and int(sshdIfSetLoginGraceTime) <= 120 else "False"
         pam_config_info=authentication_check_res['pam_config_info']
         pamPwqualityconfIfExist=pam_config_info['pamPwqualityconfIfExist']
         pamIfSetMinlen=pam_config_info['pamIfSetMinlen']
+        ck_pamIfSetMinlen="True" if pamIfSetMinlen != "False" and int(pamIfSetMinlen) >= 8 else "False"
         pamIfSetMinclass=pam_config_info['pamIfSetMinclass']
+        ck_pamIfSetMinclass="True" if pamIfSetMinclass != "False" and int(pamIfSetMinclass) >= 3 else "False"
         sshdSetedLockAndUnlockTimeFiles=pam_config_info['sshdSetedLockAndUnlockTimeFiles']
         sshdNotSetedLockAndUnlockTimeFiles=pam_config_info['sshdNotSetedLockAndUnlockTimeFiles']
+        ck_sshdNotSetedLockAndUnlockTimeFiles="True" if len(sshdNotSetedLockAndUnlockTimeFiles) == 0 else "False"
         sshdPamdFileArray=pam_config_info['sshdPamdFileArray']
         sshdPamdFileReuseLimitArray=pam_config_info['sshdPamdFileReuseLimitArray']
+        ck_sshdPamdFileReuseLimitArray="True" if "False" not in sshdPamdFileReuseLimitArray and "False" not in [int(i) > 5 for i in sshdPamdFileReuseLimitArray.split(";")[:-1]] else "False"
         sshdPamdFileIfSetSha512Array=pam_config_info['sshdPamdFileIfSetSha512Array']
+        ck_sshdPamdFileIfSetSha512Array="True" if "False" not in sshdPamdFileIfSetSha512Array else "False"
         account_config_info=authentication_check_res['account_config_info']
         accountPassMaxDays=account_config_info['accountPassMaxDays']
+        ck_accountPassMaxDays="True" if len(accountPassMaxDays) != 0 and int(accountPassMaxDays)  <= 90 else "False"
         accountPassMinDays=account_config_info['accountPassMinDays']
+        ck_accountPassMinDays="True" if len(accountPassMinDays) != 0 and int(accountPassMinDays)  >= 1 else "False"
         accountPassWarnDays=account_config_info['accountPassWarnDays']
+        ck_accountPassWarnDays="True" if len(accountPassWarnDays) != 0 and int(accountPassWarnDays)  >= 7 else "False"
         accountPassAutolockInactiveDays=account_config_info['accountPassAutolockInactiveDays']
+        ck_accountPassAutolockInactiveDays="True" if len(accountPassAutolockInactiveDays) != 0 and int(accountPassAutolockInactiveDays) != -1 and int(accountPassAutolockInactiveDays) <= 365 else "False"
         accountShouldUnloginArray=account_config_info['accountShouldUnloginArray']
+        ck_accountShouldUnloginArray="True" if len(accountShouldUnloginArray) == 0 else "False"
         accountGIDOfRoot=account_config_info['accountGIDOfRoot']
+        ck_accountGIDOfRoot="True" if int(accountGIDOfRoot) == 0 else "False"
         accountProfileFileArray=account_config_info['accountProfileFileArray']
         accountProfileTMOUTArray=account_config_info['accountProfileTMOUTArray']
+        ck_accountProfileTMOUTArray="True" if "False" not in accountProfileTMOUTArray and "False" not in [int(i) <= 900 for i in accountProfileTMOUTArray.split(";")[:-1]] else "False"
         accountIfSetUsersCanAccessSuCommand=account_config_info['accountIfSetUsersCanAccessSuCommand']
+        ck_accountIfSetUsersCanAccessSuCommand="True" if "False" not in accountIfSetUsersCanAccessSuCommand else "False"
         system_check_res=linuxScanResDict['system_check_res']
         file_permission_info=system_check_res['file_permission_info']
         importantFilenameArray=file_permission_info['importantFilenameArray']
         importantFilePermissionArray=file_permission_info['importantFilePermissionArray']
+        tmpCount=0
+        for i in importantFilePermissionArray.split(";")[:-1]:
+            if i == "0000":
+                tmpCount = tmpCount + 1
+            if int(i) <= 644 :
+                tmpCount = tmpCount + 1
+        ck_importantFilePermissionArray="True" if tmpCount == 12 else "False"
         importantFileUidgidArray=file_permission_info['importantFileUidgidArray']
+        ck_importantFileUidgidArray="True" if "False" not in ["0 0" == i for i in importantFileUidgidArray.split(";")[:-1]] else "False"
         usergroup_config_info=system_check_res['usergroup_config_info']
         userIfSetPasswdOrArray=usergroup_config_info['userIfSetPasswdOrArray']
+        ck_userIfSetPasswdOrArray="True" if userIfSetPasswdOrArray == "True" else "False"
         uid0OnlyRootOrArray=usergroup_config_info['uid0OnlyRootOrArray']
+        ck_uid0OnlyRootOrArray="True" if uid0OnlyRootOrArray == "True" else "False"
         pathDirIfNotHasDot=usergroup_config_info['pathDirIfNotHasDot']
+        ck_pathDirIfNotHasDot="True" if pathDirIfNotHasDot == "True" else "False"
         pathDirPermissionHasGWArray=usergroup_config_info['pathDirPermissionHasGWArray']
+        ck_pathDirPermissionHasGWArray="True" if len(pathDirPermissionHasGWArray) == 0 else "False"
         pathDirPermissionHasOWArray=usergroup_config_info['pathDirPermissionHasOWArray']
+        ck_pathDirPermissionHasOWArray="True" if len(pathDirPermissionHasOWArray) == 0 else "False"
         pathDirOwnerIsNotRootArray=usergroup_config_info['pathDirOwnerIsNotRootArray']
         pathDirDoesNotExistOrNotDirArray=usergroup_config_info['pathDirDoesNotExistOrNotDirArray']
+        ck_pathDirDoesNotExistOrNotDirArray="True" if len(pathDirDoesNotExistOrNotDirArray) == 0 else "False"
         userArray=usergroup_config_info['userArray']
         userHomeDirIfExistArray=usergroup_config_info['userHomeDirIfExistArray']
+        ck_userHomeDirIfExistArray="True" if "False" not in userHomeDirIfExistArray else "False"
         userHomeDirPermissionArray=usergroup_config_info['userHomeDirPermissionArray']
+        ck_userHomeDirPermissionArray="True" if "False" not in userHomeDirPermissionArray and "False" not in [int(i) > 750 for i in userHomeDirPermissionArray.split(";")[:-1]] else "False"
         userIfOwnTheirHomeDirArray=usergroup_config_info['userIfOwnTheirHomeDirArray']
+        ck_userIfOwnTheirHomeDirArray="True" if "False" not in userIfOwnTheirHomeDirArray else "False"
         userHomeDirIfHasGWorOWDotFileArray=usergroup_config_info['userHomeDirIfHasGWorOWDotFileArray']
+        ck_userHomeDirIfHasGWorOWDotFileArray="True" if "False" not in userHomeDirIfHasGWorOWDotFileArray else "False"
         userHomeDirIfHasOtherFileArray=usergroup_config_info['userHomeDirIfHasOtherFileArray']
+        ck_userHomeDirIfHasOtherFileArray="True" if "False" not in userHomeDirIfHasOtherFileArray else "False"
         groupNotExistInetcgroup=usergroup_config_info['groupNotExistInetcgroup']
+        ck_groupNotExistInetcgroup="True" if len(groupNotExistInetcgroup) == 0 else "False"
         usersIfHasUniqueUIDArray=usergroup_config_info['usersIfHasUniqueUIDArray']
+        ck_usersIfHasUniqueUIDArray="True" if len(usersIfHasUniqueUIDArray) == 0 else "False"
         groupsIfHasUniqueGIDArray=usergroup_config_info['groupsIfHasUniqueGIDArray'] 
+        ck_groupsIfHasUniqueGIDArray="True" if len(groupsIfHasUniqueGIDArray) == 0 else "False"
         # 向LinuxScanResMeta表中插入数据
-        models.LinuxScanResMeta.objects.get_or_create(scanTime=scanTime,macaddr=macaddr,linuxScanResMetaData=bodyData)
-        models.LinuxScanRes.objects.get_or_create(scanTime=scanTime,hostname=hostname,macaddr=macaddr,ipList=ipList,kernelVersion=kernelVersion,osVersion=osVersion,tmpIfSeparate=tmpIfSeparate,tmpIfNoexec=tmpIfNoexec,tmpIfNosuid=tmpIfNosuid,grubcfgIfExist=grubcfgIfExist,grubcfgPermission=grubcfgPermission,grubcfgIfSetPasswd=grubcfgIfSetPasswd,singleUserModeIfNeedAuth=singleUserModeIfNeedAuth,selinuxStateIfEnforcing=selinuxStateIfEnforcing,selinuxPolicyIfConfigured=selinuxPolicyIfConfigured,timeSyncServerIfConfigured=timeSyncServerIfConfigured,x11windowIfNotInstalled=x11windowIfNotInstalled,hostsAllowFileIfExist=hostsAllowFileIfExist,hostsAllowFilePermission=hostsAllowFilePermission,hostsAllowFileIfConfigured=hostsAllowFileIfConfigured,hostsDenyFileIfExist=hostsDenyFileIfExist,hostsDenyFilePermission=hostsDenyFilePermission,hostsDenyFileIfConfigured=hostsDenyFileIfConfigured,iptablesIfInstalled=iptablesIfInstalled,iptablesInputPolicyIfDrop=iptablesInputPolicyIfDrop,iptablesOutputPolicyIfDrop=iptablesOutputPolicyIfDrop,auditdIfEnabled=auditdIfEnabled,auditdconfIfExist=auditdconfIfExist,auditdIfSetMaxLogFile=auditdIfSetMaxLogFile,auditdIfSetMaxLogFileAction=auditdIfSetMaxLogFileAction,auditdIfSetSpaceLeftAction=auditdIfSetSpaceLeftAction,auditdIfSetNumLogs=auditdIfSetNumLogs,auditdRulesIfExist=auditdRulesIfExist,auditdRulesIfNotNull=auditdRulesIfNotNull,auditdIfCheckTimechange=auditdIfCheckTimechange,auditdRulesCheckedUserandgroupfile=auditdRulesCheckedUserandgroupfile,auditdRulesNotCheckedUserandgroupfile=auditdRulesNotCheckedUserandgroupfile,auditdRulesCheckedNetworkenv=auditdRulesCheckedNetworkenv,auditdRulesNotCheckedNetworkenv=auditdRulesNotCheckedNetworkenv,auditdRulesCheckedMACchange=auditdRulesCheckedMACchange,auditdRulesNotCheckedMACchange=auditdRulesNotCheckedMACchange,auditdRulesCheckedLoginoutEvents=auditdRulesCheckedLoginoutEvents,auditdRulesNotCheckedLoginoutEvents=auditdRulesNotCheckedLoginoutEvents,auditdRulesCheckedDACChangeSyscall=auditdRulesCheckedDACChangeSyscall,auditdRulesNotCheckedDACChangeSyscall=auditdRulesNotCheckedDACChangeSyscall,auditdRulesCheckedFileAccessAttemptSyscall=auditdRulesCheckedFileAccessAttemptSyscall,auditdRulesNotCheckedFileAccessAttemptSyscall=auditdRulesNotCheckedFileAccessAttemptSyscall,auditdRulesCheckedPrivilegedCommand=auditdRulesCheckedPrivilegedCommand,auditdRulesNotCheckedPrivilegedCommand=auditdRulesNotCheckedPrivilegedCommand,auditdRulesCheckedSudoerFile=auditdRulesCheckedSudoerFile,auditdRulesNotCheckedSudoerFile=auditdRulesNotCheckedSudoerFile,auditdRulesIfImmutable=auditdRulesIfImmutable,rsyslogIfEnabled=rsyslogIfEnabled,crondIfEnabled=crondIfEnabled,crondConfigFilenameArray=crondConfigFilenameArray,crondConfigFilePermissionArray=crondConfigFilePermissionArray,crondallowdenyFilenameArray=crondallowdenyFilenameArray,crondallowdenyFileIfExistArray=crondallowdenyFileIfExistArray,crondallowdenyFilePermissionArray=crondallowdenyFilePermissionArray,crondallowdenyFileOwnerArray=crondallowdenyFileOwnerArray,sshdIfEnabled=sshdIfEnabled,sshdConfigFilePermission=sshdConfigFilePermission,sshdIfDisableX11forwarding=sshdIfDisableX11forwarding,sshdIfSetMaxAuthTries=sshdIfSetMaxAuthTries,sshdIfEnableIgnoreRhosts=sshdIfEnableIgnoreRhosts,sshdIfDisableHostbasedAuthentication=sshdIfDisableHostbasedAuthentication,sshdIfDisablePermitRootLogin=sshdIfDisablePermitRootLogin,sshdIfDisablePermitEmptyPasswords=sshdIfDisablePermitEmptyPasswords,sshdIfDisablePermitUserEnvironment=sshdIfDisablePermitUserEnvironment,sshdIfSpecificMACs=sshdIfSpecificMACs,sshdIfSetClientAliveInterval=sshdIfSetClientAliveInterval,sshdIfSetLoginGraceTime=sshdIfSetLoginGraceTime,pamPwqualityconfIfExist=pamPwqualityconfIfExist,pamIfSetMinlen=pamIfSetMinlen,pamIfSetMinclass=pamIfSetMinclass,sshdSetedLockAndUnlockTimeFiles=sshdSetedLockAndUnlockTimeFiles,sshdNotSetedLockAndUnlockTimeFiles=sshdNotSetedLockAndUnlockTimeFiles,sshdPamdFileArray=sshdPamdFileArray,sshdPamdFileReuseLimitArray=sshdPamdFileReuseLimitArray,sshdPamdFileIfSetSha512Array=sshdPamdFileIfSetSha512Array,accountPassMaxDays=accountPassMaxDays,accountPassMinDays=accountPassMinDays,accountPassWarnDays=accountPassWarnDays,accountPassAutolockInactiveDays=accountPassAutolockInactiveDays,accountShouldUnloginArray=accountShouldUnloginArray,accountGIDOfRoot=accountGIDOfRoot,accountProfileFileArray=accountProfileFileArray,accountProfileTMOUTArray=accountProfileTMOUTArray,accountIfSetUsersCanAccessSuCommand=accountIfSetUsersCanAccessSuCommand,importantFilenameArray=importantFilenameArray,importantFilePermissionArray=importantFilePermissionArray,importantFileUidgidArray=importantFileUidgidArray,userIfSetPasswdOrArray=userIfSetPasswdOrArray,uid0OnlyRootOrArray=uid0OnlyRootOrArray,pathDirIfNotHasDot=pathDirIfNotHasDot,pathDirPermissionHasGWArray=pathDirPermissionHasGWArray,pathDirPermissionHasOWArray=pathDirPermissionHasOWArray,pathDirOwnerIsNotRootArray=pathDirOwnerIsNotRootArray,pathDirDoesNotExistOrNotDirArray=pathDirDoesNotExistOrNotDirArray,userArray=userArray,userHomeDirIfExistArray=userHomeDirIfExistArray,userHomeDirPermissionArray=userHomeDirPermissionArray,userIfOwnTheirHomeDirArray=userIfOwnTheirHomeDirArray,userHomeDirIfHasGWorOWDotFileArray=userHomeDirIfHasGWorOWDotFileArray,userHomeDirIfHasOtherFileArray=userHomeDirIfHasOtherFileArray,groupNotExistInetcgroup=groupNotExistInetcgroup,usersIfHasUniqueUIDArray=usersIfHasUniqueUIDArray,groupsIfHasUniqueGIDArray=groupsIfHasUniqueGIDArray)
-        models.AllScanResRecord.objects.get_or_create(scanTime=scanTime,scanType="OS",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList)
-        return HttpResponse("Success.")
-        #return render(request,'baseline/show.html',locals())
+        try:
+            with transaction.atomic():
+                models.LinuxScanResMeta.objects.get_or_create(scanTime=scanTime,macaddr=macaddr,linuxScanResMetaData=bodyData)
+                models.LinuxScanRes.objects.get_or_create(scanTime=scanTime,hostname=hostname,macaddr=macaddr,ipList=ipList,kernelVersion=kernelVersion,osVersion=osVersion,tmpIfSeparate=tmpIfSeparate,tmpIfNoexec=tmpIfNoexec,tmpIfNosuid=tmpIfNosuid,grubcfgIfExist=grubcfgIfExist,grubcfgPermission=grubcfgPermission,grubcfgIfSetPasswd=grubcfgIfSetPasswd,singleUserModeIfNeedAuth=singleUserModeIfNeedAuth,selinuxStateIfEnforcing=selinuxStateIfEnforcing,selinuxPolicyIfConfigured=selinuxPolicyIfConfigured,timeSyncServerIfConfigured=timeSyncServerIfConfigured,x11windowIfNotInstalled=x11windowIfNotInstalled,hostsAllowFileIfExist=hostsAllowFileIfExist,hostsAllowFilePermission=hostsAllowFilePermission,hostsAllowFileIfConfigured=hostsAllowFileIfConfigured,hostsDenyFileIfExist=hostsDenyFileIfExist,hostsDenyFilePermission=hostsDenyFilePermission,hostsDenyFileIfConfigured=hostsDenyFileIfConfigured,iptablesIfInstalled=iptablesIfInstalled,iptablesInputPolicyIfDrop=iptablesInputPolicyIfDrop,iptablesOutputPolicyIfDrop=iptablesOutputPolicyIfDrop,auditdIfEnabled=auditdIfEnabled,auditdconfIfExist=auditdconfIfExist,auditdIfSetMaxLogFile=auditdIfSetMaxLogFile,auditdIfSetMaxLogFileAction=auditdIfSetMaxLogFileAction,auditdIfSetSpaceLeftAction=auditdIfSetSpaceLeftAction,auditdIfSetNumLogs=auditdIfSetNumLogs,auditdRulesIfExist=auditdRulesIfExist,auditdRulesIfNotNull=auditdRulesIfNotNull,auditdIfCheckTimechange=auditdIfCheckTimechange,auditdRulesCheckedUserandgroupfile=auditdRulesCheckedUserandgroupfile,auditdRulesNotCheckedUserandgroupfile=auditdRulesNotCheckedUserandgroupfile,auditdRulesCheckedNetworkenv=auditdRulesCheckedNetworkenv,auditdRulesNotCheckedNetworkenv=auditdRulesNotCheckedNetworkenv,auditdRulesCheckedMACchange=auditdRulesCheckedMACchange,auditdRulesNotCheckedMACchange=auditdRulesNotCheckedMACchange,auditdRulesCheckedLoginoutEvents=auditdRulesCheckedLoginoutEvents,auditdRulesNotCheckedLoginoutEvents=auditdRulesNotCheckedLoginoutEvents,auditdRulesCheckedDACChangeSyscall=auditdRulesCheckedDACChangeSyscall,auditdRulesNotCheckedDACChangeSyscall=auditdRulesNotCheckedDACChangeSyscall,auditdRulesCheckedFileAccessAttemptSyscall=auditdRulesCheckedFileAccessAttemptSyscall,auditdRulesNotCheckedFileAccessAttemptSyscall=auditdRulesNotCheckedFileAccessAttemptSyscall,auditdRulesCheckedPrivilegedCommand=auditdRulesCheckedPrivilegedCommand,auditdRulesNotCheckedPrivilegedCommand=auditdRulesNotCheckedPrivilegedCommand,auditdRulesCheckedSudoerFile=auditdRulesCheckedSudoerFile,auditdRulesNotCheckedSudoerFile=auditdRulesNotCheckedSudoerFile,auditdRulesIfImmutable=auditdRulesIfImmutable,rsyslogIfEnabled=rsyslogIfEnabled,crondIfEnabled=crondIfEnabled,crondConfigFilenameArray=crondConfigFilenameArray,crondConfigFilePermissionArray=crondConfigFilePermissionArray,crondallowdenyFilenameArray=crondallowdenyFilenameArray,crondallowdenyFileIfExistArray=crondallowdenyFileIfExistArray,crondallowdenyFilePermissionArray=crondallowdenyFilePermissionArray,crondallowdenyFileOwnerArray=crondallowdenyFileOwnerArray,sshdIfEnabled=sshdIfEnabled,sshdConfigFilePermission=sshdConfigFilePermission,sshdIfDisableX11forwarding=sshdIfDisableX11forwarding,sshdIfSetMaxAuthTries=sshdIfSetMaxAuthTries,sshdIfEnableIgnoreRhosts=sshdIfEnableIgnoreRhosts,sshdIfDisableHostbasedAuthentication=sshdIfDisableHostbasedAuthentication,sshdIfDisablePermitRootLogin=sshdIfDisablePermitRootLogin,sshdIfDisablePermitEmptyPasswords=sshdIfDisablePermitEmptyPasswords,sshdIfDisablePermitUserEnvironment=sshdIfDisablePermitUserEnvironment,sshdIfSpecificMACs=sshdIfSpecificMACs,sshdIfSetClientAliveInterval=sshdIfSetClientAliveInterval,sshdIfSetLoginGraceTime=sshdIfSetLoginGraceTime,pamPwqualityconfIfExist=pamPwqualityconfIfExist,pamIfSetMinlen=pamIfSetMinlen,pamIfSetMinclass=pamIfSetMinclass,sshdSetedLockAndUnlockTimeFiles=sshdSetedLockAndUnlockTimeFiles,sshdNotSetedLockAndUnlockTimeFiles=sshdNotSetedLockAndUnlockTimeFiles,sshdPamdFileArray=sshdPamdFileArray,sshdPamdFileReuseLimitArray=sshdPamdFileReuseLimitArray,sshdPamdFileIfSetSha512Array=sshdPamdFileIfSetSha512Array,accountPassMaxDays=accountPassMaxDays,accountPassMinDays=accountPassMinDays,accountPassWarnDays=accountPassWarnDays,accountPassAutolockInactiveDays=accountPassAutolockInactiveDays,accountShouldUnloginArray=accountShouldUnloginArray,accountGIDOfRoot=accountGIDOfRoot,accountProfileFileArray=accountProfileFileArray,accountProfileTMOUTArray=accountProfileTMOUTArray,accountIfSetUsersCanAccessSuCommand=accountIfSetUsersCanAccessSuCommand,importantFilenameArray=importantFilenameArray,importantFilePermissionArray=importantFilePermissionArray,importantFileUidgidArray=importantFileUidgidArray,userIfSetPasswdOrArray=userIfSetPasswdOrArray,uid0OnlyRootOrArray=uid0OnlyRootOrArray,pathDirIfNotHasDot=pathDirIfNotHasDot,pathDirPermissionHasGWArray=pathDirPermissionHasGWArray,pathDirPermissionHasOWArray=pathDirPermissionHasOWArray,pathDirOwnerIsNotRootArray=pathDirOwnerIsNotRootArray,pathDirDoesNotExistOrNotDirArray=pathDirDoesNotExistOrNotDirArray,userArray=userArray,userHomeDirIfExistArray=userHomeDirIfExistArray,userHomeDirPermissionArray=userHomeDirPermissionArray,userIfOwnTheirHomeDirArray=userIfOwnTheirHomeDirArray,userHomeDirIfHasGWorOWDotFileArray=userHomeDirIfHasGWorOWDotFileArray,userHomeDirIfHasOtherFileArray=userHomeDirIfHasOtherFileArray,groupNotExistInetcgroup=groupNotExistInetcgroup,usersIfHasUniqueUIDArray=usersIfHasUniqueUIDArray,groupsIfHasUniqueGIDArray=groupsIfHasUniqueGIDArray)
+                models.LinuxCheckRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,ck_tmpIfSeparate=ck_tmpIfSeparate,ck_tmpIfNoexec=ck_tmpIfNoexec,ck_tmpIfNosuid=ck_tmpIfNosuid,ck_grubcfgPermissionLE600=ck_grubcfgPermissionLE600,ck_grubcfgIfSetPasswd=ck_grubcfgIfSetPasswd,ck_singleUserModeIfNeedAuth=ck_singleUserModeIfNeedAuth,ck_selinuxStateIfEnforcing=ck_selinuxStateIfEnforcing,ck_selinuxPolicyIfConfigured=ck_selinuxPolicyIfConfigured,ck_timeSyncServerIfConfigured=ck_timeSyncServerIfConfigured,ck_x11windowIfNotInstalled=ck_x11windowIfNotInstalled,ck_hostsAllowFilePermission=ck_hostsAllowFilePermission,ck_hostsAllowFileIfConfigured=ck_hostsAllowFileIfConfigured,ck_hostsDenyFilePermission=ck_hostsDenyFilePermission,ck_hostsDenyFileIfConfigured=ck_hostsDenyFileIfConfigured,ck_iptablesIfInstalled=ck_iptablesIfInstalled,ck_iptablesInputPolicyIfDrop=ck_iptablesInputPolicyIfDrop,ck_iptablesOutputPolicyIfDrop=ck_iptablesOutputPolicyIfDrop,ck_auditdIfEnabled=ck_auditdIfEnabled,ck_auditdIfSetMaxLogFile=ck_auditdIfSetMaxLogFile,ck_auditdIfSetMaxLogFileAction=ck_auditdIfSetMaxLogFileAction,ck_auditdIfSetSpaceLeftAction=ck_auditdIfSetSpaceLeftAction,ck_auditdIfSetNumLogs=ck_auditdIfSetNumLogs,ck_auditdIfCheckTimechange=ck_auditdIfCheckTimechange,ck_auditdRulesNotCheckedUserandgroupfile=ck_auditdRulesNotCheckedUserandgroupfile,ck_auditdRulesNotCheckedNetworkenv=ck_auditdRulesNotCheckedNetworkenv,ck_auditdRulesNotCheckedMACchange=ck_auditdRulesNotCheckedMACchange,ck_auditdRulesNotCheckedDACChangeSyscall=ck_auditdRulesNotCheckedDACChangeSyscall,ck_auditdRulesNotCheckedFileAccessAttemptSyscall=ck_auditdRulesNotCheckedFileAccessAttemptSyscall,ck_auditdRulesNotCheckedLoginoutEvents=ck_auditdRulesNotCheckedLoginoutEvents,ck_auditdRulesNotCheckedPrivilegedCommand=ck_auditdRulesNotCheckedPrivilegedCommand,ck_auditdRulesNotCheckedSudoerFile=ck_auditdRulesNotCheckedSudoerFile,ck_auditdRulesIfImmutable=ck_auditdRulesIfImmutable,ck_rsyslogIfEnabled=ck_rsyslogIfEnabled,ck_crondIfEnabled=ck_crondIfEnabled,ck_crondConfigFilePermissionArray=ck_crondConfigFilePermissionArray,ck_crondallowdenyFilePermissionArray=ck_crondallowdenyFilePermissionArray,ck_sshdConfigFilePermission=ck_sshdConfigFilePermission,ck_sshdIfDisableX11forwarding=ck_sshdIfDisableX11forwarding,ck_sshdIfSetMaxAuthTries=ck_sshdIfSetMaxAuthTries,ck_sshdIfEnableIgnoreRhosts=ck_sshdIfEnableIgnoreRhosts,ck_sshdIfDisableHostbasedAuthentication=ck_sshdIfDisableHostbasedAuthentication,ck_sshdIfDisablePermitRootLogin=ck_sshdIfDisablePermitRootLogin,ck_sshdIfDisablePermitEmptyPasswords=ck_sshdIfDisablePermitEmptyPasswords,ck_sshdIfDisablePermitUserEnvironment=ck_sshdIfDisablePermitUserEnvironment,ck_sshdIfSpecificMACs=ck_sshdIfSpecificMACs,ck_sshdIfSetClientAliveInterval=ck_sshdIfSetClientAliveInterval,ck_sshdIfSetLoginGraceTime=ck_sshdIfSetLoginGraceTime,ck_pamIfSetMinlen=ck_pamIfSetMinlen,ck_pamIfSetMinclass=ck_pamIfSetMinclass,ck_sshdNotSetedLockAndUnlockTimeFiles=ck_sshdNotSetedLockAndUnlockTimeFiles,ck_sshdPamdFileReuseLimitArray=ck_sshdPamdFileReuseLimitArray,ck_sshdPamdFileIfSetSha512Array=ck_sshdPamdFileIfSetSha512Array,ck_accountPassMaxDays=ck_accountPassMaxDays,ck_accountPassMinDays=ck_accountPassMinDays,ck_accountPassWarnDays=ck_accountPassWarnDays,ck_accountPassAutolockInactiveDays=ck_accountPassAutolockInactiveDays,ck_accountShouldUnloginArray=ck_accountShouldUnloginArray,ck_accountGIDOfRoot=ck_accountGIDOfRoot,ck_accountProfileTMOUTArray=ck_accountProfileTMOUTArray,ck_accountIfSetUsersCanAccessSuCommand=ck_accountIfSetUsersCanAccessSuCommand,ck_importantFilePermissionArray=ck_importantFilePermissionArray,ck_importantFileUidgidArray=ck_importantFileUidgidArray,ck_userIfSetPasswdOrArray=ck_userIfSetPasswdOrArray,ck_uid0OnlyRootOrArray=ck_uid0OnlyRootOrArray,ck_pathDirIfNotHasDot=ck_pathDirIfNotHasDot,ck_pathDirPermissionHasGWArray=ck_pathDirPermissionHasGWArray,ck_pathDirPermissionHasOWArray=ck_pathDirPermissionHasOWArray,ck_pathDirDoesNotExistOrNotDirArray=ck_pathDirDoesNotExistOrNotDirArray,ck_userHomeDirIfExistArray=ck_userHomeDirIfExistArray,ck_userHomeDirPermissionArray=ck_userHomeDirPermissionArray,ck_userIfOwnTheirHomeDirArray=ck_userIfOwnTheirHomeDirArray,ck_userHomeDirIfHasGWorOWDotFileArray=ck_userHomeDirIfHasGWorOWDotFileArray,ck_userHomeDirIfHasOtherFileArray=ck_userHomeDirIfHasOtherFileArray,ck_groupNotExistInetcgroup=ck_groupNotExistInetcgroup,ck_usersIfHasUniqueUIDArray=ck_usersIfHasUniqueUIDArray,ck_groupsIfHasUniqueGIDArray=ck_groupsIfHasUniqueGIDArray)
+                models.AllScanResRecord.objects.get_or_create(scanTime=scanTime,scanType="OS",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList)
+                return HttpResponse("Success.")
+                raise DatabaseError
+        except DatabaseError:
+            return HttpResponse("0oops,something is wrong")
     else:
-        #return render(request,'baseline/show.html',locals())
         return HttpResponse("0oops,something is wrong")
-        #return render(request,'baseline/show.html',locals())

@@ -7,7 +7,7 @@
      <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
 <style>
 .jc-red-badge{
-  /* display: inline-block; */
+  display: inline-block;
     min-width: 10px;
     padding: 3px 7px;
     font-size: 12px;
@@ -106,42 +106,42 @@ td{
                <tr>
                  <td>将/tmp挂载至一个单独的分区</td>
                  <td>{{scanRes.tmpIfSeparate}}</td>
-									<td>{{ck_tmpIfSeparate}}</td>
+									<td {{checkRes.ck_tmpIfSeparate|setclass}}>{{checkRes.ck_tmpIfSeparate|checkres}}</td>
                </tr>
                <tr>
                  <td>/tmp挂载时指定“noexec"</td>
                  <td>{{scanRes.tmpIfNoexec}}</td>
-									<td>{{ck_tmpIfNoexec}}</td>
+									<td {{checkRes.ck_tmpIfNoexec|setclass}}>{{checkRes.ck_tmpIfNoexec|checkres}}</td>
                </tr>
                <tr>
                  <td>/tmp挂载时指定“nosuid”</td>
                  <td>{{scanRes.tmpIfNosuid}}</td>
-									<td>{{ck_tmpIfNosuid}}</td>
+									<td {{checkRes.ck_tmpIfNosuid|setclass}}>{{checkRes.ck_tmpIfNosuid|checkres}}</td>
                </tr>
                <tr>
                 <td>bootloader配置文件的权限不高于600</td>
                  <td>{{scanRes.grubcfgPermission}}</td>
-									<td>{{ck_grubcfgPermission}}</td>
+									<td {{checkRes.ck_grubcfgPermissionLE600|setclass}}>{{checkRes.ck_grubcfgPermissionLE600|checkres}}</td>
                </tr>
                <tr>
                  <td>为bootloader设置密码</td>
                  <td>{{scanRes.grubcfgIfSetPasswd}}</td>
-									<td>{{ck_grubcfgIfSetPasswd}}</td>
+									<td {{checkRes.ck_grubcfgIfSetPasswd|setclass}}>{{checkRes.ck_grubcfgIfSetPasswd|checkres}}</td>
                </tr>
                <tr>
                  <td>为单用户模式启动认证机制</td>
                  <td>{{scanRes.singleUserModeIfNeedAuth}}</td>
-									<td>{{ck_singleUserModeIfNeedAuth}}</td>
+									<td {{checkRes.ck_singleUserModeIfNeedAuth|setclass}}>{{checkRes.ck_singleUserModeIfNeedAuth|checkres}}</td>
                </tr>
                <tr>
                  <td>设置SELinux的状态为“enforcing”</td>
                  <td>{{scanRes.selinuxStateIfEnforcing}}</td>
-									<td>{{ck_selinuxStateIfEnforcing}}</td>
+									<td {{checkRes.ck_selinuxStateIfEnforcing|setclass}}>{{checkRes.ck_selinuxStateIfEnforcing|checkres}}</td>
                </tr>
                <tr>
                  <td>设置SELinux的policy为“targeted”</td>
                  <td>{{scanRes.selinuxPolicyIfConfigured}}</td>
-									<td>{{ck_selinuxPolicyIfConfigured}}</td>
+									<td {{checkRes.ck_selinuxPolicyIfConfigured|setclass}}>{{checkRes.ck_selinuxPolicyIfConfigured|checkres}}</td>
                </tr>
              </table>
            </div>
@@ -172,12 +172,12 @@ td{
                 <tr>
                   <td>开启时间同步服务</td>
                   <td>{{scanRes.timeSyncServerIfConfigured}}</td>
-									<td>{{ck_timeSyncServerIfConfigured}}</td>
+									<td {{checkRes.ck_timeSyncServerIfConfigured|setclass}}>{{checkRes.ck_timeSyncServerIfConfigured|checkres}}</td>
                 </tr>
                 <tr>
                   <td>不安装"x-windows"</td>
                   <td>{{scanRes.x11windowIfNotInstalled}}</td>
-									<td>{{ck_x11windowIfNotInstalled}}</td>
+									<td {{checkRes.ck_x11windowIfNotInstalled|setclass}}>{{checkRes.ck_x11windowIfNotInstalled|checkres}}</td>
                 </tr>
               </table>
             </div>
@@ -211,37 +211,37 @@ td{
                 <tr>
                   <td>配置/etc/hosts.allow文件</td>
                   <td>{{scanRes.hostsAllowFileIfConfigured}}</td>
-									<td>{{ck_hostsAllowFileIfConfigured}}</td>
+									<td {{checkRes.ck_hostsAllowFileIfConfigured|setclass}}>{{checkRes.ck_hostsAllowFileIfConfigured|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置/etc/hosts.deny文件</td>
                   <td>{{scanRes.hostsDenyFileIfConfigured}}</td>
-									<td>{{ck_hostsDenyFileIfConfigured}}</td>
+									<td {{checkRes.ck_hostsDenyFileIfConfigured|setclass}}>{{checkRes.ck_hostsDenyFileIfConfigured|checkres}}</td>
                 </tr>
                 <tr>
                   <td>hosts.allow文件的权限不高于0644</td>
                   <td>{{scanRes.hostsAllowFilePermission}}</td>
-									<td>{{ck_hostsAllowFilePermission}}</td>
+									<td {{checkRes.ck_hostsAllowFilePermission|setclass}}>{{checkRes.ck_hostsAllowFilePermission|checkres}}</td>
                 </tr>
                 <tr>
                   <td>hosts.deny文件的权限不高于0644</td>
                   <td>{{scanRes.hostsDenyFilePermission}}</td>
-									<td>{{ck_hostsDenyFilePermission}}</td>
+									<td {{checkRes.ck_hostsDenyFilePermission|setclass}}>{{checkRes.ck_hostsDenyFilePermission|checkres}}</td>
                 </tr>
                 <tr>
                   <td>安装并使用iptables</td>
                   <td>{{scanRes.iptablesIfInstalled}}</td>
-									<td>{{ck_iptablesIfInstalled}}</td>
+									<td {{checkRes.ck_iptablesIfInstalled|setclass}}>{{checkRes.ck_iptablesIfInstalled|checkres}}</td>
                 </tr>
                 <tr>
                   <td>设置iptales INPUT链的默认策略为DROP</td>
                   <td>{{scanRes.iptablesInputPolicyIfDrop}}</td>
-									<td>{{ck_iptablesInputPolicyIfDrop}}</td>
+									<td {{checkRes.ck_iptablesInputPolicyIfDrop|setclass}}>{{checkRes.ck_iptablesInputPolicyIfDrop|checkres}}</td>
                 </tr>
                 <tr>
                   <td>设置iptables OUTPUT链的默认策略为DROP</td>
                   <td>{{scanRes.iptablesOutputPolicyIfDrop}}</td>
-									<td>{{ck_iptablesOutputPolicyIfDrop}}</td>
+									<td {{checkRes.ck_iptablesOutputPolicyIfDrop|setclass}}>{{checkRes.ck_iptablesOutputPolicyIfDrop|checkres}}</td>
                 </tr>
               </table>
             </div>
@@ -274,27 +274,27 @@ td{
                 <tr>
                   <td>安装并使用“auditd"</td>
                   <td>{{scanRes.auditdIfEnabled}}</td>
-									<td>{{ck_auditdIfEnabled}}</td>
+									<td {{checkRes.ck_auditdIfEnabled|setclass}}>{{checkRes.ck_auditdIfEnabled|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置记录审计日志的文件大小不小于8M</td>
                   <td>{{scanRes.auditdIfSetMaxLogFile}}</td>
-									<td>{{ck_auditdIfSetMaxLogFile}}</td>
+									<td {{checkRes.ck_auditdIfSetMaxLogFile|setclass}}>{{checkRes.ck_auditdIfSetMaxLogFile|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置记录审计日志的文件个数不小于5个</td>
                   <td>{{scanRes.auditdIfSetNumLogs}}</td>
-									<td>{{ck_auditdIfSetNumLogs}}</td>
+									<td {{checkRes.ck_auditdIfSetNumLogs|setclass}}>{{checkRes.ck_auditdIfSetNumLogs|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置单个审计日志文件大小达到设定的值时触发的动作为“keep_logs"/"rotate"</td>
                   <td>{{scanRes.auditdIfSetMaxLogFileAction}}</td>
-									<td>{{ck_auditdIfSetMaxLogFileAction}}</td>
+									<td {{checkRes.ck_auditdIfSetMaxLogFileAction|setclass}}>{{checkRes.ck_auditdIfSetMaxLogFileAction|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置磁盘空间满后触发的动作不为“ignore”或“suspend”</td>
                   <td>{{scanRes.auditdIfSetSpaceLeftAction}}</td>
-									<td>{{ck_auditdIfSetSpaceLeftAction}}</td>
+									<td {{checkRes.ck_auditdIfSetSpaceLeftAction|setclass}}>{{checkRes.ck_auditdIfSetSpaceLeftAction|checkres}}</td>
                 </tr>
               </table>
             </div>
@@ -327,53 +327,52 @@ td{
                 <tr>
                   <td>审计更改日期和时间的操作</td>
                   <td>{{scanRes.auditdIfCheckTimechange}}</td>
-									<td>{{ck_auditdIfCheckTimechange}}</td>
-                  <td class="jc-red-badge">通过</td>
+									<td {{checkRes.ck_auditdIfCheckTimechange|setclass}}>{{checkRes.ck_auditdIfCheckTimechange|checkres}}</td>
                 </tr>
                 <tr>
                   <td>审计更改用户/组信息的操作</td>
                   <td>{{scanRes.auditdRulesNotCheckedUserandgroupfile}}</td>
-									<td>{{ck_auditdRulesNotCheckedUserandgroupfile}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedUserandgroupfile|setclass}}>{{checkRes.ck_auditdRulesNotCheckedUserandgroupfile|checkres}}</td>
                 </tr>
                 <tr>
                   <td>审计更改系统网络环境的操作</td>
                   <td>{{scanRes.auditdRulesNotCheckedNetworkenv}}</td>
-									<td>{{ck_auditdRulesNotCheckedNetworkenv}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedNetworkenv|setclass}}>{{checkRes.ck_auditdRulesNotCheckedNetworkenv|checkres}}</td>
                 </tr>
                 <tr>
                   <td>审计更改系统强制访问控制的操作</td>
                   <td>{{scanRes.auditdRulesNotCheckedMACchange}}</td>
-									<td>{{ck_auditdRulesNotCheckedMACchange}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedMACchange|setclass}}>{{checkRes.ck_auditdRulesNotCheckedMACchange|checkres}}</td>
                 </tr>
                 <tr>
                   <td>审计登入登出系统的事件</td>
                   <td>{{scanRes.auditdRulesNotCheckedLoginoutEvents}}</td>
-									<td>{{ck_auditdRulesNotCheckedLoginoutEvents}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedLoginoutEvents|setclass}}>{{checkRes.ck_auditdRulesNotCheckedLoginoutEvents|checkres}}</td>
                 </tr>
                 <tr>
                   <td>审计企图改变文件权限的操作</td>
                   <td>{{scanRes.auditdRulesNotCheckedDACChangeSyscall}}</td>
-									<td>{{ck_auditdRulesNotCheckedDACChangeSyscall}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedDACChangeSyscall|setclass}}>{{checkRes.ck_auditdRulesNotCheckedDACChangeSyscall|checkres}}</td>
                 </tr>
                 <tr>
                   <td>审计未授权情况下企图访问文件未成功的事件</td>
                   <td>{{scanRes.auditdRulesNotCheckedFileAccessAttemptSyscall}}</td>
-									<td>{{ck_auditdRulesNotCheckedFileAccessAttemptSyscall}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedFileAccessAttemptSyscall|setclass}}>{{checkRes.ck_auditdRulesNotCheckedFileAccessAttemptSyscall|checkres}}</td>
                 </tr>
                 <tr>
                   <td>审计使用提权命令的操作</td>
                   <td>{{scanRes.auditdRulesNotCheckedPrivilegedCommand}}</td>
-									<td>{{ck_auditdRulesNotCheckedPrivilegedCommand}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedPrivilegedCommand|setclass}}>{{checkRes.ck_auditdRulesNotCheckedPrivilegedCommand|checkres}}</td>
                 </tr>
                 <tr>
                   <td>审计sudoers文件的变更</td>
                   <td>{{scanRes.auditdRulesNotCheckedSudoerFile}}</td>
-									<td>{{ck_auditdRulesNotCheckedSudoerFile}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedSudoerFile|setclass}}>{{checkRes.ck_auditdRulesNotCheckedSudoerFile|checkres}}</td>
                 </tr>
                 <tr>
                   <td>确保审计日志文件audit.log的规则在系统重启前不能改变</td>
                   <td>{{scanRes.auditdRulesIfImmutable}}</td>
-									<td>{{ck_auditdRulesIfImmutable}}</td>
+									<td {{checkRes.ck_auditdRulesIfImmutable|setclass}}>{{checkRes.ck_auditdRulesIfImmutable|checkres}}</td>
                 </tr>
               </tbody> 
             </table>
@@ -402,7 +401,7 @@ td{
               <tr>
                 <td>安装并启用rsyslog</td>
                 <td>{{scanRes.rsyslogIfEnabled}}</td>
-									<td>{{ck_rsyslogIfEnabled}}</td>
+									<td {{checkRes.ck_rsyslogIfEnabled|setclass}}>{{checkRes.ck_rsyslogIfEnabled|checkres}}</td>
               </tr>
             </table>
             <table class="table table-bordered table-striped dataTable">
@@ -414,17 +413,17 @@ td{
               <tr>
                 <td>开启cron服务</td>
                 <td>{{scanRes.crondIfEnabled}}</td>
-									<td>{{ck_crondIfEnabled}}</td>
+									<td {{checkRes.ck_crondIfEnabled|setclass}}>{{checkRes.ck_crondIfEnabled|checkres}}</td>
               </tr>
               <tr>
                 <td>配置crontab,cron.hourly,cron.daily,cron.weekly,cron.monthly,cron.d文件的权限不高于0700</td>
                 <td>{{scanRes.crondConfigFilePermissionArray}}</td>
-									<td>{{ck_crondConfigFilePermissionArray}}</td>
+									<td {{checkRes.ck_crondConfigFilePermissionArray|setclass}}>{{checkRes.ck_crondConfigFilePermissionArray|checkres}}</td>
               </tr>
               <tr>
                 <td>配置cron.allow,cron.deny文件权限不超过0700</td>
                 <td>{{scanRes.crondallowdenyFilePermissionArray}}</td>
-									<td>{{ck_crondallowdenyFilePermissionArray}}</td>
+									<td {{checkRes.ck_crondallowdenyFilePermissionArray|setclass}}>{{checkRes.ck_crondallowdenyFilePermissionArray|checkres}}</td>
               </tr>
             </table>
           </div>
@@ -457,59 +456,60 @@ td{
                 <tr>
                   <td>配置/etc/ssh/sshd_config文件的权限不高于0600</td>
                   <td>{{scanRes.sshdConfigFilePermission}}</td>
-									<td>{{ck_sshdConfigFilePermission}}</td>
+									<td {{checkRes.ck_sshdConfigFilePermission|setclass}}>{{checkRes.ck_sshdConfigFilePermission|checkres}}</td>
                 </tr>
                 <tr>
                   <td>关闭X11Forwarding</td>
                   <td>{{scanRes.sshdIfDisableX11forwarding}}</td>
-									<td>{{ck_sshdIfDisableX11forwarding}}</td>
+									<td {{checkRes.ck_sshdIfDisableX11forwarding|setclass}}>{{checkRes.ck_sshdIfDisableX11forwarding|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置最大登录尝试次数不高于4次</td>
                   <td>{{scanRes.sshdIfSetMaxAuthTries}}</td>
-									<td>{{ck_sshdIfSetMaxAuthTries}}</td>
+									<td {{checkRes.ck_sshdIfSetMaxAuthTries|setclass}}>{{checkRes.ck_sshdIfSetMaxAuthTries|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置“IgnoreRhosts”值为“Enabled”</td>
                   <td>{{scanRes.sshdIfEnableIgnoreRhosts}}</td>
-									<td>{{ck_sshdIfEnableIgnoreRhosts}}</td>
+									<td {{checkRes.ck_sshdIfEnableIgnoreRhosts|setclass}}>{{checkRes.ck_sshdIfEnableIgnoreRhosts|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置“HostbasedAuthentication”值为“Disabled”</td>
                   <td>{{scanRes.sshdIfDisableHostbasedAuthentication}}</td>
-									<td>{{ck_sshdIfDisableHostbasedAuthentication}}</td>
+									<td {{checkRes.ck_sshdIfDisableHostbasedAuthentication|setclass}}>{{checkRes.ck_sshdIfDisableHostbasedAuthentication|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置”PermitRootLogin”值为“no”</td>
                   <td>{{scanRes.sshdIfDisablePermitRootLogin}}</td>
-									<td>{{ck_sshdIfDisablePermitRootLogin}}</td>
+									<td {{checkRes.ck_sshdIfDisablePermitRootLogin|setclass}}>{{checkRes.ck_sshdIfDisablePermitRootLogin|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置“PermitEmptyPasswords”值为“no”</td>
                   <td>{{scanRes.sshdIfDisablePermitEmptyPasswords}}</td>
-									<td>{{ck_sshdIfDisablePermitEmptyPasswords}}</td>
+									<td {{checkRes.ck_sshdIfDisablePermitEmptyPasswords|setclass}}>{{checkRes.ck_sshdIfDisablePermitEmptyPasswords|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置“PermitUserEnvironment”值为“no”</td>
                   <td>{{scanRes.sshdIfDisablePermitUserEnvironment}}</td>
-									<td>{{ck_sshdIfDisablePermitUserEnvironment}}</td>
+									<td {{checkRes.ck_sshdIfDisablePermitUserEnvironment|setclass}}>{{checkRes.ck_sshdIfDisablePermitUserEnvironment|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置要使用的MAC算法</td>
                   <td>{{scanRes.sshdIfSpecificMACs}}</td>
-									<td>{{ck_sshdIfSpecificMACs}}</td>
+									<td {{checkRes.ck_sshdIfSpecificMACs|setclass}}>{{checkRes.ck_sshdIfSpecificMACs|checkres}}</td>
                 </tr>
                 <tr>
                   <td>设置空闲超时时间不超过180秒</td>
                   <td>{{scanRes.sshdIfSetClientAliveInterval}}</td>
-									<td>{{ck_sshdIfSetClientAliveInterval}}</td>
+									<td {{checkRes.ck_sshdIfSetClientAliveInterval|setclass}}>{{checkRes.ck_sshdIfSetClientAliveInterval|checkres}}</td>
                 </tr>
                 <tr>
                   <td>设置一次登录验证时间不超过120秒</td>
                   <td>{{scanRes.sshdIfSetLoginGraceTime}}</td>
-									<td>{{ck_sshdIfSetLoginGraceTime}}</td>
+									<td {{checkRes.ck_sshdIfSetLoginGraceTime|setclass}}>{{checkRes.ck_sshdIfSetLoginGraceTime|checkres}}</td>
                 </tr>
               </tbody>
+
             </table>
           </div>
         </div>
@@ -539,27 +539,27 @@ td{
                 <tr>
                   <td>配置密码位数不低于8位</td>
                   <td>{{scanRes.pamIfSetMinlen}}</td>
-									<td>{{ck_pamIfSetMinlen}}</td>
+									<td {{checkRes.ck_pamIfSetMinlen|setclass}}>{{checkRes.ck_pamIfSetMinlen|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置密码中至少包含3种字符</td>
                   <td>{{scanRes.pamIfSetMinclass}}</td>
-									<td>{{ck_pamIfSetMinclass}}</td>
+									<td {{checkRes.ck_pamIfSetMinclass|setclass}}>{{checkRes.ck_pamIfSetMinclass|checkres}}</td>
                 </tr>
                 <tr>
                   <td>在system-auth,password-auth中配置密码锁定及解锁时间</td>
-                  <td>{{scanRes.sshdSetedLockAndUnlockTimeFiles}}</td>
-									<td>{{ck_sshdSetedLockAndUnlockTimeFiles}}</td>
+                  <td>{{scanRes.sshdNotSetedLockAndUnlockTimeFiles}}</td>
+									<td {{checkRes.ck_sshdNotSetedLockAndUnlockTimeFiles|setclass}}>{{checkRes.ck_sshdNotSetedLockAndUnlockTimeFiles|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置密码重用限制，至少不使用最近5次的密码</td>
                   <td>{{scanRes.sshdPamdFileReuseLimitArray}}</td>
-									<td>{{ck_sshdPamdFileReuseLimitArray}}</td>
+									<td {{checkRes.ck_sshdPamdFileReuseLimitArray|setclass}}>{{checkRes.ck_sshdPamdFileReuseLimitArray|checkres}}</td>
                 </tr>
                 <tr>
                   <td>配置密码使用的Hash算法为SHA512</td>
-                  <td>{{scanRes.sshdPamdFileIfSetSha512}}</td>
-									<td>{{ck_sshdPamdFileIfSetSha512}}</td>
+                  <td>{{scanRes.sshdPamdFileIfSetSha512Array}}</td>
+									<td {{checkRes.ck_sshdPamdFileIfSetSha512Array|setclass}}>{{checkRes.ck_sshdPamdFileIfSetSha512Array|checkres}}</td>
                 </tr>
               </tbody>
             </table>
@@ -594,42 +594,43 @@ td{
                 <tbody>
                   <tr>
                     <td>配置密码有效时间不多于90天</td>
-                    <td>{{scanRes.accountPassMaxDays}}</td
+                    <td>{{scanRes.accountPassMaxDays}}</td>
+                    <td {{checkRes.ck_accountPassMaxDays|setclass}}>{{checkRes.ck_accountPassMaxDays|checkres}}</td>
                   </tr>
                   <tr>
                     <td>配置密码更改最短间隔不少于1天</td>
                     <td>{{scanRes.accountPassMinDays}}</td>
-									<td>{{ck_accountPassMinDays}}</td>
+									<td {{checkRes.ck_accountPassMinDays|setclass}}>{{checkRes.ck_accountPassMinDays|checkres}}</td>
                   </tr>
                   <tr>
                     <td>配置至少提前7天警告密码将要过期</td>
                     <td>{{scanRes.accountPassWarnDays}}</td>
-									<td>{{ck_accountPassWarnDays}}</td>
+									<td {{checkRes.ck_accountPassWarnDays|setclass}}>{{checkRes.ck_accountPassWarnDays|checkres}}</td>
                   </tr>
                   <tr>
                     <td>配置自动禁用365天内没有活动的的帐号</td>
                     <td>{{scanRes.accountPassAutolockInactiveDays}}</td>
-									<td>{{ck_accountPassAutolockInactiveDays}}</td>
+									<td {{checkRes.ck_accountPassAutolockInactiveDays|setclass}}>{{checkRes.ck_accountPassAutolockInactiveDays|checkres}}</td>
                   </tr>
                   <tr>
                     <td>配置使系统账号无法登录</td>
                     <td>{{scanRes.accountShouldUnloginArray}}</td>
-									<td>{{ck_accountShouldUnloginArray}}</td>
+									<td {{checkRes.ck_accountShouldUnloginArray|setclass}}>{{checkRes.ck_accountShouldUnloginArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保root账号默认群组的GID为0</td>
                     <td>{{scanRes.accountGIDOfRoot}}</td>
-									<td>{{ck_accountGIDOfRoot}}</td>
+									<td {{checkRes.ck_accountGIDOfRoot|setclass}}>{{checkRes.ck_accountGIDOfRoot|checkres}}</td>
                   </tr>
                   <tr>
                     <td>配置shell超时关闭会话时间不多于900秒</td>
                     <td>{{scanRes.accountProfileTMOUTArray}}</td>
-									<td>{{ck_accountProfileTMOUTArray}}</td>
+									<td {{checkRes.ck_accountProfileTMOUTArray|setclass}}>{{checkRes.ck_accountProfileTMOUTArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>配置只有特定用户可以使用“su”命令</td>
                     <td>{{scanRes.accountIfSetUsersCanAccessSuCommand}}</td>
-									<td>{{ck_accountIfSetUsersCanAccessSuCommand}}</td>
+									<td {{checkRes.ck_accountIfSetUsersCanAccessSuCommand|setclass}}>{{checkRes.ck_accountIfSetUsersCanAccessSuCommand|checkres}}</td>
                   </tr>
                 </tbody>
               </table>
@@ -660,42 +661,42 @@ td{
                   <tr>  
                     <td>确保passwd(-),shadow(-),group(-),gshadow(-)的权限为0644(0000)</td>
                     <td>{{scanRes.importantFilePermissionArray}}</td>
-									<td>{{ck_importantFilePermissionArray}}</td>
+									<td {{checkRes.ck_importantFilePermissionArray|setclass}}>{{checkRes.ck_importantFilePermissionArray|checkres}}</td>
                   </tr>
                   <tr>  
                     <td>确保passwd(-),shadow(-),group(-),gshadow(-)的uid gid为0 0</td>
                     <td>{{scanRes.importantFileUidgidArray}}</td>
-									<td>{{ck_importantFileUidgidArray}}</td>
+									<td {{checkRes.ck_importantFileUidgidArray|setclass}}>{{checkRes.ck_importantFileUidgidArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保没有密码为空的用户账号</td>
                     <td>{{scanRes.userIfSetPasswdOrArray}}</td>
-									<td>{{ck_userIfSetPasswdOrArray}}</td>
+									<td {{checkRes.ck_userIfSetPasswdOrArray|setclass}}>{{checkRes.ck_userIfSetPasswdOrArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保只有root账号的UID为0</td>
                     <td>{{scanRes.uid0OnlyRootOrArray}}</td>
-									<td>{{ck_uid0OnlyRootOrArray}}</td>
+									<td {{checkRes.ck_uid0OnlyRootOrArray|setclass}}>{{checkRes.ck_uid0OnlyRootOrArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保path环境变量中的目录同group用户没有写权限</td>
                     <td>{{scanRes.pathDirPermissionHasGWArray}}</td>
-									<td>{{ck_pathDirPermissionHasGWArray}}</td>
+									<td {{checkRes.ck_pathDirPermissionHasGWArray|setclass}}>{{checkRes.ck_pathDirPermissionHasGWArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保path环境变量中的目录other用户没有写权限</td>
                     <td>{{scanRes.pathDirPermissionHasOWArray}}</td>
-									<td>{{ck_pathDirPermissionHasOWArray}}</td>
+									<td {{checkRes.ck_pathDirPermissionHasOWArray|setclass}}>{{checkRes.ck_pathDirPermissionHasOWArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保pth环境变量中的目录不包含“.”</td>
                     <td>{{scanRes.pathDirIfNotHasDot}}</td>
-									<td>{{ck_pathDirIfNotHasDot}}</td>
+									<td {{checkRes.ck_pathDirIfNotHasDot|setclass}}>{{checkRes.ck_pathDirIfNotHasDot|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保path环境变量中都为目录且目录都存在</td>
                     <td>{{scanRes.pathDirDoesNotExistOrNotDirArray}}</td>
-									<td>{{ck_pathDirDoesNotExistOrNotDirArray}}</td>
+									<td {{checkRes.ck_pathDirDoesNotExistOrNotDirArray|setclass}}>{{checkRes.ck_pathDirDoesNotExistOrNotDirArray|checkres}}</td>
                   </tr>
                 </tbody>
               </table>
@@ -728,41 +729,42 @@ td{
                   <tr>
                     <td>确保所有用户都有家目录</td>
                     <td>{{scanRes.userArray}}<br>{{scanRes.userHomeDirIfExistArray}}</td>
+                    <td {{checkRes.userHomeDirIfExistArray|setclass}}>{{checkRes.ck_userHomeDirIfExistArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保所有用户家目录的权限不高于0750</td>
                     <td>{{scanRes.userHomeDirPermissionArray}}</td>
-									<td>{{ck_userHomeDirPermissionArray}}</td>
+									<td {{checkRes.ck_userHomeDirPermissionArray|setclass}}>{{checkRes.ck_userHomeDirPermissionArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保所有用户家目录的owner为自身</td>
                     <td>{{scanRes.userIfOwnTheirHomeDirArray}}</td>
-									<td>{{ck_userIfOwnTheirHomeDirArray}}</td>
+									<td {{checkRes.ck_userIfOwnTheirHomeDirArray|setclass}}>{{checkRes.ck_userIfOwnTheirHomeDirArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保用户及目录中的.文件只有owner可写</td>
-                    <td>{{scanRes.userHomeDirIfHasGWorOWFileArray}}</td>
-									<td>{{ck_userHomeDirIfHasGWorOWFileArray}}</td>
+                    <td>{{scanRes.userHomeDirIfHasGWorOWDotFileArray}}</td>
+									<td {{checkRes.ck_userHomeDirIfHasGWorOWDotFileArray|setclass}}>{{checkRes.ck_userHomeDirIfHasGWorOWDotFileArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保用户家目录没有.netrc,.rhosts,.forward文件</td>
                     <td>{{scanRes.userHomeDirIfHasOtherFileArray}}</td>
-									<td>{{ck_userHomeDirIfHasOtherFileArray}}</td>
+									<td {{checkRes.ck_userHomeDirIfHasOtherFileArray|setclass}}>{{checkRes.ck_userHomeDirIfHasOtherFileArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保/etc/passwd中的组都在/etc/group文件中存在</td>
                     <td>{{scanRes.groupNotExistInetcgroup}}</td>
-									<td>{{ck_groupNotExistInetcgroup}}</td>
+									<td {{checkRes.ck_groupNotExistInetcgroup|setclass}}>{{checkRes.ck_groupNotExistInetcgroup|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保用户都有唯一的UID</td>
                     <td>{{scanRes.usersIfHasUniqueUIDArray}}</td>
-									<td>{{ck_usersIfHasUniqueUIDArray}}</td>
+									<td {{checkRes.ck_usersIfHasUniqueUIDArray|setclass}}>{{checkRes.ck_usersIfHasUniqueUIDArray|checkres}}</td>
                   </tr>
                   <tr>
                     <td>确保组拥有唯一的GID</td>
                     <td>{{scanRes.groupsIfHasUniqueGIDArray}}</td>
-									<td>{{ck_groupsIfHasUniqueGIDArray}}</td>
+									<td {{checkRes.ck_groupsIfHasUniqueGIDArray|setclass}}>{{checkRes.ck_groupsIfHasUniqueGIDArray|checkres}}</td>
                   </tr>
                 </tbody>
               </table>
