@@ -1,5 +1,5 @@
 asgiref==3.2.3
-Django==2.2
+Django==2.2.8
 lxml==4.4.2
 pytz==2019.3
 sqlparse==0.3.0
