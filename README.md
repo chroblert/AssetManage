@@ -27,3 +27,12 @@ python manage.py runserver <ip>:<port>
 ![1575599988081](README/1575599988081.png)
 
 这个上传文件的页面很丑啦///^///
+
+
+
+
+
+
+
+---
+

@@ -1,4 +1,6 @@
-pywin32==224
-WMI==1.4.9
-xlrd==1.2.0
+asgiref==3.2.3
 Django==2.2
+lxml==4.4.2
+pytz==2019.3
+sqlparse==0.3.0
+xlrd==1.2.0
