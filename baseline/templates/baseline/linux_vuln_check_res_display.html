@@ -1,0 +1,94 @@
+{% extends 'base_JC.html'%}
+{% load static%}
+{% load base64_jc %}
+
+{% block title %}基线检查记录{% endblock %}
+{% block css %}
+     <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+<style>
+.jc-red-badge{
+  display: inline-block;
+    min-width: 10px;
+    padding: 3px 7px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle !important;
+    background-color:red;
+    border-radius: 10px;
+}
+/* td{
+  word-break:break-all;
+  vertical-align: middle!important;
+} */
+table{
+	table-layout:fixed;
+}	
+td{
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+</style>
+{% endblock %}
+{% block content %}
+   <!-- Main content -->
+   <section class="content">
+
+     <!-- 检查结果 -->
+       <div class="box">
+         <div class="box-header">
+           <h3 class="box-title">检查结果</h3>
+         </div>
+         <div class="box-body">
+          <table id="exp_table" class="table table-bordered table-striped dataTable">
+            <thead>
+              <tr>
+                <th style="width:15%">product</th>
+                <th style="width:15%">CVE</th>
+                <th style="width:15%">Score</th>
+                <th style="width:15%">EXP-info</th>
+                <th style="width:40%">EXP-addr</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for checkResDict in vulnCheckResList%}
+                {% for cveDict in checkResDict.cve %}
+                  {% for exp in cveDict.exp %}
+                  
+              <tr>
+                <td>{{checkResDict.product}}</td>
+                <td>{{cveDict.CVEID}}</td>
+                <td>{{cveDict.CVEScore}}</td>
+                <td>{{exp.edb}}</td>
+                <td>{{exp.desc}}</td>
+              </tr>
+              {% endfor %}
+              {% endfor %}
+              {% endfor%}
+            </tbody>
+          </table>
+        </div>
+       </div>
+   </section>
+{% endblock %}
+{% block script %}
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script>
+$(function () {
+        $('#exp_table').DataTable({
+          "paging": true,       <!-- 允许分页 -->
+          "lengthChange": true, <!-- 允许改变每页显示的行数 -->
+          "searching": true,    <!-- 允许内容搜索 -->
+          "ordering": true,     <!-- 允许排序 -->
+          "info": true,         <!-- 显示信息 -->
+          "autoWidth": false    <!-- 固定宽度 -->
+        });
+      });
+
+</script>
+{% endblock %}

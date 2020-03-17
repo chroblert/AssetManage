@@ -1,4 +1,4 @@
-{% extends 'base.html'%}
+{% extends 'base_JC.html'%}
 {% load static%}
 {% load base64_jc %}
 
@@ -25,36 +25,7 @@
 {% block content %}
    <!-- Main content -->
    <section class="content">
-     <div class="box">
 
-       <div class="box-header with-border">
-
-          <h3 class="box-title">基础信息</h3>
-
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-              <i class="fa fa-minus"></i></button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-              <i class="fa fa-times"></i></button>
-          </div>
-        </div>
-        <div class="box-body">
-          <table class="table table-bordered table-striped dataTable">
-            <tr>
-              <td>扫描时间:{{scanRes.scanTime}}</td>
-              <td>项目类型:{{scanType}}</td>
-            </tr>
-            <tr>
-              <td>主机名:{{scanRes.hostname}}</td>
-              <td>系统版本:{{scanRes.osVersion }}</td>
-            </tr>
-            <tr>
-              <td>MAC地址:{{scanRes.macaddr}}</td>
-              <td>IP地址:{{scanRes.ipList}}</td>
-            </tr>
-          </table>
-        </div>
-     </div>
      <!-- 检查结果 -->
        <div class="box">
          <div class="box-body with-border">

@@ -5,6 +5,8 @@ import xml.etree.ElementTree as ET
 from django.core.exceptions import ObjectDoesNotExist
 import copy
 import datetime
+import manage.portScan_MT
+from multiprocessing import Process
 
 # Create your views here.
 
@@ -26,77 +28,36 @@ def read_data_create(request):
             nrows = table.nrows # 行数
             for i in range(1,nrows):
                 rowValues = table.row_values(i)
-                OwnerID_id = models.Owner.objects.get_or_create(OwnerName=rowValues[5])[0].id
-                OSVersion = rowValues[6]
-                if not OSVersion:
-                    OSType = ''
-                else:
-                    OSType = 'Windows' if ('Windows' in OSVersion) or ('windows' in OSVersion) else "Linux"
-                OSTID_id = models.OSType.objects.get_or_create(OSType=OSType,OSVersion=OSVersion)[0].id
-                CSPID_id = models.CSP.objects.get_or_create(csp_type=rowValues[1])[0].id
+                CSP=rowValues[1]
+                ServerName = None if not rowValues[2] else rowValues[2]
                 PublicIP = None if not rowValues[3] else rowValues[3]
                 PrivateIP = None if not rowValues[4] else rowValues[4]
-                ServerName = None if not rowValues[2] else rowValues[2]
-                # 更新数据：在插入同IP的server之前，先删除
-                try:
-                    models.Server.objects.filter(PublicIP=PublicIP,PrivateIP=PrivateIP).delete()
-                except ObjectDoesNotExist:
-                    pass
-                models.Server.objects.get_or_create( OwnerID_id=OwnerID_id,OSTID_id=OSTID_id,CSPID_id=CSPID_id,PublicIP=PublicIP,PrivateIP=PrivateIP,ServerName=ServerName)
+                OwnerName=rowValues[5]
+                OSVersion = rowValues[6]
+                networkType="cloud" if CSP in ['AliCloud',"AWS","Azure"] else "private"
+                models.ServerInfo.objects.get_or_create(networkType=networkType,cloudServerProvider=CSP,serverName=ServerName,osVersion=OSVersion,publicIP=PublicIP,privateIP=PrivateIP,owner=OwnerName)
                 all_value_list.append(rowValues)
     # return render(request,'manage/display.html',locals())
+    # 调用端口扫描工具进行扫描
+    p = Process(target=port_scan)
+    p.start()
     return render(request,'manage/result.html',locals())
-
-def read_port_create(request):
-    if request.method == "POST":
-        f = request.FILES['xml_file']
-        type_xml = f.name.split('.')[1]
-        if 'xml' == type_xml:
-            # tree = ET.parse(source=f.read())
-            # root = tree.getroot()
-            root = ET.fromstring(text=f.read())
-            hosts = root.findall("host")
-            # host_port_dict_list = []
-            for host in hosts:
-                # host_port_dict = {}
-                if host.find("status").attrib['state'] == 'up':
-                    ip = host.find("address").attrib['addr']
-                    # host_port_dict['ip']=ip
-                    try:
-                        host_exist = models.Server.objects.get(PublicIP=ip)
-                    except ObjectDoesNotExist:
-                        host_exist = False
-                    if host_exist == False:
-                        try:
-                            host_exist = models.Server.objects.get(PrivateIP=ip)
-                        except ObjectDoesNotExist:
-                            host_exist = False
-                    if host_exist == False:
-                        continue
-                else:
-                    continue
-                # 某个host的所有端口
-                ports = host.find("ports").findall("port")
-                # port_list
-                try:
-                    SID_id = models.Server.objects.get(PublicIP=ip).id
-                except ObjectDoesNotExist:
-                    SID_id = models.Server.objects.get(PrivateIP=ip).id
-                # 在插入某host的port之前，删除之前已存在的port
-                models.ServerPort.objects.filter(SID_id=SID_id).delete()
-                for port in ports:
-                    # 记录state为open的端口
-                    if port.find("state").attrib['state'] == 'open':
-                        # port_list.append(port.attrib['portid'])
-                        PID_id = models.Port.objects.get_or_create(PortNum=port.attrib['portid'])[0].id
-                        try:
-                            SCID_id = models.Service.objects.get_or_create(ServiceName=port.find("service").attrib['name'])[0].id
-                        except AttributeError:
-                            SCID_id = None #models.Service.objects.get_or_create(ServiceName=None)
-                        
-                        models.ServerPort.objects.get_or_create(PID_id=PID_id,SID_id=SID_id,SCID_id=SCID_id)
-                # host_port_dict['ports'] = port_list
-                # host_port_dict_list.append(host_port_dict)
-    # return render(request,'manage/display_port.html',locals())
+def portscan_process(request):
+    p = Process(target=port_scan)
+    p.start()
     return render(request,'manage/result.html',locals())
-
+def port_scan(data={}):
+    scan_type="all"
+    isRestore=False
+    ipGetType="list"
+    iplist=[]
+    servers = models.ServerInfo.objects.all()
+    for server in servers:
+        if server.publicIP:
+            iplist.append(server.publicIP)
+    portGetType="list" # all
+    start = 1
+    end = 65535
+    portList=[443]
+    manage.portScan_MT.main(scan_type=scan_type,isRestore=isRestore,ipGetType=ipGetType,iplist=iplist,portGetType=portGetType,start=start,end=end,portList=portList)
+    print("+++++++++++++++++++++++++++++OVER++++++++++++++++++++++++++")

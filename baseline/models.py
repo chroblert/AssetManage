@@ -166,7 +166,34 @@ class WindowsScanRes(models.Model):
     class Meta:
         verbose_name="windows安全基线扫描结果元数据"
         verbose_name_plural="Windows安全基线扫描结果元数据"
+class MiddlewareCheckResMeta(models.Model):
+    scanTime=models.DateTimeField(verbose_name="scanTime")
+    scanType=models.CharField(max_length=50,name="scanType")
+    hostname=models.CharField(max_length=100,verbose_name="hostname")
+    osVersion=models.CharField(max_length=100,verbose_name="osVersion")
+    ipList=models.CharField(max_length=100,verbose_name="ipList")
+    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    middlewareCheckResMeta=models.CharField(max_length=65535,verbose_name="middlewareCheckResMeta")
 
+    def __str__(self):
+        return '%s %s'%(self.scanTime,self.macaddr)
+    class Meta:
+        verbose_name="中间件检查记录"
+        verbose_name_plural="中间件检查记录"
+class VulnCheckRes(models.Model):
+    scanTime=models.DateTimeField(verbose_name="scanTime")
+    scanType=models.CharField(max_length=50,name="scanType")
+    hostname=models.CharField(max_length=100,verbose_name="hostname")
+    osVersion=models.CharField(max_length=100,verbose_name="osVersion")
+    ipList=models.CharField(max_length=100,verbose_name="ipList")
+    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    vulnCheckRes=models.CharField(max_length=65535,verbose_name="vulnCheckRes")
+
+    def __str__(self):
+        return '%s %s'%(self.scanTime,self.macaddr)
+    class Meta:
+        verbose_name="漏洞检查记录"
+        verbose_name_plural="漏洞检查记录"
 class LinuxScanResMeta(models.Model):
     # 时间
     scanTime=models.DateTimeField(verbose_name="scanTime")

@@ -1,0 +1,495 @@
+{% extends 'base.html'%}
+{% load static%}
+{% load base64_jc %}
+
+{% block title %}基线检查记录{% endblock %}
+{% block css %}
+     <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+<style>
+.jc-red-badge{
+  display: inline-block;
+    min-width: 10px;
+    padding: 3px 7px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    background-color:red;
+    border-radius: 10px;
+}
+</style>
+{% endblock %}
+{% block content %}
+   <!-- Main content -->
+   <section class="content">
+     <div class="box">
+
+       <div class="box-header with-border">
+
+          <h3 class="box-title">基础信息</h3>
+
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+              <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+              <i class="fa fa-times"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+          <table class="table table-bordered table-striped dataTable">
+            <tr>
+              <td>扫描时间:{{scanRes.scanTime}}</td>
+              <td>项目类型:{{scanType}}</td>
+            </tr>
+            <tr>
+              <td>主机名:{{scanRes.hostname}}</td>
+              <td>系统版本:{{scanRes.osVersion }}</td>
+            </tr>
+            <tr>
+              <td>MAC地址:{{scanRes.macaddr}}</td>
+              <td>IP地址:{{scanRes.ipList}}</td>
+            </tr>
+          </table>
+        </div>
+     </div>
+     <!-- 检查结果 -->
+       <div class="box">
+         <div class="box-body with-border">
+           <h3 class="box-title">检查结果</h3>
+         </div>
+         <div class="box-body">
+          <table class="table table-bordered table-striped dataTable">
+            <tr>
+              <td>检查项目数：</td>
+              <td class="badge bg-green">{{checkNum}}</td>
+         
+              <td>未通过项：</td>
+              <td class="badge bg-red">{{failNum}}</td>
+              <td>得分：</td>
+              <td class="badge bg-yellow">{{checkScore}}</td>
+            </tr>
+          </table>
+        </div>
+       </div>
+     <div class="row">
+       <!-- 密码策略 -->
+     <div class="col-md-6">
+       <div class="box">
+
+         <div class="box-header with-border">
+
+             <h3 class="box-title">密码策略检查</h3>
+
+             <div class="box-tools pull-right">
+               <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                 <i class="fa fa-minus"></i></button>
+               <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                 <i class="fa fa-times"></i></button>
+             </div>
+           </div>
+           <div class="box-body">
+             <table class="table table-bordered table-striped dataTable">
+               <thead>
+                 <tr>
+                   <th>密码策略</th>
+                   <th>扫描结果</th>
+								<th>检查结果</th>
+               </thead>
+               <tr>
+                 <td>强制密码历史不少于5次</td>
+                 <td>{{scanRes.passwordHistorySize}}</td>
+			           <td {{checkRes.passwordHistorySize|setclass}}>{{checkRes.passwordHistorySize|checkres}}</td>
+               </tr>
+               <tr>
+                 <td>密码最长使用期限不多于90天</td>
+                 <td>{{scanRes.maximumPasswordAge}}</td>
+						  	<td {{checkRes.maximumPasswordAge|setclass}}>{{checkRes.maximumPasswordAge|checkres}}</td>
+               </tr>
+               <tr>
+                 <td>密码最短使用期限不少于1天</td>
+                 <td>{{scanRes.minimumPasswordAge}}</td>
+								<td {{checkRes.minimumPasswordAge|setclass}}>{{checkRes.minimumPasswordAge|checkres}}</td>
+               </tr>
+               <tr>
+                 <td>密码是否符合复杂度要求</td>
+                 <td>{{scanRes.passwordComplexity}}</td>
+								<td {{checkRes.passwordComplexity|setclass}}>{{checkRes.passwordComplexity|checkres}}</td>
+               </tr>
+               <tr>
+                 <td>不可用可还原的加密来存储密码</td>
+                 <td>{{scanRes.clearTextPassword}}</td>
+								<td {{checkRes.clearTextPassword|setclass}}>{{checkRes.clearTextPassword|checkres}}</td>
+               </tr>
+               <tr>
+                 <td>密码长度不低于8位</td>
+                 <td>{{scanRes.minimumPasswordLength}}</td>
+								<td {{checkRes.minimumPasswordLength|setclass}}>{{checkRes.minimumPasswordLength|checkres}}</td>
+               </tr>
+             </table>
+           </div>
+       </div>
+      </div>
+      <!-- 账户锁定策略 -->
+      <div class="col-md-6">
+
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">账户锁定策略检查</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <table class="table table-bordered table-striped dataTable">
+                <thead>
+                  <tr>
+                    <th>账户锁定策略</th>
+                    <th>扫描结果</th>
+								<th>检查结果</th>
+                </thead>
+                <tr>
+                  <td>账户锁定时间不低于15分钟</td>
+                  <td>{{scanRes.lockoutDuration}}</td>
+								<td {{checkRes.lockoutDuration|setclass}}>{{checkRes.lockoutDuration|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>账户锁定阈值不多于5次</td>
+                  <td>{{scanRes.lockoutBadCount}}</td>
+								<td {{checkRes.lockoutBadCount|setclass}}>{{checkRes.lockoutBadCount|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>重置账户锁定计数器</td>
+                  <td>{{scanRes.resetLockoutCount}}</td>
+								<td {{checkRes.resetLockoutCount|setclass}}>{{checkRes.resetLockoutCount|checkres}}</td>
+                </tr>
+              </table>
+            </div>
+        </div>
+      </div>
+     </div>
+     <!-- 审计策略 -->
+     <div class="row">
+      <div class="col-md-6">
+
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">审计策略检查</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <table class="table table-bordered table-striped dataTable">
+                <thead>
+                  <tr>
+                    <th>审计策略</th>
+                    <th>扫描结果</th>
+								<th>检查结果</th>
+                  </tr>
+                </thead>
+                <tr>
+                  <td>审核策略更改：成功</td>
+                  <td>{{scanRes.auditPolicyChange}}</td>
+								<td {{checkRes.auditPolicyChange|setclass}}>{{checkRes.auditPolicyChange|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审核登录时间：成功，失败</td>
+                  <td>{{scanRes.auditLogonEvents}}</td>
+								<td {{checkRes.auditLogonEvents|setclass}}>{{checkRes.auditLogonEvents|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审核对象访问：成功</td>
+                  <td>{{scanRes.auditObjectAccess}}</td>
+								<td {{checkRes.auditObjectAccess|setclass}}>{{checkRes.auditObjectAccess|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审核进程跟踪：成功，失败</td>
+                  <td>{{scanRes.auditProcessTracking}}</td>
+								<td {{checkRes.auditProcessTracking|setclass}}>{{checkRes.auditProcessTracking|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审核目录服务访问：成功，失败</td>
+                  <td>{{scanRes.auditDSAccess}}</td>
+								<td {{checkRes.auditDSAccess|setclass}}>{{checkRes.auditDSAccess|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审核系统事件：成功，失败</td>
+                  <td>{{scanRes.auditSystemEvents}}</td>
+								<td {{checkRes.auditSystemEvents|setclass}}>{{checkRes.auditSystemEvents|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审核账户登录事件：成功，失败</td>
+                  <td>{{scanRes.auditAccountLogon}}</td>
+								<td {{checkRes.auditAccountLogon|setclass}}>{{checkRes.auditAccountLogon|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审核账户管理事件：成功，失败</td>
+                  <td>{{scanRes.auditAccountManage}}</td>
+								<td {{checkRes.auditAccountManage|setclass}}>{{checkRes.auditAccountManage|checkres}}</td>
+                </tr>
+              </table>
+            </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+     <!-- 安全选项 -->
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">用户权限分配检查</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <table class="table table-bordered table-striped dataTable">
+                <thead>
+                  <tr>
+                    <th>用户权限分配策略</th>
+                    <th>扫描结果</th>
+								<th>检查结果</th>
+                  </tr>
+                </thead>
+                <tr>
+                  <td>确保“作为受信任的呼叫方访问凭据管理器”值为空，没有设置用户</td>
+                  <td>{{scanRes.seTrustedCredManAccessPrivilegeIFNone}}</td>
+								<td {{checkRes.seTrustedCredManAccessPrivilegeIFNone|setclass}}>{{checkRes.seTrustedCredManAccessPrivilegeIFNone|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>确保“以操作系统方式执行”值为空</td>
+                  <td>{{scanRes.seTcbPrivilegeIFNone}}</td>
+								<td {{checkRes.seTcbPrivilegeIFNone|setclass}}>{{checkRes.seTcbPrivilegeIFNone|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>确保“将工作站添加到域”值仅为特定的用户或用户组，不能有513，514，515</td>
+                  <td>{{scanRes.seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray}}</td>
+								<td {{checkRes.seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray|setclass}}>{{checkRes.seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>确保“创建全局对象”值为空</td>
+                  <td>{{scanRes.seCreateGlobalPrivilegeIFNone}}</td>
+								<td {{checkRes.seCreateGlobalPrivilegeIFNone|setclass}}>{{checkRes.seCreateGlobalPrivilegeIFNone|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>确保“拒绝作为批处理作业登录”包含Guests</td>
+                  <td>{{scanRes.seDenyBatchLogonRightIFContainGuests}}</td>
+								<td {{checkRes.seDenyBatchLogonRightIFContainGuests|setclass}}>{{checkRes.seDenyBatchLogonRightIFContainGuests|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>确保“拒绝以服务身份登录”包含Guests</td>
+                  <td>{{scanRes.seDenyServiceLogonRightIFContainGuests}}</td>
+								<td {{checkRes.seDenyServiceLogonRightIFContainGuests|setclass}}>{{checkRes.seDenyServiceLogonRightIFContainGuests|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>确保“拒绝本地登录”包含Guests</td>
+                  <td>{{scanRes.seDenyInteractiveLogonRightIFContainGuests}}</td>
+								<td {{checkRes.seDenyInteractiveLogonRightIFContainGuests|setclass}}>{{checkRes.seDenyInteractiveLogonRightIFContainGuests|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>确保“从远程系统强制关机”值为“administrator”本地组和s-1-5-32-549</td>
+                  <td>{{scanRes.seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray}}</td>
+								<td {{checkRes.seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray|setclass}}>{{checkRes.seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>确保“修改对象标签”值为空</td>
+                  <td>{{scanRes.seRelabelPrivilegeIFNone}}</td>
+								<td {{checkRes.seRelabelPrivilegeIFNone|setclass}}>{{checkRes.seRelabelPrivilegeIFNone|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>确保“同步目录服务数据”值为空</td>
+                  <td>{{scanRes.seSyncAgentPrivilegeIFNone}}</td>
+								<td {{checkRes.seSyncAgentPrivilegeIFNone|setclass}}>{{checkRes.seSyncAgentPrivilegeIFNone|checkres}}</td>
+                </tr>
+              </table>
+            </div>
+        </div>
+      </div>
+     </div>
+    <!-- 端口安全  -->
+     <div class="row">
+
+      <div class="col-md-6">
+
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">端口安全检查</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+          </div>
+          <div class="box-body">
+            <table class="table table-bordered table-striped dataTable">
+              <thead>
+                <th>端口安全策略</th>
+                <th>扫描结果</th>
+								<th>检查结果</th>
+              </thead>
+              <tr>
+                <td>修改RDP默认端口，不可为3389</td>
+                <td>{{scanRes.rdpPort}}</td>
+								<td {{checkRes.rdpPort|setclass}}>{{checkRes.rdpPort|checkres}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- 系统安全 -->
+      <div class="col-md-6">
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">系统安全检查</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+          </div>
+          <div class="box-body">
+            <table class="table table-bordered table-striped dataTable">
+              <thead>
+                <th>系统安全策略</th>
+                <th>扫描结果</th>
+								<th>检查结果</th>
+              </thead>
+              <tr>
+                <td>禁止自动播放</td>
+                <td>{{scanRes.autoRunRes}}</td>
+								<td {{checkRes.autoRunRes|setclass}}>{{checkRes.autoRunRes|checkres}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+     </div>
+     <!-- 安全选项检查 -->
+     <div class="row">
+      <div class="col-md-6">
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">安全选项检查</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+          </div>
+          <div class="box-body">
+            <table class="table table-bordered table-striped dataTable">
+              <thead>
+                <th>安全选项策略</th>
+                <th>扫描结果</th>
+								<th>检查结果</th>
+              </thead>
+              <tr>
+                <td>确保“账户：来宾账户状态”值为已禁用</td>
+                <td>{{scanRes.enableGuestAccount}}</td>
+								<td {{checkRes.enableGuestAccount|setclass}}>{{checkRes.enableGuestAccount|checkres}}</td>
+              </tr>
+              <tr>
+                <td>确保“账户：限制使用空密码的本地账户只能使用控制台登录”值为“enabled”</td>
+                <td>{{scanRes.limitBlankPasswordUse}}</td>
+								<td {{checkRes.limitBlankPasswordUse|setclass}}>{{checkRes.limitBlankPasswordUse|checkres}}</td>
+              </tr>
+              <tr>
+                <td>配置“账户：重命名系统管理员账户”</td>
+                <td>{{scanRes.newAdministratorName}}</td>
+								<td {{checkRes.newAdministratorName|setclass}}>{{checkRes.newAdministratorName|checkres}}</td>
+              </tr>
+              <tr>
+                <td>配置“账户：重命名来宾账户”</td>
+                <td>{{scanRes.newGuestName}}</td>
+								<td {{checkRes.newGuestName|setclass}}>{{checkRes.newGuestName|checkres}}</td>
+              </tr>
+              <tr>
+                <td>确保“交互式登录：不显式上次登录用户名”值为“enabled”</td>
+                <td>{{scanRes.dontDisplayLastUserName}}</td>
+								<td {{checkRes.dontDisplayLastUserName|setclass}}>{{checkRes.dontDisplayLastUserName|checkres}}</td>
+              </tr>
+              <tr>
+                <td>确保“交互式登录：无须按Ctl+Alt+Del”值为“Disabled”</td>
+                <td>{{scanRes.disableCAD}}</td>
+								<td {{checkRes.disableCAD|setclass}}>{{checkRes.disableCAD|checkres}}</td>
+              </tr>
+              <tr>
+                <td>确保“交互式登录：计算机不活动限制“值为900秒或更少</td>
+                <td>{{scanRes.inactivityTimeoutSecs}}</td>
+								<td {{checkRes.inactivityTimeoutSecs|setclass}}>{{checkRes.inactivityTimeoutSecs|checkres}}</td>
+              </tr>
+              <tr>
+                <td>确保“Micorsoft网络客户端：将未加密的密码发送到第三方SMB服务器”值为“Disabled”</td>
+                <td>{{scanRes.enablePlainTextPassword}}</td>
+								<td {{checkRes.enablePlainTextPassword|setclass}}>{{checkRes.enablePlainTextPassword|checkres}}</td>
+              </tr>
+              <tr>
+                <td>确保“Microsoft挽留过服务器：暂停会话前所需的空闲时间数量”值为15分钟或更少</td>
+                <td>{{scanRes.autoDisconnect}}</td>
+								<td {{checkRes.autoDisconnect|setclass}}>{{checkRes.autoDisconnect|checkres}}</td>
+              </tr>
+              <tr>
+                <td>确保“网络安全：在下一次改变密码时不存储LAN管理器哈希值”值为“Enabled”</td>
+                <td>{{scanRes.noLMHash}}</td>
+								<td {{checkRes.noLMHash|setclass}}>{{checkRes.noLMHash|checkres}}</td>
+              </tr>
+              <tr>
+                <td>确保“网络访问：允许匿名SID/名称转换”值为“Disabled”</td>
+                <td>{{scanRes.lsaAnonymousNameLookup}}</td>
+								<td {{checkRes.lsaAnonymousNameLookup|setclass}}>{{checkRes.lsaAnonymousNameLookup|checkres}}</td>
+              </tr>
+              <tr>
+                <td>确保“网络访问：不允许SAM账户的匿名枚举”值为“Enabled”</td>
+                <td>{{scanRes.restrictAnonymousSAM}}</td>
+								<td {{checkRes.restrictAnonymousSAM|setclass}}>{{checkRes.restrictAnonymousSAM|checkres}}</td>
+              </tr>
+              <tr>
+                <td>确保“网络访问：不允许SAM账户和共享的匿名枚举”值为“Enabled”</td>
+                <td>{{scanRes.restrictAnonymous}}</td>
+								<td {{checkRes.restrictAnonymous|setclass}}>{{checkRes.restrictAnonymous|checkres}}</td>
+              </tr>
+              <tr>
+                <td>确保“关机：允许系统在未登录前关机”值未“Disabled”</td>
+                <td>{{scanRes.clearPageFileAtShutdown}}</td>
+								<td {{checkRes.clearPageFileAtShutdown|setclass}}>{{checkRes.clearPageFileAtShutdown|checkres}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      </div>
+   </section>
+{% endblock %}
+{% block script %}
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script>
+$(function () {
+        $('#assets_table').DataTable({
+          "paging": true,       <!-- 允许分页 -->
+          "lengthChange": true, <!-- 允许改变每页显示的行数 -->
+          "searching": true,    <!-- 允许内容搜索 -->
+          "ordering": true,     <!-- 允许排序 -->
+          "info": true,         <!-- 显示信息 -->
+          "autoWidth": false    <!-- 固定宽度 -->
+        });
+      });
+
+</script>
+{% endblock %}

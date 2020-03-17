@@ -1,0 +1,776 @@
+{% extends 'base.html'%}
+{% load static%}
+{% load base64_jc %}
+
+{% block title %}基线检查记录{% endblock %}
+{% block css %}
+     <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+<style>
+.jc-red-badge{
+  display: inline-block;
+    min-width: 10px;
+    padding: 3px 7px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle !important;
+    background-color:red;
+    border-radius: 10px;
+}
+/* td{
+  word-break:break-all;
+  vertical-align: middle!important;
+} */
+table{
+	table-layout:fixed;
+}	
+td{
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+</style>
+{% endblock %}
+{% block content %}
+   <!-- Main content -->
+   <section class="content">
+     <div class="box">
+
+       <div class="box-header with-border">
+
+          <h3 class="box-title">基础信息</h3>
+
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+              <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+              <i class="fa fa-times"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+          <table class="table table-bordered table-striped dataTable">
+            <tr>
+              <td>扫描时间:{{scanRes.scanTime}}</td>
+              <td>项目类型:{{scanType}}</td>
+            </tr>
+            <tr>
+              <td>主机名:{{scanRes.hostname}}</td>
+              <td>系统版本:{{scanRes.osVersion }}</td>
+            </tr>
+            <tr>
+              <td>MAC地址:{{scanRes.macaddr}}</td>
+              <td>IP地址:{{scanRes.ipList}}</td>
+            </tr>
+          </table>
+        </div>
+     </div>
+     <!-- 检查结果 -->
+       <div class="box">
+         <div class="box-body with-border">
+           <h3 class="box-title">检查结果</h3>
+         </div>
+         <div class="box-body">
+          <table class="table table-bordered table-striped dataTable">
+            <tr>
+              <td>检查项目数：</td>
+              <td class="badge bg-green">{{checkNum}}</td>
+         
+              <td>未通过项：</td>
+              <td class="badge bg-red">{{failNum}}</td>
+              <td>得分：</td>
+              <td class="badge bg-yellow">{{checkScore}}</td>
+            </tr>
+          </table>
+        </div>
+       </div>
+     <div class="row">
+       <!-- 初始安装规范 -->
+     <div class="col-md-6">
+       <div class="box">
+
+         <div class="box-header with-border">
+
+             <h3 class="box-title">初始安装规范检查</h3>
+
+             <div class="box-tools pull-right">
+               <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                 <i class="fa fa-minus"></i></button>
+               <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                 <i class="fa fa-times"></i></button>
+             </div>
+           </div>
+           <div class="box-body">
+             <table class="table table-bordered table-striped dataTable">
+               <thead>
+                 <tr>
+                   <th style="width:55%;">初始安装规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+               </thead>
+               <tr>
+                 <td>将/tmp挂载至一个单独的分区</td>
+                 <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.tmpIfSeparate}}">{{scanRes.tmpIfSeparate}}</td>
+									<td {{checkRes.ck_tmpIfSeparate|setclass}}>{{checkRes.ck_tmpIfSeparate|checkres}}</td>
+               </tr>
+               <tr>
+                 <td>/tmp挂载时指定“noexec"</td>
+                 <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.tmpIfNoexec}}">{{scanRes.tmpIfNoexec}}</td>
+									<td {{checkRes.ck_tmpIfNoexec|setclass}}>{{checkRes.ck_tmpIfNoexec|checkres}}</td>
+               </tr>
+               <tr>
+                 <td>/tmp挂载时指定“nosuid”</td>
+                 <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.tmpIfNosuid}}">{{scanRes.tmpIfNosuid}}</td>
+									<td {{checkRes.ck_tmpIfNosuid|setclass}}>{{checkRes.ck_tmpIfNosuid|checkres}}</td>
+               </tr>
+               <tr>
+                <td>bootloader配置文件的权限不高于600</td>
+                 <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.grubcfgPermission}}">{{scanRes.grubcfgPermission}}</td>
+									<td {{checkRes.ck_grubcfgPermissionLE600|setclass}}>{{checkRes.ck_grubcfgPermissionLE600|checkres}}</td>
+               </tr>
+               <tr>
+                 <td>为bootloader设置密码</td>
+                 <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.grubcfgIfSetPasswd}}">{{scanRes.grubcfgIfSetPasswd}}</td>
+									<td {{checkRes.ck_grubcfgIfSetPasswd|setclass}}>{{checkRes.ck_grubcfgIfSetPasswd|checkres}}</td>
+               </tr>
+               <tr>
+                 <td>为单用户模式启动认证机制</td>
+                 <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.singleUserModeIfNeedAuth}}">{{scanRes.singleUserModeIfNeedAuth}}</td>
+									<td {{checkRes.ck_singleUserModeIfNeedAuth|setclass}}>{{checkRes.ck_singleUserModeIfNeedAuth|checkres}}</td>
+               </tr>
+               <tr>
+                 <td>设置SELinux的状态为“enforcing”</td>
+                 <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.selinuxStateIfEnforcing}}">{{scanRes.selinuxStateIfEnforcing}}</td>
+									<td {{checkRes.ck_selinuxStateIfEnforcing|setclass}}>{{checkRes.ck_selinuxStateIfEnforcing|checkres}}</td>
+               </tr>
+               <tr>
+                 <td>设置SELinux的policy为“targeted”</td>
+                 <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.selinuxPolicyIfConfigured}}">{{scanRes.selinuxPolicyIfConfigured}}</td>
+									<td {{checkRes.ck_selinuxPolicyIfConfigured|setclass}}>{{checkRes.ck_selinuxPolicyIfConfigured|checkres}}</td>
+               </tr>
+             </table>
+           </div>
+       </div>
+      </div>
+      <!-- 服务配置规范 -->
+      <div class="col-md-6">
+
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">服务配置规范检查</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <table class="table table-bordered table-striped dataTable">
+                <thead>
+                  <tr>
+                    <th style="width:55%;">服务配置规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+                </thead>
+                <tr>
+                  <td>开启时间同步服务</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.timeSyncServerIfConfigured}}">{{scanRes.timeSyncServerIfConfigured}}</td>
+									<td {{checkRes.ck_timeSyncServerIfConfigured|setclass}}>{{checkRes.ck_timeSyncServerIfConfigured|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>不安装"x-windows"</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.x11windowIfNotInstalled}}">{{scanRes.x11windowIfNotInstalled}}</td>
+									<td {{checkRes.ck_x11windowIfNotInstalled|setclass}}>{{checkRes.ck_x11windowIfNotInstalled|checkres}}</td>
+                </tr>
+              </table>
+            </div>
+        </div>
+      </div>
+     </div>
+     
+     <div class="row">
+       <!-- 网络配置规范 -->
+      <div class="col-md-6">
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">网络配置规范检查</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <table class="table table-bordered table-striped dataTable">
+                <thead>
+                  <tr>
+                    <th style="width:55%;">网络配置规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+                  </tr>
+                </thead>
+                <tr>
+                  <td>配置/etc/hosts.allow文件</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.hostsAllowFileIfConfigured}}">{{scanRes.hostsAllowFileIfConfigured}}</td>
+									<td {{checkRes.ck_hostsAllowFileIfConfigured|setclass}}>{{checkRes.ck_hostsAllowFileIfConfigured|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置/etc/hosts.deny文件</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.hostsDenyFileIfConfigured}}">{{scanRes.hostsDenyFileIfConfigured}}</td>
+									<td {{checkRes.ck_hostsDenyFileIfConfigured|setclass}}>{{checkRes.ck_hostsDenyFileIfConfigured|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>hosts.allow文件的权限不高于0644</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.hostsAllowFilePermission}}">{{scanRes.hostsAllowFilePermission}}</td>
+									<td {{checkRes.ck_hostsAllowFilePermission|setclass}}>{{checkRes.ck_hostsAllowFilePermission|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>hosts.deny文件的权限不高于0644</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.hostsDenyFilePermission}}">{{scanRes.hostsDenyFilePermission}}</td>
+									<td {{checkRes.ck_hostsDenyFilePermission|setclass}}>{{checkRes.ck_hostsDenyFilePermission|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>安装并使用iptables</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.iptablesIfInstalled}}">{{scanRes.iptablesIfInstalled}}</td>
+									<td {{checkRes.ck_iptablesIfInstalled|setclass}}>{{checkRes.ck_iptablesIfInstalled|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>设置iptales INPUT链的默认策略为DROP</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.iptablesInputPolicyIfDrop}}">{{scanRes.iptablesInputPolicyIfDrop}}</td>
+									<td {{checkRes.ck_iptablesInputPolicyIfDrop|setclass}}>{{checkRes.ck_iptablesInputPolicyIfDrop|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>设置iptables OUTPUT链的默认策略为DROP</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.iptablesOutputPolicyIfDrop}}">{{scanRes.iptablesOutputPolicyIfDrop}}</td>
+									<td {{checkRes.ck_iptablesOutputPolicyIfDrop|setclass}}>{{checkRes.ck_iptablesOutputPolicyIfDrop|checkres}}</td>
+                </tr>
+              </table>
+            </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+
+     <!-- 审计设置 -->
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">审计设置规范检查</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+          </div>
+            <div class="box-body">
+
+              <table class="table table-bordered table-striped dataTable">
+                <thead>
+                  <tr>
+                    <th style="width:55%;">审计设置规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+                  </tr>
+                </thead>
+                <tr>
+                  <td>安装并使用“auditd"</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdIfEnabled}}">{{scanRes.auditdIfEnabled}}</td>
+									<td {{checkRes.ck_auditdIfEnabled|setclass}}>{{checkRes.ck_auditdIfEnabled|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置记录审计日志的文件大小不小于8M</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdIfSetMaxLogFile}}">{{scanRes.auditdIfSetMaxLogFile}}</td>
+									<td {{checkRes.ck_auditdIfSetMaxLogFile|setclass}}>{{checkRes.ck_auditdIfSetMaxLogFile|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置记录审计日志的文件个数不小于5个</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdIfSetNumLogs}}">{{scanRes.auditdIfSetNumLogs}}</td>
+									<td {{checkRes.ck_auditdIfSetNumLogs|setclass}}>{{checkRes.ck_auditdIfSetNumLogs|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置单个审计日志文件大小达到设定的值时触发的动作为“keep_logs"/"rotate"</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdIfSetMaxLogFileAction}}">{{scanRes.auditdIfSetMaxLogFileAction}}</td>
+									<td {{checkRes.ck_auditdIfSetMaxLogFileAction|setclass}}>{{checkRes.ck_auditdIfSetMaxLogFileAction|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置磁盘空间满后触发的动作不为“ignore”或“suspend”</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdIfSetSpaceLeftAction}}">{{scanRes.auditdIfSetSpaceLeftAction}}</td>
+									<td {{checkRes.ck_auditdIfSetSpaceLeftAction|setclass}}>{{checkRes.ck_auditdIfSetSpaceLeftAction|checkres}}</td>
+                </tr>
+              </table>
+            </div>
+        </div>
+      </div>
+     </div>
+   
+     <div class="row">
+      <!-- 审计规则规范 -->
+      <div class="col-md-6">
+
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">审计规则规范检查</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+          </div>
+          <div class="box-body">
+            <table class="table table-bordered table-striped dataTable">
+              <thead>
+                <th style="width:55%;">审计规则规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>审计更改日期和时间的操作</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdIfCheckTimechange}}">{{scanRes.auditdIfCheckTimechange}}</td>
+									<td {{checkRes.ck_auditdIfCheckTimechange|setclass}}>{{checkRes.ck_auditdIfCheckTimechange|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审计更改用户/组信息的操作</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdRulesNotCheckedUserandgroupfile}}">{{scanRes.auditdRulesNotCheckedUserandgroupfile}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedUserandgroupfile|setclass}}>{{checkRes.ck_auditdRulesNotCheckedUserandgroupfile|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审计更改系统网络环境的操作</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdRulesNotCheckedNetworkenv}}">{{scanRes.auditdRulesNotCheckedNetworkenv}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedNetworkenv|setclass}}>{{checkRes.ck_auditdRulesNotCheckedNetworkenv|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审计更改系统强制访问控制的操作</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdRulesNotCheckedMACchange}}">{{scanRes.auditdRulesNotCheckedMACchange}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedMACchange|setclass}}>{{checkRes.ck_auditdRulesNotCheckedMACchange|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审计登入登出系统的事件</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdRulesNotCheckedLoginoutEvents}}">{{scanRes.auditdRulesNotCheckedLoginoutEvents}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedLoginoutEvents|setclass}}>{{checkRes.ck_auditdRulesNotCheckedLoginoutEvents|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审计企图改变文件权限的操作</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdRulesNotCheckedDACChangeSyscall}}">{{scanRes.auditdRulesNotCheckedDACChangeSyscall}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedDACChangeSyscall|setclass}}>{{checkRes.ck_auditdRulesNotCheckedDACChangeSyscall|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审计未授权情况下企图访问文件未成功的事件</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdRulesNotCheckedFileAccessAttemptSyscall}}">{{scanRes.auditdRulesNotCheckedFileAccessAttemptSyscall}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedFileAccessAttemptSyscall|setclass}}>{{checkRes.ck_auditdRulesNotCheckedFileAccessAttemptSyscall|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审计使用提权命令的操作</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdRulesNotCheckedPrivilegedCommand}}">{{scanRes.auditdRulesNotCheckedPrivilegedCommand}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedPrivilegedCommand|setclass}}>{{checkRes.ck_auditdRulesNotCheckedPrivilegedCommand|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>审计sudoers文件的变更</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdRulesNotCheckedSudoerFile}}">{{scanRes.auditdRulesNotCheckedSudoerFile}}</td>
+									<td {{checkRes.ck_auditdRulesNotCheckedSudoerFile|setclass}}>{{checkRes.ck_auditdRulesNotCheckedSudoerFile|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>确保审计日志文件audit.log的规则在系统重启前不能改变</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.auditdRulesIfImmutable}}">{{scanRes.auditdRulesIfImmutable}}</td>
+									<td {{checkRes.ck_auditdRulesIfImmutable|setclass}}>{{checkRes.ck_auditdRulesIfImmutable|checkres}}</td>
+                </tr>
+              </tbody> 
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- 日志设置规范 -->
+      <div class="col-md-6">
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">日志,计划任务设置规范检查</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+          </div>
+          <div class="box-body">
+            <table class="table table-bordered table-striped dataTable">
+              <thead>
+                <th style="width:55%;">日志设置规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+              </thead>
+              <tr>
+                <td>安装并启用rsyslog</td>
+                <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.rsyslogIfEnabled}}">{{scanRes.rsyslogIfEnabled}}</td>
+									<td {{checkRes.ck_rsyslogIfEnabled|setclass}}>{{checkRes.ck_rsyslogIfEnabled|checkres}}</td>
+              </tr>
+            </table>
+            <table class="table table-bordered table-striped dataTable">
+              <thead>
+                <th style="width:55%;">计划设置规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+              </thead>
+              <tr>
+                <td>开启cron服务</td>
+                <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.crondIfEnabled}}">{{scanRes.crondIfEnabled}}</td>
+									<td {{checkRes.ck_crondIfEnabled|setclass}}>{{checkRes.ck_crondIfEnabled|checkres}}</td>
+              </tr>
+              <tr>
+                <td>配置crontab,cron.hourly,cron.daily,cron.weekly,cron.monthly,cron.d文件的权限不高于0700</td>
+                <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.crondConfigFilePermissionArray}}">{{scanRes.crondConfigFilePermissionArray}}</td>
+									<td {{checkRes.ck_crondConfigFilePermissionArray|setclass}}>{{checkRes.ck_crondConfigFilePermissionArray|checkres}}</td>
+              </tr>
+              <tr>
+                <td>配置cron.allow,cron.deny文件权限不超过0700</td>
+                <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.crondallowdenyFilePermissionArray}}">{{scanRes.crondallowdenyFilePermissionArray}}</td>
+									<td {{checkRes.ck_crondallowdenyFilePermissionArray|setclass}}>{{checkRes.ck_crondallowdenyFilePermissionArray|checkres}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+     </div>
+     <div class="row">
+
+       <!-- ssh配置规范 -->
+      <div class="col-md-6">
+
+        <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">SSH配置规范检查</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                  <i class="fa fa-times"></i></button>
+              </div>
+          </div>
+          <div class="box-body">
+            <table class="table table-bordered table-striped dataTable">
+              <thead>
+                <th style="width:55%;">SSH配置规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>配置/etc/ssh/sshd_config文件的权限不高于0600</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdConfigFilePermission}}">{{scanRes.sshdConfigFilePermission}}</td>
+									<td {{checkRes.ck_sshdConfigFilePermission|setclass}}>{{checkRes.ck_sshdConfigFilePermission|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>关闭X11Forwarding</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdIfDisableX11forwarding}}">{{scanRes.sshdIfDisableX11forwarding}}</td>
+									<td {{checkRes.ck_sshdIfDisableX11forwarding|setclass}}>{{checkRes.ck_sshdIfDisableX11forwarding|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置最大登录尝试次数不高于4次</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdIfSetMaxAuthTries}}">{{scanRes.sshdIfSetMaxAuthTries}}</td>
+									<td {{checkRes.ck_sshdIfSetMaxAuthTries|setclass}}>{{checkRes.ck_sshdIfSetMaxAuthTries|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置“IgnoreRhosts”值为“Enabled”</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdIfEnableIgnoreRhosts}}">{{scanRes.sshdIfEnableIgnoreRhosts}}</td>
+									<td {{checkRes.ck_sshdIfEnableIgnoreRhosts|setclass}}>{{checkRes.ck_sshdIfEnableIgnoreRhosts|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置“HostbasedAuthentication”值为“Disabled”</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdIfDisableHostbasedAuthentication}}">{{scanRes.sshdIfDisableHostbasedAuthentication}}</td>
+									<td {{checkRes.ck_sshdIfDisableHostbasedAuthentication|setclass}}>{{checkRes.ck_sshdIfDisableHostbasedAuthentication|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置”PermitRootLogin”值为“no”</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdIfDisablePermitRootLogin}}">{{scanRes.sshdIfDisablePermitRootLogin}}</td>
+									<td {{checkRes.ck_sshdIfDisablePermitRootLogin|setclass}}>{{checkRes.ck_sshdIfDisablePermitRootLogin|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置“PermitEmptyPasswords”值为“no”</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdIfDisablePermitEmptyPasswords}}">{{scanRes.sshdIfDisablePermitEmptyPasswords}}</td>
+									<td {{checkRes.ck_sshdIfDisablePermitEmptyPasswords|setclass}}>{{checkRes.ck_sshdIfDisablePermitEmptyPasswords|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置“PermitUserEnvironment”值为“no”</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdIfDisablePermitUserEnvironment}}">{{scanRes.sshdIfDisablePermitUserEnvironment}}</td>
+									<td {{checkRes.ck_sshdIfDisablePermitUserEnvironment|setclass}}>{{checkRes.ck_sshdIfDisablePermitUserEnvironment|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置要使用的MAC算法</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdIfSpecificMACs}}">{{scanRes.sshdIfSpecificMACs}}</td>
+									<td {{checkRes.ck_sshdIfSpecificMACs|setclass}}>{{checkRes.ck_sshdIfSpecificMACs|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>设置空闲超时时间不超过180秒</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdIfSetClientAliveInterval}}">{{scanRes.sshdIfSetClientAliveInterval}}</td>
+									<td {{checkRes.ck_sshdIfSetClientAliveInterval|setclass}}>{{checkRes.ck_sshdIfSetClientAliveInterval|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>设置一次登录验证时间不超过120秒</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdIfSetLoginGraceTime}}">{{scanRes.sshdIfSetLoginGraceTime}}</td>
+									<td {{checkRes.ck_sshdIfSetLoginGraceTime|setclass}}>{{checkRes.ck_sshdIfSetLoginGraceTime|checkres}}</td>
+                </tr>
+              </tbody>
+
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="box">
+          <div class="box-header with-border">
+            <h3 class="box-title">PAM配置规范检查</h3>
+            <div class="box-tools pull-right">
+
+              <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                <i class="fa fa-minus"></i>
+              </button>
+              <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="remove">
+                <i class="fa fa-times"></i>
+              </button>
+            </div>
+          </div>
+          <div class="box-body">
+            <table class="table table-bordered table-striped dataTable">
+              <thead>
+                <th style="width:55%;">PAM配置规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>配置密码位数不低于8位</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.pamIfSetMinlen}}">{{scanRes.pamIfSetMinlen}}</td>
+									<td {{checkRes.ck_pamIfSetMinlen|setclass}}>{{checkRes.ck_pamIfSetMinlen|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置密码中至少包含3种字符</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.pamIfSetMinclass}}">{{scanRes.pamIfSetMinclass}}</td>
+									<td {{checkRes.ck_pamIfSetMinclass|setclass}}>{{checkRes.ck_pamIfSetMinclass|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>在system-auth,password-auth中配置密码锁定及解锁时间</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdNotSetedLockAndUnlockTimeFiles}}">{{scanRes.sshdNotSetedLockAndUnlockTimeFiles}}</td>
+									<td {{checkRes.ck_sshdNotSetedLockAndUnlockTimeFiles|setclass}}>{{checkRes.ck_sshdNotSetedLockAndUnlockTimeFiles|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置密码重用限制，至少不使用最近5次的密码</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdPamdFileReuseLimitArray}}">{{scanRes.sshdPamdFileReuseLimitArray}}</td>
+									<td {{checkRes.ck_sshdPamdFileReuseLimitArray|setclass}}>{{checkRes.ck_sshdPamdFileReuseLimitArray|checkres}}</td>
+                </tr>
+                <tr>
+                  <td>配置密码使用的Hash算法为SHA512</td>
+                  <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.sshdPamdFileIfSetSha512Array}}">{{scanRes.sshdPamdFileIfSetSha512Array}}</td>
+									<td {{checkRes.ck_sshdPamdFileIfSetSha512Array|setclass}}>{{checkRes.ck_sshdPamdFileIfSetSha512Array|checkres}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div class="row">
+
+        <div class="col-md-6">
+
+          <div class="box">
+            <div class="box-header with-border">
+
+              <h3 class="box-title">账号和环境配置规范检查</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="remove">
+                  <i class="fa fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div class="box-body">
+              <table class="table table-bordered table-striped dataTable">
+                <thead>
+                  <th style="width:55%;">账号和环境配置规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>配置密码有效时间不多于90天</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.accountPassMaxDays}}">{{scanRes.accountPassMaxDays}}</td>
+                    <td {{checkRes.ck_accountPassMaxDays|setclass}}>{{checkRes.ck_accountPassMaxDays|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>配置密码更改最短间隔不少于1天</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.accountPassMinDays}}">{{scanRes.accountPassMinDays}}</td>
+									<td {{checkRes.ck_accountPassMinDays|setclass}}>{{checkRes.ck_accountPassMinDays|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>配置至少提前7天警告密码将要过期</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.accountPassWarnDays}}">{{scanRes.accountPassWarnDays}}</td>
+									<td {{checkRes.ck_accountPassWarnDays|setclass}}>{{checkRes.ck_accountPassWarnDays|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>配置自动禁用365天内没有活动的的帐号</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.accountPassAutolockInactiveDays}}">{{scanRes.accountPassAutolockInactiveDays}}</td>
+									<td {{checkRes.ck_accountPassAutolockInactiveDays|setclass}}>{{checkRes.ck_accountPassAutolockInactiveDays|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>配置使系统账号无法登录</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.accountShouldUnloginArray}}">{{scanRes.accountShouldUnloginArray}}</td>
+									<td {{checkRes.ck_accountShouldUnloginArray|setclass}}>{{checkRes.ck_accountShouldUnloginArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保root账号默认群组的GID为0</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.accountGIDOfRoot}}">{{scanRes.accountGIDOfRoot}}</td>
+									<td {{checkRes.ck_accountGIDOfRoot|setclass}}>{{checkRes.ck_accountGIDOfRoot|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>配置shell超时关闭会话时间不多于900秒</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.accountProfileTMOUTArray}}">{{scanRes.accountProfileTMOUTArray}}</td>
+									<td {{checkRes.ck_accountProfileTMOUTArray|setclass}}>{{checkRes.ck_accountProfileTMOUTArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>配置只有特定用户可以使用“su”命令</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.accountIfSetUsersCanAccessSuCommand}}">{{scanRes.accountIfSetUsersCanAccessSuCommand}}</td>
+									<td {{checkRes.ck_accountIfSetUsersCanAccessSuCommand|setclass}}>{{checkRes.ck_accountIfSetUsersCanAccessSuCommand|checkres}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="box">
+            <div class="box-header with-border">
+              <h3 class="box-title">系统配置检查</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="remove">
+                  <i class="fa fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div class="box-body">
+              <table class="table table-bordered table-striped dataTable">
+                <thead>
+                  <th style="width:55%;">系统配置规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+                </thead>
+                <tbody>
+                  <tr>  
+                    <td>确保passwd(-),shadow(-),group(-),gshadow(-)的权限为0644(0000)</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.importantFilePermissionArray}}">{{scanRes.importantFilePermissionArray}}</td>
+									<td {{checkRes.ck_importantFilePermissionArray|setclass}}>{{checkRes.ck_importantFilePermissionArray|checkres}}</td>
+                  </tr>
+                  <tr>  
+                    <td>确保passwd(-),shadow(-),group(-),gshadow(-)的uid gid为0 0</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.importantFileUidgidArray}}">{{scanRes.importantFileUidgidArray}}</td>
+									<td {{checkRes.ck_importantFileUidgidArray|setclass}}>{{checkRes.ck_importantFileUidgidArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保没有密码为空的用户账号</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.userIfSetPasswdOrArray}}">{{scanRes.userIfSetPasswdOrArray}}</td>
+									<td {{checkRes.ck_userIfSetPasswdOrArray|setclass}}>{{checkRes.ck_userIfSetPasswdOrArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保只有root账号的UID为0</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.uid0OnlyRootOrArray}}">{{scanRes.uid0OnlyRootOrArray}}</td>
+									<td {{checkRes.ck_uid0OnlyRootOrArray|setclass}}>{{checkRes.ck_uid0OnlyRootOrArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保path环境变量中的目录同group用户没有写权限</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.pathDirPermissionHasGWArray}}">{{scanRes.pathDirPermissionHasGWArray}}</td>
+									<td {{checkRes.ck_pathDirPermissionHasGWArray|setclass}}>{{checkRes.ck_pathDirPermissionHasGWArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保path环境变量中的目录other用户没有写权限</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.pathDirPermissionHasOWArray}}">{{scanRes.pathDirPermissionHasOWArray}}</td>
+									<td {{checkRes.ck_pathDirPermissionHasOWArray|setclass}}>{{checkRes.ck_pathDirPermissionHasOWArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保pth环境变量中的目录不包含“.”</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.pathDirIfNotHasDot}}">{{scanRes.pathDirIfNotHasDot}}</td>
+									<td {{checkRes.ck_pathDirIfNotHasDot|setclass}}>{{checkRes.ck_pathDirIfNotHasDot|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保path环境变量中都为目录且目录都存在</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.pathDirDoesNotExistOrNotDirArray}}">{{scanRes.pathDirDoesNotExistOrNotDirArray}}</td>
+									<td {{checkRes.ck_pathDirDoesNotExistOrNotDirArray|setclass}}>{{checkRes.ck_pathDirDoesNotExistOrNotDirArray|checkres}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="box">
+            <div class="box-header with-border">
+              <h3 class="box-title">用户、组检查</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                  <i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="remove">
+                  <i class="fa fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div class="box-body">
+              <table class="table table-bordered table-striped dataTable">
+                <thead>
+                  <th style="width:55%;">用户、组规范</th><th style="width:35%;">扫描结果</th><th style="width:10%">检查结果</th>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>确保所有用户都有家目录</td>
+                    <td>{{scanRes.userArray}}<br>{{scanRes.userHomeDirIfExistArray}}</td>
+                    <td {{checkRes.userHomeDirIfExistArray|setclass}}>{{checkRes.ck_userHomeDirIfExistArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保所有用户家目录的权限不高于0750</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.userHomeDirPermissionArray}}">{{scanRes.userHomeDirPermissionArray}}</td>
+									<td {{checkRes.ck_userHomeDirPermissionArray|setclass}}>{{checkRes.ck_userHomeDirPermissionArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保所有用户家目录的owner为自身</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.userIfOwnTheirHomeDirArray}}">{{scanRes.userIfOwnTheirHomeDirArray}}</td>
+									<td {{checkRes.ck_userIfOwnTheirHomeDirArray|setclass}}>{{checkRes.ck_userIfOwnTheirHomeDirArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保用户及目录中的.文件只有owner可写</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.userHomeDirIfHasGWorOWDotFileArray}}">{{scanRes.userHomeDirIfHasGWorOWDotFileArray}}</td>
+									<td {{checkRes.ck_userHomeDirIfHasGWorOWDotFileArray|setclass}}>{{checkRes.ck_userHomeDirIfHasGWorOWDotFileArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保用户家目录没有.netrc,.rhosts,.forward文件</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.userHomeDirIfHasOtherFileArray}}">{{scanRes.userHomeDirIfHasOtherFileArray}}</td>
+									<td {{checkRes.ck_userHomeDirIfHasOtherFileArray|setclass}}>{{checkRes.ck_userHomeDirIfHasOtherFileArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保/etc/passwd中的组都在/etc/group文件中存在</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.groupNotExistInetcgroup}}">{{scanRes.groupNotExistInetcgroup}}</td>
+									<td {{checkRes.ck_groupNotExistInetcgroup|setclass}}>{{checkRes.ck_groupNotExistInetcgroup|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保用户都有唯一的UID</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.usersIfHasUniqueUIDArray}}">{{scanRes.usersIfHasUniqueUIDArray}}</td>
+									<td {{checkRes.ck_usersIfHasUniqueUIDArray|setclass}}>{{checkRes.ck_usersIfHasUniqueUIDArray|checkres}}</td>
+                  </tr>
+                  <tr>
+                    <td>确保组拥有唯一的GID</td>
+                    <td class="hideCol" data-toggle="tooltip" data-placement="top" title="{{scanRes.groupsIfHasUniqueGIDArray}}">{{scanRes.groupsIfHasUniqueGIDArray}}</td>
+									<td {{checkRes.ck_groupsIfHasUniqueGIDArray|setclass}}>{{checkRes.ck_groupsIfHasUniqueGIDArray|checkres}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+   </section>
+{% endblock %}
+{% block script %}
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script>
+$(function () {
+        $('#assets_table').DataTable({
+          "paging": true,       <!-- 允许分页 -->
+          "lengthChange": true, <!-- 允许改变每页显示的行数 -->
+          "searching": true,    <!-- 允许内容搜索 -->
+          "ordering": true,     <!-- 允许排序 -->
+          "info": true,         <!-- 显示信息 -->
+          "autoWidth": false    <!-- 固定宽度 -->
+        });
+      });
+
+</script>
+{% endblock %}

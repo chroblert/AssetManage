@@ -60,7 +60,7 @@
                        <td>{{ scanRes.ipList }}</td>
                        <!-- MAC地址-->
                        <td>{{ scanRes.macaddr }}</td>
-                       <td><a href='{% url "baseline:check_res_display" %}?scanType={{scanRes.scanType|base64:"encode"}}&osVersion={{ scanRes.osVersion|base64:"encode" }}&macaddr={{ scanRes.macaddr|base64:"encode" }}&scanTime={{ scanRes.scanTime|base64:"encode"}}'>Click Me</a></td>
+                       <td><a href='{% url "baseline:check_choice" %}?scanType={{scanRes.scanType|base64:"encode"}}&osVersion={{ scanRes.osVersion|base64:"encode" }}&macaddr={{ scanRes.macaddr|base64:"encode" }}&scanTime={{ scanRes.scanTime|base64:"encode"}}'>Click Me</a></td>
                     </tr>
                     {% empty %}
                     <tr>没有数据</tr>

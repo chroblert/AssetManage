@@ -1,0 +1,107 @@
+{% extends 'base.html'%}
+{% load static%}
+{% load base64_jc %}
+
+{% block title %}基线检查记录{% endblock %}
+{% block css %}
+     <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+<style>
+.jc-red-badge{
+  display: inline-block;
+    min-width: 10px;
+    padding: 3px 7px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle !important;
+    background-color:red;
+    border-radius: 10px;
+}
+/* td{
+  word-break:break-all;
+  vertical-align: middle!important;
+} */
+table{
+	table-layout:fixed;
+}	
+td{
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+</style>
+{% endblock %}
+{% block content %}
+
+    <div class="box">
+
+      <div class="box-header with-border">
+
+         <h3 class="box-title">基础信息</h3>
+
+         <div class="box-tools pull-right">
+           <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+             <i class="fa fa-minus"></i></button>
+           <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+             <i class="fa fa-times"></i></button>
+         </div>
+       </div>
+       <div class="box-body">
+         <table class="table table-bordered table-striped dataTable">
+           <tr>
+             <td>扫描时间:{{scanTime}}</td>
+             <td>项目类型:{{scanType}}</td>
+           </tr>
+           <tr>
+             <td>主机名:{{scanRes.hostname}}</td>
+             <td>系统版本:{{osVersion }}</td>
+           </tr>
+           <tr>
+             <td>MAC地址:{{macaddr}}</td>
+             <td>IP地址:{{scanRes.ipList}}</td>
+           </tr>
+         </table>
+       </div>
+    </div>
+
+
+<div>
+  <!-- Nav tabs -->
+  <ul id="mytab" class="nav nav-pills nav-justified" role="tablist">
+    <li role="presentation" class="active"><a href="#osCheckResult" aria-controls="home" role="tab" data-toggle="tab">系统基线检查</a></li>
+    <li role="presentation"><a href="#middlewareCheckResult" aria-controls="profile" role="tab" data-toggle="tab">中间件基线检查</a></li>
+    <li role="presentation"><a href="#databaseCheckResult" aria-controls="messages" role="tab" data-toggle="tab">数据库基线检查</a></li>
+    <li role="presentation"><a href="#vulnCheckResult" aria-controls="test" role="tab" data-toggle="tab">主机漏洞信息</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="osCheckResult">os</div>
+    <div role="tabpanel" class="tab-pane" id="middlewareCheckResult">middleware</div>
+    <div role="tabpanel" class="tab-pane" id="databaseCheckResult">开发中</div>
+    <div role="tabpanel" class="tab-pane" id="vulnCheckResult"></div>
+  </div>
+
+</div>
+
+{% endblock %}
+{% block script %}
+<script src="{% static 'adminlet-2.4.10/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'adminlet-2.4.10/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- <script src="{% static 'adminlet-2.4.10/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script> -->
+<script>
+    $("#osCheckResult").load('{% url "baseline:os_check_res_display" %}?scanType={{scanType|base64:"encode"}}&osVersion={{ osVersion|base64:"encode" }}&macaddr={{ macaddr|base64:"encode" }}&scanTime={{ scanTime|base64:"encode"}}')
+    $('#mytab a').click(function(e){
+        e.preventDefault()
+        // $(this).tab('show')
+        $("#osCheckResult").load('{% url "baseline:os_check_res_display" %}?scanType={{scanType|base64:"encode"}}&osVersion={{ osVersion|base64:"encode" }}&macaddr={{ macaddr|base64:"encode" }}&scanTime={{ scanTime|base64:"encode"}}')
+        $("#middlewareCheckResult").load('{% url "baseline:middleware_check_res_display" %}?scanType={{scanType|base64:"encode"}}&osVersion={{ osVersion|base64:"encode" }}&macaddr={{ macaddr|base64:"encode" }}&scanTime={{ scanTime|base64:"encode"}}')
+        $("#vulnCheckResult").load('{% url "baseline:vuln_check_res_display" %}?scanType={{scanType|base64:"encode"}}&osVersion={{ osVersion|base64:"encode" }}&macaddr={{ macaddr|base64:"encode" }}&scanTime={{ scanTime|base64:"encode"}}')
+        $(this).tab('show')
+    })
+</script>
+{% endblock %}

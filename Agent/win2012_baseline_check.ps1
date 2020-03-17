@@ -624,6 +624,25 @@ function Get-SystemSecureCheckRes{
 	return $systemsecure_check_res
 }
 
+function Get-CollectKB(){
+    # 1. 搜集所有的KB补丁
+    $KBArray = @()
+    $KBArray = Get-HotFix|ForEach-Object {$_.HotFixId}
+    $test = $KBArray|ConvertTo-Json
+    return $test
+}
+function Get-ABasicInfo(){
+    # 1. 操作系统
+    # $windowsProductName = (Get-ComputerInfo).WindowsProductName
+    $windowsProductName = (Get-CimInstance Win32_OperatingSystem).Caption
+    # 2. 操作系统版本
+	# $windowsVersion = (Get-ComputerInfo).WindowsVersion
+	$windowsVersion=(Get-Item "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion").GetValue('ReleaseID')
+    $basicInfo = "{""windowsProductName"":""$windowsProductName"",""windowsVersion"":""$windowsVersion""}"
+    return $basicInfo
+    
+}
+
 
 Write-Host "=================================="
 Write-Host "|       Windows baseline check   |"
@@ -645,8 +664,11 @@ $portsecure_check_res=Get-PortSecureCheckRes
 #Write-Host $portsecure_check_res
 $systemsecure_check_res=Get-SystemSecureCheckRes
 #Write-Host $systemsecure_check_res
-
+$basicInfo = Get-ABasicInfo
+$KBList = Get-CollectKB
+$KBResult = "{""basicInfo"":$basicInfo,""KBList"":$KBList}"
+$KBResult|Out-File KB.json -encoding utf8
 #$window_check_res="{""secInfoArray"":$secInfoArray,""account_check_res"":$account_check_res,""audit_check_res"":$audit_check_res,""userright_check_res"":$userright_check_res,""secureoption_check_res"":$secureoption_check_res,""portsecure_check_res"":$portsecure_check_res,""systemsecure_check_res"":$systemsecure_check_res}"
-$window_check_res="{""basic_info"":$basic_info,""account_check_res"":$account_check_res,""audit_check_res"":$audit_check_res,""userright_check_res"":$userright_check_res,""secureoption_check_res"":$secureoption_check_res,""portsecure_check_res"":$portsecure_check_res,""systemsecure_check_res"":$systemsecure_check_res}"
+$window_check_res="{""basic_info"":$basic_info,""account_check_res"":$account_check_res,""audit_check_res"":$audit_check_res,""userright_check_res"":$userright_check_res,""secureoption_check_res"":$secureoption_check_res,""portsecure_check_res"":$portsecure_check_res,""systemsecure_check_res"":$systemsecure_check_res,""vuln_scan_res"":$KBResult}"
 #Write-Host $window_check_res
-Invoke-RestMethod -Uri "http://192.168.3.24:8888/baseline/windows_scan_res_report/" -Method Post -ContentType "application/json" -Body $window_check_res
+Invoke-RestMethod -Uri "http://192.168.3.111:8000/baseline/windows_scan_res_report/" -Method Post -ContentType "application/json" -Body $window_check_res

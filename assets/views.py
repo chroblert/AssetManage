@@ -7,6 +7,9 @@ from assets import models
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
+import sqlite3
+import os
+from pathlib import Path
 
 
 def index(request):
@@ -15,41 +18,36 @@ def index(request):
     :param request:
     :return:
     """
-    servers = models.Server.objects.all()
-    ports = models.Port.objects.all()
     server_detail_list = []
+    servers=models.ServerInfo.objects.all()
     for server in servers:
-        port_list = []
-        server_detail_dict = {}
-        server_detail_dict['CSP'] = models.CSP.objects.get(id=server.CSPID_id).csp_type
-        server_detail_dict['OSType'] = models.OSType.objects.get(id=server.OSTID_id).OSType
-        server_detail_dict['ServerName'] = server.ServerName
-        server_detail_dict['PublicIP'] = server.PublicIP
-        server_detail_dict['PrivateIP'] = server.PrivateIP
-        server_detail_dict['Owner'] = models.Owner.objects.get(id=server.OwnerID_id).OwnerName
-        # 开始拼接端口
-        # tmp = ''
-        for port in models.ServerPort.objects.filter(SID_id=server.id):
-            port_list.append(ports.get(id=port.PID_id))
-        server_detail_dict['Ports'] = port_list
-        server_detail_list.append(server_detail_dict)
-    ostypes = models.OSType.objects.all()
-    # assets = models.Asset.objects.all()
+        server_dict={}
+        server_dict['CSP']=server.cloudServerProvider
+        server_dict['serverName']=server.serverName
+        server_dict['osVersion']=server.osVersion
+        server_dict['publicIP']=server.publicIP
+        server_dict['privateIP']=server.privateIP
+        server_dict['owner']=server.owner
+        server_detail_list.append(server_dict)
     return render(request, 'assets/index.html', locals())
 
 
 def dashboard(request):
-    total = models.Server.objects.all().count()
+    # total = models.Server.objects.all().count()
+    total = models.ServerInfo.objects.all().count()
     try:
-        ali_count = models.Server.objects.filter(CSPID_id=models.CSP.objects.get(csp_type="AliCloud").id).count()
+        # ali_count = models.Server.objects.filter(CSPID_id=models.CSP.objects.get(csp_type="AliCloud").id).count()
+        ali_count = models.ServerInfo.objects.filter(cloudServerProvider="AliCloud").count()
     except ObjectDoesNotExist:
         ali_count = 0
     try:
-        azure_count = models.Server.objects.filter(CSPID_id=models.CSP.objects.get(csp_type="Azure").id).count()
+        # azure_count = models.Server.objects.filter(CSPID_id=models.CSP.objects.get(csp_type="Azure").id).count()
+        azure_count = models.ServerInfo.objects.filter(cloudServerProvider="Azure").count()
     except ObjectDoesNotExist:
         azure_count = 0
     try:
-        aws_count = models.Server.objects.filter(CSPID_id=models.CSP.objects.get(csp_type="AWS").id).count()
+        # aws_count = models.Server.objects.filter(CSPID_id=models.CSP.objects.get(csp_type="AWS").id).count()
+        aws_count = models.ServerInfo.objects.filter(cloudServerProvider="AWS").count()
     except ObjectDoesNotExist:
         aws_count = 0
     breakdown = 0 #models.Asset.objects.filter(status=3).count()
@@ -66,47 +64,51 @@ def dashboard(request):
     # 取出占比前10的端口
     # 在ServerPort中按照PID_id进行分组，按照各个分组中的个数进行排序
     port_num_count_list = []
-    port_count_sort = models.ServerPort.objects.values("PID_id").annotate(port_count=Count("PID_id")).order_by("-port_count")[:10]
-    for port_dic in port_count_sort:
+    port_num=0
+    port_count=0
+    dbfile="portinfo.db"
+    if not Path(dbfile).exists():
+        return render(request,'assets/dashboard.html',locals())
+    conn = sqlite3.connect("portinfo.db")
+    con = conn.cursor()
+    sql = "select distinct(portID) from portInfoDB"
+    con.execute(sql)
+    portTupleList=con.fetchall()
+    for portTuple in portTupleList:
         port_num_count_dict = {}
-        port_num = models.Port.objects.filter(id=port_dic['PID_id'])[0].PortNum
-        port_count = port_dic['port_count']
+        port_num=portTuple[0]
+        sql = "select count(*) from portInfoDB where portID = {}".format(port_num)
+        con.execute(sql)
+        portNumTupleList=con.fetchall()
+        port_count = portNumTupleList[0][0]
         port_num_count_dict['port_count'] = port_count
         port_num_count_dict['port_num'] = port_num
         port_num_count_list.append(port_num_count_dict)
-    server_number = models.Server.objects.count()
-
+    con.close()
     return render(request, 'assets/dashboard.html', locals())
 
-
-
-
-
-
-
-# @csrf_exempt
-# def report(request):
-#     if request.method == 'POST':
-#         asset_data = request.POST.get('asset_data')
-#         data = json.loads(asset_data)
-#         if not data:
-#             return HttpResponse('没有数据！')
-#         if not issubclass(dict, type(data)):
-#             return HttpResponse('数据必须为字典格式！')
-#         # 你的检测代码
-
-#         sn = data.get('sn', None)
-
-#         if sn:
-#             asset_obj = models.Asset.objects.filter(sn=sn)  # [obj]
-#             if asset_obj:
-#                 update_asset = asset_handler.UpdateAsset(request, asset_obj[0], data)
-#                 return HttpResponse('资产数据已经更新。')
-#             else:
-#                 obj = asset_handler.NewAsset(request, data)
-#                 response = obj.add_to_new_assets_zone()
-#                 return HttpResponse(response)
-#         else:
-#             return HttpResponse('没有资产sn，请检查数据内容！')
-
-#     return HttpResponse('200 ok')
+def displayport(request):
+    dbfile="portinfo.db"
+    if not Path(dbfile).exists():
+        return render(request,'assets/serverPortInfo.html',locals())
+    conn = sqlite3.connect("portinfo.db")
+    con = conn.cursor()
+    sql = "select * from portInfoDB"
+    con.execute(sql)
+    serverPortTupleList = con.fetchall()
+    con.close()
+    # print(serverPortDictList)
+    # print(os.getcwd())
+    serverPortDictList=[]
+    for serverPortTuple in serverPortTupleList:
+        # print(serverPortTuple)
+        serverPortDict={}
+        serverPortDict['ip']=serverPortTuple[1]
+        serverPortDict['port']=serverPortTuple[2]
+        serverPortDict['service']=serverPortTuple[3]
+        serverPortDict['product']=serverPortTuple[4]
+        serverPortDict['version']=serverPortTuple[5]
+        serverPortDict['osVersion']=models.ServerInfo.objects.filter(publicIP=serverPortDict['ip'])[0].osVersion
+        serverPortDict['serverName']=models.ServerInfo.objects.filter(publicIP=serverPortDict['ip'])[0].serverName
+        serverPortDictList.append(serverPortDict)
+    return render(request,'assets/serverPortInfo.html',locals())

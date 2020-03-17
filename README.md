@@ -1,12 +1,26 @@
 该项目在 https://github.com/feixuelove1009/CMDB 的基础上进行开发
 
+版本更新：
+
+- 20191206 AssetManage-v1.0.0
+  - 整合多个云上的资产信息
+  - 可视化展示
+  - 通过excel文件导入资产信息
+  - 将nmap扫描后生成的xml文件导入，生成端口信息
+- 20200113 AssetManage-v2.0.0
+  - 增加基线检查的后端可视化展示界面
+- 20200317 AssetManage-v3.0.0
+  - 增加基于agent的主机漏洞扫描功能
+  - 增加服务器端口开放扫描功能
+
 功能：
 
 - 整合多个云上的资产信息
 - 可视化展示
 - 通过excel文件导入资产信息
-- 将`nmap`扫描后生成的`xml`文件导入，生成端口信息
-- 安全基线检查结果的展示功能：agent位于`github.com/chroblert/securitybaselinecheck`
+- masscan+nmap快速扫描服务器开放的端口信息
+- 基于agent的主机漏洞扫描功能
+- 基于agent的基线检查功能
 
 使用步骤：
 

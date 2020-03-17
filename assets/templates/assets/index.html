@@ -44,9 +44,7 @@
                         <th>公网IP</th>
                         <th>私网IP</th>
                         <th>负责人</th>
-                        <th>端口</th>
-                        <th>组件</th>
-                        <th></th>
+                        <th>详情</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,27 +57,20 @@
                         <!-- 云平台提供商-->
                         <td>{{ server.CSP }}</td>
                         <!-- 操作系统类型-->
-                        <td>{{ server.OSType }}</td>
+                        <td>{{ server.osVersion }}</td>
                         <!-- 服务器名称-->
-                        <td>{{ server.ServerName }}</td>
+                        <td>{{ server.serverName }}</td>
                         <!-- 公网IP -->
-                        <td>{{ server.PublicIP }}</td>
+                        <td>{{ server.publicIP }}</td>
                         <!-- 私网IP-->
-                        <td>{{ server.PrivateIP }}</td>
+                        <td>{{ server.privateIP }}</td>
                         <!-- 负责人-->
-                        <td>{{ server.Owner }}</td>
-                        <!-- 端口-->
+                        <td>{{ server.owner }}</td>
+                        <!-- 详情 -->
                         <td>
-                        {% for port in server.Ports %}
-                        <a href=#>{{ port }}</a>
-                        {% endfor %}
+                        <a href=#>Click</a>
                         </td>
-                        <!-- 组件-->
-                        <td></td>
-                        <!-- None-->
-                        <td>None</td>
                     </tr>
-
                 {% empty %}
                 <tr>没有数据</tr>
                 {% endfor %}
@@ -94,10 +85,7 @@
                         <th>公网IP</th>
                         <th>私网IP</th>
                         <th>负责人</th>
-                        <th>端口</th>
-                        <th>组件</th>
-                        <th></th>
-                        
+                        <th>详情</th>
                     </tr>
                 </tfoot>
             </table>

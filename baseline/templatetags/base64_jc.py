@@ -12,12 +12,12 @@ def base64_jc(value,arg):
     return "请输入正确参数"
 
 def checkResDisplay(value):
-    if value == "True":
+    if value == "True" or value == "true":
         return "通过"
     else:
         return "未通过"
 def setclass(value):
-    if value != "True":
+    if value != "True" and value != "true":
         classstr='class=jc-red-badge'
         return classstr
 register.filter('base64',base64_jc)

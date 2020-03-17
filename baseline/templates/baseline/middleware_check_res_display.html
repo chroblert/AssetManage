@@ -1,0 +1,356 @@
+{% extends 'base_JC.html'%}
+{% load static%}
+{% load base64_jc %}
+
+{% block title %}基线检查记录{% endblock %}
+{% block css %}
+     <link rel="stylesheet" href="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+<style>
+.jc-red-badge{
+  display: inline-block;
+    min-width: 10px;
+    padding: 3px 7px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle !important;
+    background-color:red;
+    border-radius: 10px;
+}
+/* td{
+  word-break:break-all;
+  vertical-align: middle!important;
+} */
+table{
+	table-layout:fixed;
+}	
+td{
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+</style>
+{% endblock %}
+{% block content %}
+   <!-- Main content -->
+   <section class="content">
+
+     <!-- 检查结果 -->
+       <div class="box">
+         <div class="box-body with-border">
+           <h3 class="box-title">检查结果</h3>
+         </div>
+         <div class="box-body">
+          <table class="table table-bordered table-striped dataTable">
+            <tr>
+              <td>检查项目数：</td>
+              <td class="badge bg-green">{{checkNum}}</td>
+         
+              <td>未通过项：</td>
+              <td class="badge bg-red">{{failNum}}</td>
+              <td>得分：</td>
+              <td class="badge bg-yellow">{{checkScore}}</td>
+            </tr>
+          </table>
+        </div>
+       </div>
+     <div class="row">
+       <!-- redis部署规范 -->
+     <div class="col-md-6">
+       <div class="box">
+
+         <div class="box-header with-border">
+
+             <h3 class="box-title">redis部署规范检查</h3>
+
+             <div class="box-tools pull-right">
+               <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                 <i class="fa fa-minus"></i></button>
+               <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                 <i class="fa fa-times"></i></button>
+             </div>
+           </div>
+           <div class="box-body">
+             <table class="table table-bordered table-striped dataTable">
+               <thead>
+                 <tr>
+                   <th style="width:70%;">redis部署规范</th><th style="width:30%">检查结果</th>
+               </thead>
+               <tbody>
+                   {% for checkRes in redis_check_res.redisScanResultList %}
+                    <tr>
+                        <td>配置文件路径</td>
+                        <td>{{checkRes.filename}}</td>
+                    </tr>
+                    <tr>
+                        <td>不使用默认6379端口</td>
+                        <td {{checkRes.detail.portIDIfNotUse6379|setclass}}>{{checkRes.detail.portIDIfNotUse6379|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>监听在本地IP</td>
+                        <td {{checkRes.detail.bindIPIfLocal|setclass}}>{{checkRes.detail.bindIPIfLocal|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>开启保护模式</td>
+                        <td {{checkRes.detail.protectModeIfEnable|setclass}}>{{checkRes.detail.protectModeIfEnable|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>设置密码</td>
+                        <td {{checkRes.detail.requirePassIfEnable|setclass}}>{{checkRes.detail.requirePassIfEnable|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>禁用或重命名config等危险指令</td>
+                        <td {{checkRes.detail.configCommandIfDisable|setclass}}>{{checkRes.detail.configCommandIfDisable|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>配置文件权限不高于600</td>
+                        <td {{checkRes.detail.permLE600|setclass}}>{{checkRes.detail.permLE600|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>专职用户运行redis</td>
+                        <td {{redis_check_res.RootUserIfDisable|setclass}}>{{redis_check_res.RootUserIfDisable|checkres}}</td>
+                    </tr>
+                   {% empty %}
+                   <tr>no data</tr>
+                   {% endfor %}
+               </tbody>
+             </table>
+           </div>
+       </div>
+      </div>
+      <div class="col-md-6">
+       <div class="box">
+
+         <div class="box-header with-border">
+
+             <h3 class="box-title">redis部署规范检查</h3>
+
+             <div class="box-tools pull-right">
+               <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                 <i class="fa fa-minus"></i></button>
+               <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                 <i class="fa fa-times"></i></button>
+             </div>
+           </div>
+           <div class="box-body">
+             <table class="table table-bordered table-striped dataTable">
+               <thead>
+                 <tr>
+                   <th style="width:70%;">nginx部署规范</th><th style="width:30%">检查结果</th>
+               </thead>
+               <tbody>
+                   {% for checkRes in nginx_check_res.nginxScanResultList %}
+                    <tr>
+                        <td>配置文件路径</td>
+                        <td>{{checkRes.filename}}</td>
+                    </tr>
+                    <tr>
+                        <td>修改ServerToken</td>
+                        <td {{checkRes.detail.serverTokenIfDisable|setclass}}>{{checkRes.detail.serverTokenIfDisable|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>使用ssl</td>
+                        <td {{checkRes.detail.sslIfEnable|setclass}}>{{checkRes.detail.sslIfEnable|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>限定可以使用的请求方法</td>
+                        <td {{checkRes.detail.requestMethodIfSet|setclass}}>{{checkRes.detail.requestMethodIfSet|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>设置connection的数量</td>
+                        <td {{checkRes.detail.connectionNumIfSet|setclass}}>{{checkRes.detail.connectionNumIfSet|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>设置缓冲区大小</td>
+                        <td {{checkRes.detail.bufferSizeIfSet|setclass}}>{{checkRes.detail.bufferSizeIfSet|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>配置文件权限不高于600</td>
+                        <td {{checkRes.detail.permLE600|setclass}}>{{checkRes.detail.permLE600|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>专职用户运行nginx</td>
+                        <td {{nginx_check_res.RootUserIfDisable|setclass}}>{{nginx_check_res.RootUserIfDisable|checkres}}</td>
+                    </tr>
+                   {% empty %}
+                   <tr>no data</tr>
+                   {% endfor %}
+               </tbody>
+             </table>
+           </div>
+       </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+       <div class="box">
+
+         <div class="box-header with-border">
+
+             <h3 class="box-title">tomcat部署规范检查</h3>
+
+             <div class="box-tools pull-right">
+               <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                 <i class="fa fa-minus"></i></button>
+               <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                 <i class="fa fa-times"></i></button>
+             </div>
+           </div>
+           <div class="box-body">
+             <table class="table table-bordered table-striped dataTable">
+               <thead>
+                 <tr>
+                   <th style="width:70%;">tomcat部署规范</th><th style="width:30%">检查结果</th>
+               </thead>
+               <tbody>
+                   {% for checkRes in tomcat_check_res.tomcatScanResultList %}
+                    <tr>
+                        <td>配置文件路径</td>
+                        <td>{{checkRes.filename}}</td>
+                    </tr>
+                    <tr>
+                        <td>修改ServerToken</td>
+                        <td {{checkRes.detail.serverTokenIfChange|setclass}}>{{checkRes.detail.serverTokenIfChange|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>禁用或修改ajp协议的端口</td>
+                        <td {{checkRes.detail.ajpIfDisableOrChange|setclass}}>{{checkRes.detail.ajpIfDisableOrChange|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>禁用shutdown指令或改变端口</td>
+                        <td {{checkRes.detail.shutdownPortIfDisableOrChange|setclass}}>{{checkRes.detail.shutdownPortIfDisableOrChange|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>禁用或修改shutdown指令字符串</td>
+                        <td {{checkRes.detail.shutdownStrIfChange|setclass}}>{{checkRes.detail.shutdownStrIfChange|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>取消目录浏览</td>
+                        <td {{checkRes.detail.dirListIfDisable|setclass}}>{{checkRes.detail.dirListIfDiable|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>bin目录脚本的权限不高于744</td>
+                        <td {{checkRes.detail.shPermLE744|setclass}}>{{checkRes.detail.shPermLE744|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>专职用户运行tomcat</td>
+                        <td {{tomcat_check_res.RootUserIfDisable|setclass}}>{{tomcat_check_res.RootUserIfDisable|checkres}}</td>
+                    </tr>
+                   {% empty %}
+                   <tr>no data</tr>
+                   {% endfor %}
+               </tbody>
+             </table>
+           </div>
+       </div>
+      </div>
+      <div class="col-md-6">
+       <div class="box">
+
+         <div class="box-header with-border">
+
+             <h3 class="box-title">apache部署规范检查</h3>
+
+             <div class="box-tools pull-right">
+               <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                 <i class="fa fa-minus"></i></button>
+               <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                 <i class="fa fa-times"></i></button>
+             </div>
+           </div>
+           <div class="box-body">
+             <table class="table table-bordered table-striped dataTable">
+               <thead>
+                 <tr>
+                   <th style="width:70%;">apache部署规范</th><th style="width:30%">检查结果</th>
+               </thead>
+               <tbody>
+                   {% for checkRes in apache_check_res.apacheScanResultList %}
+                    <tr>
+                        <td>配置文件路径</td>
+                        <td>{{checkRes.filename}}</td>
+                    </tr>
+                    <tr>
+                        <td>apache配置文件中用户不为root</td>
+                        <td checkRes.detail.userIfNotRoot|setclass}}>{{checkRes.detail.userIfNotRoot|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>apache配置文件中组不为root</td>
+                        <td checkRes.detail.groupIfNotRoot|setclass}}>{{checkRes.detail.groupIfNotRoot|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>apache主目录的权限不高于744</td>
+                        <td checkRes.detail.serverRootPermLE744|setclass}}>{{checkRes.detail.serverRootPermLE744|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>apache记录日志的文件权限不高于644</td>
+                        <td checkRes.detail.errorlogPermLE644|setclass}}>{{checkRes.detail.errorlogPermLE644|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>apache记录日志的等级为debug info notice</td>
+                        <td checkRes.detail.logLevelGENotice|setclass}}>{{checkRes.detail.logLevelGENotice|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>禁止列出目录</td>
+                        <td checkRes.detail.dirListIfDisable|setclass}}>{{checkRes.detail.dirListIfDisable|checkres}}</td>
+                        <!-- <td>{{checkRes.detail.dirListIfDisable}}</td> -->
+                    </tr>
+                    <tr>
+                        <td>限制请求的方法</td>
+                        <td checkRes.detail.requestMethodIfLimit|setclass}}>{{checkRes.detail.requestMethodIfLimit|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>删除默认的welcome.conf文件</td>
+                        <td checkRes.detail.defaultIndexFileIfDel|setclass}}>{{checkRes.detail.defaultIndexFileIfDel|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>禁用ServerSignature</td>
+                        <td checkRes.detail.serverSignatureIfDisable|setclass}}>{{checkRes.detail.serverSignatureIfDisable|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>修改ServerTokens</td>
+                        <td checkRes.detail.serverTokenIfChange|setclass}}>{{checkRes.detail.serverTokenIfChange|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>配置文件权限不高于600</td>
+                        <td checkRes.detail.permLE600|setclass}}>{{checkRes.detail.permLE600|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>修改ServerToken</td>
+                        <td {{checkRes.detail.serverTokenIfChange|setclass}}>{{checkRes.detail.serverTokenIfChange|checkres}}</td>
+                    </tr>
+                    <tr>
+                        <td>专职用户运行tomcat</td>
+                        <td {{tomcat_check_res.RootUserIfDisable|setclass}}>{{tomcat_check_res.RootUserIfDisable|checkres}}</td>
+                    </tr>
+                   {% empty %}
+                   <tr>no data</tr>
+                   {% endfor %}
+               </tbody>
+             </table>
+           </div>
+       </div>
+      </div>
+    </div>
+   </section>
+{% endblock %}
+{% block script %}
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script>
+$(function () {
+        $('#assets_table').DataTable({
+          "paging": true,       <!-- 允许分页 -->
+          "lengthChange": true, <!-- 允许改变每页显示的行数 -->
+          "searching": true,    <!-- 允许内容搜索 -->
+          "ordering": true,     <!-- 允许排序 -->
+          "info": true,         <!-- 显示信息 -->
+          "autoWidth": false    <!-- 固定宽度 -->
+        });
+      });
+
+</script>
+{% endblock %}

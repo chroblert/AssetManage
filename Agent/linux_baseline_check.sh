@@ -1147,7 +1147,9 @@ echo """
 |        version:2.2             |
 ==================================
 """
+echo "========================Get Basic Info========================="
 get_basic_info
+echo "========================Linux OS Scan=========================="
 init_check
 service_check
 network_check
@@ -1161,6 +1163,28 @@ fi
 if [[ -z $system_check_res ]]; then
     system_check_res={}
 fi
-check_result={\"basic_info\":$basic_info,\"init_check_res\":$init_check_res,\"service_check_res\":$service_check_res,\"network_check_res\":$network_check_res,\"auditd_check_res\":$auditd_check_res,\"log_check_res\":$log_check_res,\"authentication_check_res\":$authentication_check_res,\"system_check_res\":$system_check_res}
-curl -X POST "http://192.168.3.24:8888/baseline/linux_scan_res_report/" -H "accept:application/json" -H "content-type:application/json" -d "$check_result" 1>/dev/null 2>/dev/null
-echo $check_result|jq 
+#check_result={\"basic_info\":$basic_info,\"init_check_res\":$init_check_res,\"service_check_res\":$service_check_res,\"network_check_res\":$network_check_res,\"auditd_check_res\":$auditd_check_res,\"log_check_res\":$log_check_res,\"authentication_check_res\":$authentication_check_res,\"system_check_res\":$system_check_res}
+#curl -X POST "http://192.168.3.24:8888/baseline/linux_scan_res_report/" -H "accept:application/json" -H "content-type:application/json" -d "$check_result" 1>/dev/null 2>/dev/null
+echo "===========================Middleware Scan========================="
+source nginx_baseline_check.sh
+source redis_baseline_check.sh
+source tomcat_baseline_check.sh
+source apache_baseline_check.sh
+source vuln_scan.sh
+nginxScan
+redisScan
+tomcatScan
+apacheScan
+vulnScan
+
+os_scan_result={\"basic_info\":$basic_info,\"init_check_res\":$init_check_res,\"service_check_res\":$service_check_res,\"network_check_res\":$network_check_res,\"auditd_check_res\":$auditd_check_res,\"log_check_res\":$log_check_res,\"authentication_check_res\":$authentication_check_res,\"system_check_res\":$system_check_res}
+echo $os_scan_result|jq 
+middleware_check_result={\"basic_info\":$basic_info,\"redis_check_res\":$redisScanResult,\"nginx_check_res\":$nginxScanResult,\"tomcat_check_res\":$tomcatScanResult,\"apache_check_res\":$apacheScanResult}
+#echo $middleware_check_result
+echo $middleware_check_result|jq
+vuln_scan_result={\"basic_info\":$basic_info,\"vuln_scan_res\":$vulnScanResult}
+echo $vuln_scan_result
+#echo $vuln_scan_result|jq
+check_result={\"os_scan_result\":$os_scan_result,\"middleware_check_result\":$middleware_check_result,\"vuln_scan_result\":$vuln_scan_result}
+echo "==========================Upload Check Result======================"
+curl -X POST "http://192.168.3.111:8000/baseline/linux_scan_res_report/" -H "accept:application/json" -H "content-type:application/json" -d "$check_result" 1>/dev/null 2>/dev/null

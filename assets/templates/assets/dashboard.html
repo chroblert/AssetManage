@@ -44,39 +44,39 @@
                 <div class="box-body">
                   <div class="row">
 
-                    <div class="col-xs-6 col-md-2 col-md-offset-1 text-center">
+                    <div class="col-xs-6 col-md-3 col-md-offset-0 text-center">
                       <input type="text" class="knob" value="{{ ali_rate }}" data-width="90" data-height="90" data-fgColor="#00a65a" data-readonly="true">
 
                       <div class="knob-label">Ali</div>
                     </div>
 
                     <!-- ./col -->
-                    <div class="col-xs-6 col-md-2 text-center">
+                    <div class="col-xs-6 col-md-3 text-center">
                       <input type="text" class="knob" value="{{ azure_rate }}" data-width="90" data-height="90" data-fgColor="#f56954" data-readonly="true">
 
                       <div class="knob-label">Azure</div>
                     </div>
                     <!-- ./col -->
 
-                    <div class="col-xs-6 col-md-2 text-center">
+                    <div class="col-xs-6 col-md-3 text-center">
                       <input type="text" class="knob" value="{{ aws_rate }}" data-width="90" data-height="90" data-fgColor="#932ab6" data-readonly="true">
 
                       <div class="knob-label">AWS</div>
                     </div>
 
                     <!-- ./col -->
-                    <div class="col-xs-6 col-md-2 text-center">
+                    <div class="col-xs-6 col-md-3 text-center">
                       <input type="text" class="knob" value="{{ bu_rate }}" data-width="90" data-height="90" data-fgColor="#3c8dbc" data-readonly="true">
 
-                      <div class="knob-label">备用</div>
+                      <div class="knob-label">内网</div>
                     </div>
 
                       <!-- ./col -->
-                    <div class="col-xs-6 col-md-2 text-center">
+                    <!-- <div class="col-xs-6 col-md-2 text-center">
                       <input type="text" class="knob" value="{{ un_rate }}" data-width="90" data-height="90" data-fgColor="#cccccc" data-readonly="true">
 
                       <div class="knob-label">未知</div>
-                    </div>
+                    </div> -->
 
                   </div>
                 <!-- /.box-body -->
@@ -101,7 +101,8 @@
             </div>
             <div class="box-body">
                 {# 百度Echarts实现柱状图#}
-                <div id="barChart" style="width: 600px;height:400px;"></div>
+                <!-- <div id="barChart" style="width: 600px;height:400px;"></div> -->
+                <div id="barChart" style="height:400px;"></div>
             </div>
             <!-- /.box-body -->
           </div>
@@ -215,13 +216,13 @@ $(function () {
             data:['']
         },
         xAxis: {
-            data: ["Ali", "Azure","AWS","备用","未知"]
+            data: ["Ali", "Azure","AWS","内网"]
         },
         yAxis: {},
         series: [{
             name: '数量',
             type: 'bar',
-            data: [{{ ali_count }}, {{ azure_count }}, {{ aws_count }}, {{ backup }}, {{ unknown }}]
+            data: [{{ ali_count }}, {{ azure_count }}, {{ aws_count }}, {{ backup }}]
         }]
     };
 

@@ -7,8 +7,70 @@ from CMDB import settings
 from baseline import models
 import base64
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
+import baseline.linuxVulnScanUtil
+import baseline.windowsVulnScanUtil
+from pathlib import Path
+import re
 # Create your views here.
-def check_res_display(request):
+def middleware_check_res_display(request):
+    scanTime=str(base64.urlsafe_b64decode(bytes(request.GET['scanTime'],encoding="utf-8")),encoding="utf-8")
+    macaddr=str(base64.urlsafe_b64decode(bytes(request.GET['macaddr'],encoding="utf-8")),encoding="utf-8")
+    middlewareCheckRes=models.MiddlewareCheckResMeta.objects.filter(scanTime=scanTime,macaddr=macaddr)
+    middlewareCheckRes=middlewareCheckRes[0]
+    middlewareCheckResStr=middlewareCheckRes.middlewareCheckResMeta
+    middlewareCheckResDict=json.loads(middlewareCheckResStr)
+    redis_check_res=middlewareCheckResDict['redis_check_res']
+    nginx_check_res=middlewareCheckResDict['nginx_check_res']
+    tomcat_check_res=middlewareCheckResDict['tomcat_check_res']
+    apache_check_res=middlewareCheckResDict['apache_check_res']
+    return render(request,'baseline/middleware_check_res_display.html',locals())
+def vuln_check_res_display(request):
+    scanTime=str(base64.urlsafe_b64decode(bytes(request.GET['scanTime'],encoding="utf-8")),encoding="utf-8")
+    macaddr=str(base64.urlsafe_b64decode(bytes(request.GET['macaddr'],encoding="utf-8")),encoding="utf-8")
+    osVersion=str(base64.urlsafe_b64decode(bytes(request.GET['osVersion'],encoding="utf-8")),encoding="utf-8")
+    vulnCheckRes=models.VulnCheckRes.objects.filter(scanTime=scanTime,macaddr=macaddr)[0]
+    vulnCheckResList=json.loads(vulnCheckRes.vulnCheckRes)
+    if "Windows" in osVersion:
+        return render(request,'baseline/windows_vuln_check_res_display.html',locals())
+    else:
+        return render(request,'baseline/linux_vuln_check_res_display.html',locals())
+def check_choice(request):
+    osVersion=str(base64.urlsafe_b64decode(bytes(request.GET['osVersion'],encoding="utf-8")),encoding="utf-8")
+    scanTime=str(base64.urlsafe_b64decode(bytes(request.GET['scanTime'],encoding="utf-8")),encoding="utf-8")
+    macaddr=str(base64.urlsafe_b64decode(bytes(request.GET['macaddr'],encoding="utf-8")),encoding="utf-8")
+    scanType=str(base64.urlsafe_b64decode(bytes(request.GET['scanType'],encoding="utf-8")),encoding="utf-8")
+    if scanType == "OS":
+        if "Window" in osVersion:
+            scanRes = models.WindowsScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)
+            checkRes = models.WindowsCheckRes.objects.filter(scanTime=scanTime,macaddr=macaddr)
+            if len(scanRes) ==0 or len(checkRes) == 0:
+                return HttpResponse("0oops,something is wrong")
+            scanRes=scanRes[0]
+            checkRes=checkRes[0]
+            # checkNum=len(checkRes.__dict__.keys()) - 6
+            # passNum=0
+            # for i in checkRes.__dict__.keys():
+            #     if checkRes.__dict__[i] == "True":
+            #         passNum = passNum + 1
+            # failNum=checkNum - passNum - 1
+            # checkScore=str(int(passNum/checkNum*100))
+            return render(request,'baseline/check_choice_res_display.html',locals())
+        else:
+            scanRes = models.LinuxScanRes.objects.filter(scanTime=scanTime,macaddr=macaddr)
+            checkRes = models.LinuxCheckRes.objects.filter(scanTime=scanTime,macaddr=macaddr)
+            if len(scanRes) ==0 or len(checkRes) == 0:
+                return HttpResponse("0oops,something is wrong")
+            scanRes=scanRes[0]
+            checkRes=checkRes[0]
+            # checkNum=len(checkRes.__dict__.keys()) - 7
+            # passNum=0
+            # for i in checkRes.__dict__.keys():
+            #     if checkRes.__dict__[i] == "True":
+            #         passNum = passNum + 1
+            # failNum=checkNum - passNum - 1
+            # checkScore=str(int(passNum/checkNum*100))
+            return render(request,'baseline/check_choice_res_display.html',locals())
+def os_check_res_display(request):
     osVersion=str(base64.urlsafe_b64decode(bytes(request.GET['osVersion'],encoding="utf-8")),encoding="utf-8")
     scanTime=str(base64.urlsafe_b64decode(bytes(request.GET['scanTime'],encoding="utf-8")),encoding="utf-8")
     macaddr=str(base64.urlsafe_b64decode(bytes(request.GET['macaddr'],encoding="utf-8")),encoding="utf-8")
@@ -50,12 +112,31 @@ def scan_res_display(request):
 def windows_baseline_check(request):
     pass
 
+def windows_vuln_check_res_store(data={}):
+    KBResult=data
+    windowsProductName = KBResult['basicInfo']['windowsProductName']
+    windowsProductName = ((re.search("\w[\w|\s]+\d+[\s|$]",windowsProductName).group()).strip()).replace("Microsoft","").strip()
+    windowsVersion = KBResult['basicInfo']['windowsVersion']
+    print("系统信息如下:")
+    print("{} {}".format(windowsProductName,windowsVersion))
+    tmpKBList = KBResult['KBList']
+    KBList = []
+    for KB in tmpKBList:
+        KBList.append(KB.replace("KB",""))
+    print("KB信息如下:")
+    print(KBList)
+    print("EXP信息如下:")
+    tmpList=baseline.windowsVulnScanUtil.select_CVE(tmpList=KBList,windowsProductName=windowsProductName,windowsVersion=windowsVersion)
+    print(tmpList)
+    return tmpList
+
 @csrf_exempt
 def windows_scan_res_report(request):
     if request.method == "POST":
         bodyData=request.body
         windowsScanResDict=json.loads(bodyData)
         basic_info=windowsScanResDict['basic_info']
+        windowsVulnScanResDict=windowsScanResDict['vuln_scan_res']
         scanTime=basic_info['scanTime']
         osVersion=basic_info['osVersion']
         hostname=basic_info['hostname']
@@ -290,12 +371,35 @@ def windows_scan_res_report(request):
                 models.WindowsScanRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,passwordHistorySize=passwordHistorySize,maximumPasswordAge=maximumPasswordAge,minimumPasswordAge=minimumPasswordAge,passwordComplexity=passwordComplexity,clearTextPassword=clearTextPassword,minimumPasswordLength=minimumPasswordLength,lockoutDuration=lockoutDuration,lockoutBadCount=lockoutBadCount,resetLockoutCount=resetLockoutCount,auditPolicyChange=auditPolicyChange,auditLogonEvents=auditLogonEvents,auditObjectAccess=auditObjectAccess,auditProcessTracking=auditProcessTracking,auditDSAccess=auditDSAccess,auditSystemEvents=auditSystemEvents,auditAccountLogon=auditAccountLogon,auditAccountManage=auditAccountManage,seTrustedCredManAccessPrivilegeIFNone=seTrustedCredManAccessPrivilegeIFNone,seTcbPrivilegeIFNone=seTcbPrivilegeIFNone,seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray,seCreateGlobalPrivilegeIFNone=seCreateGlobalPrivilegeIFNone,seDenyBatchLogonRightIFContainGuests=seDenyBatchLogonRightIFContainGuests,seDenyServiceLogonRightIFContainGuests=seDenyServiceLogonRightIFContainGuests,seDenyInteractiveLogonRightIFContainGuests=seDenyInteractiveLogonRightIFContainGuests,seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray,seRelabelPrivilegeIFNone=seRelabelPrivilegeIFNone,seSyncAgentPrivilegeIFNone=seSyncAgentPrivilegeIFNone,enableGuestAccount=enableGuestAccount,limitBlankPasswordUse=limitBlankPasswordUse,newAdministratorName=newAdministratorName,newGuestName=newGuestName,dontDisplayLastUserName=dontDisplayLastUserName,disableCAD=disableCAD,inactivityTimeoutSecs=inactivityTimeoutSecs,enablePlainTextPassword=enablePlainTextPassword,autoDisconnect=autoDisconnect,noLMHash=noLMHash,lsaAnonymousNameLookup=lsaAnonymousNameLookup,restrictAnonymousSAM=restrictAnonymousSAM,restrictAnonymous=restrictAnonymous,clearPageFileAtShutdown=clearPageFileAtShutdown,rdpPort=rdpPort,autoRunRes=autoRunRes)
                 models.WindowsCheckRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,passwordHistorySize=ck_passwordHistorySize,maximumPasswordAge=ck_maximumPasswordAge,minimumPasswordAge=ck_minimumPasswordAge,passwordComplexity=ck_passwordComplexity,clearTextPassword=ck_clearTextPassword,minimumPasswordLength=ck_minimumPasswordLength,lockoutDuration=ck_lockoutDuration,lockoutBadCount=ck_lockoutBadCount,resetLockoutCount=ck_resetLockoutCount,auditPolicyChange=ck_auditPolicyChange,auditLogonEvents=ck_auditLogonEvents,auditObjectAccess=ck_auditObjectAccess,auditProcessTracking=ck_auditProcessTracking,auditDSAccess=ck_auditDSAccess,auditSystemEvents=ck_auditSystemEvents,auditAccountLogon=ck_auditAccountLogon,auditAccountManage=ck_auditAccountManage,seTrustedCredManAccessPrivilegeIFNone=ck_seTrustedCredManAccessPrivilegeIFNone,seTcbPrivilegeIFNone=ck_seTcbPrivilegeIFNone,seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray=ck_seMachineAccountPrivilegeIFOnlySpecifiedUserOrArray,seCreateGlobalPrivilegeIFNone=ck_seCreateGlobalPrivilegeIFNone,seDenyBatchLogonRightIFContainGuests=ck_seDenyBatchLogonRightIFContainGuests,seDenyServiceLogonRightIFContainGuests=ck_seDenyServiceLogonRightIFContainGuests,seDenyInteractiveLogonRightIFContainGuests=ck_seDenyInteractiveLogonRightIFContainGuests,seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray=ck_seRemoteShutdownPrivilegeIFOnlySpecifiedUserOrArray,seRelabelPrivilegeIFNone=ck_seRelabelPrivilegeIFNone,seSyncAgentPrivilegeIFNone=ck_seSyncAgentPrivilegeIFNone,enableGuestAccount=ck_enableGuestAccount,limitBlankPasswordUse=ck_limitBlankPasswordUse,newAdministratorName=ck_newAdministratorName,newGuestName=ck_newGuestName,dontDisplayLastUserName=ck_dontDisplayLastUserName,disableCAD=ck_disableCAD,inactivityTimeoutSecs=ck_inactivityTimeoutSecs,enablePlainTextPassword=ck_enablePlainTextPassword,autoDisconnect=ck_autoDisconnect,noLMHash=ck_noLMHash,lsaAnonymousNameLookup=ck_lsaAnonymousNameLookup,restrictAnonymousSAM=ck_restrictAnonymousSAM,restrictAnonymous=ck_restrictAnonymous,clearPageFileAtShutdown=ck_clearPageFileAtShutdown,rdpPort=ck_rdpPort,autoRunRes=ck_autoRunRes)
                 models.AllScanResRecord.objects.get_or_create(scanTime=scanTime,scanType="OS",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList)
+                vulnCheckResList=windows_vuln_check_res_store(data=windowsVulnScanResDict)
+                models.VulnCheckRes.objects.get_or_create(scanTime=scanTime,scanType="Windows",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,vulnCheckRes=json.dumps(vulnCheckResList))
                 return HttpResponse("success")
                 raise DatabaseError
         except DatabaseError:
             return HttpResponse("0oops,something is wrong")
     else:
         return HttpResponse("0oops,something is wrong")
+def middleware_check_res_store(data={}):
+    basic_info=data['basic_info']
+    middlewareCheckResult=data['middleware_check_result']
+    redis_check_res=middlewareCheckResult['redis_check_res']
+    nginx_check_res=middlewareCheckResult['nginx_check_res']
+    tomcat_check_res=middlewareCheckResult['tomcat_check_res']
+    scanTime=basic_info['scanTime']
+    hostname=basic_info['hostname']
+    macaddr=basic_info['macaddr']
+    ipList=basic_info['macaddr']
+    osVersion=basic_info['osVersion']
+def linux_vuln_check_res_store(data={}):
+    basic_info=data['basic_info']
+    linux_vuln_scan_res=data['vuln_scan_res']
+    os=linux_vuln_scan_res['os']
+    arc=linux_vuln_scan_res['arc']
+    linux_vuln_scan_list=linux_vuln_scan_res['vulnScanList']
+    # linux_vuln_scan_list=[["kbd", "1.15.5", "Centos"], ["setup", "2.8.71", "Centos"], ["libstdc++", "4.8.5", "Centos"]]
+    # os="Linux"
+    # arc="x86_64"
+    return baseline.linuxVulnScanUtil.vulnCheck(data=linux_vuln_scan_list,os=os,arc=arc)
 
 @csrf_exempt
 def linux_scan_res_report(request):
@@ -303,7 +407,12 @@ def linux_scan_res_report(request):
     if request.method == "POST":
         bodyData=request.body
         # 从post的body体中读取并反序列化为dict数据
-        linuxScanResDict=json.loads(bodyData)
+        scanResDict=json.loads(bodyData)
+        linuxScanResDict=scanResDict['os_scan_result']
+        middlewareCheckResDict=scanResDict['middleware_check_result']
+        # print(middlewareCheckResDict)
+        linuxVulnScanResDict=scanResDict['vuln_scan_result']
+        # print(linuxVulnScanResDict)
         #scanTime = time.strftime('%Y-%m-%d %H:%M:%S')
         # 从dict数据中解析并读取数据
         basic_info=linuxScanResDict['basic_info']
@@ -536,6 +645,10 @@ def linux_scan_res_report(request):
                 models.LinuxScanRes.objects.get_or_create(scanTime=scanTime,hostname=hostname,macaddr=macaddr,ipList=ipList,kernelVersion=kernelVersion,osVersion=osVersion,tmpIfSeparate=tmpIfSeparate,tmpIfNoexec=tmpIfNoexec,tmpIfNosuid=tmpIfNosuid,grubcfgIfExist=grubcfgIfExist,grubcfgPermission=grubcfgPermission,grubcfgIfSetPasswd=grubcfgIfSetPasswd,singleUserModeIfNeedAuth=singleUserModeIfNeedAuth,selinuxStateIfEnforcing=selinuxStateIfEnforcing,selinuxPolicyIfConfigured=selinuxPolicyIfConfigured,timeSyncServerIfConfigured=timeSyncServerIfConfigured,x11windowIfNotInstalled=x11windowIfNotInstalled,hostsAllowFileIfExist=hostsAllowFileIfExist,hostsAllowFilePermission=hostsAllowFilePermission,hostsAllowFileIfConfigured=hostsAllowFileIfConfigured,hostsDenyFileIfExist=hostsDenyFileIfExist,hostsDenyFilePermission=hostsDenyFilePermission,hostsDenyFileIfConfigured=hostsDenyFileIfConfigured,iptablesIfInstalled=iptablesIfInstalled,iptablesInputPolicyIfDrop=iptablesInputPolicyIfDrop,iptablesOutputPolicyIfDrop=iptablesOutputPolicyIfDrop,auditdIfEnabled=auditdIfEnabled,auditdconfIfExist=auditdconfIfExist,auditdIfSetMaxLogFile=auditdIfSetMaxLogFile,auditdIfSetMaxLogFileAction=auditdIfSetMaxLogFileAction,auditdIfSetSpaceLeftAction=auditdIfSetSpaceLeftAction,auditdIfSetNumLogs=auditdIfSetNumLogs,auditdRulesIfExist=auditdRulesIfExist,auditdRulesIfNotNull=auditdRulesIfNotNull,auditdIfCheckTimechange=auditdIfCheckTimechange,auditdRulesCheckedUserandgroupfile=auditdRulesCheckedUserandgroupfile,auditdRulesNotCheckedUserandgroupfile=auditdRulesNotCheckedUserandgroupfile,auditdRulesCheckedNetworkenv=auditdRulesCheckedNetworkenv,auditdRulesNotCheckedNetworkenv=auditdRulesNotCheckedNetworkenv,auditdRulesCheckedMACchange=auditdRulesCheckedMACchange,auditdRulesNotCheckedMACchange=auditdRulesNotCheckedMACchange,auditdRulesCheckedLoginoutEvents=auditdRulesCheckedLoginoutEvents,auditdRulesNotCheckedLoginoutEvents=auditdRulesNotCheckedLoginoutEvents,auditdRulesCheckedDACChangeSyscall=auditdRulesCheckedDACChangeSyscall,auditdRulesNotCheckedDACChangeSyscall=auditdRulesNotCheckedDACChangeSyscall,auditdRulesCheckedFileAccessAttemptSyscall=auditdRulesCheckedFileAccessAttemptSyscall,auditdRulesNotCheckedFileAccessAttemptSyscall=auditdRulesNotCheckedFileAccessAttemptSyscall,auditdRulesCheckedPrivilegedCommand=auditdRulesCheckedPrivilegedCommand,auditdRulesNotCheckedPrivilegedCommand=auditdRulesNotCheckedPrivilegedCommand,auditdRulesCheckedSudoerFile=auditdRulesCheckedSudoerFile,auditdRulesNotCheckedSudoerFile=auditdRulesNotCheckedSudoerFile,auditdRulesIfImmutable=auditdRulesIfImmutable,rsyslogIfEnabled=rsyslogIfEnabled,crondIfEnabled=crondIfEnabled,crondConfigFilenameArray=crondConfigFilenameArray,crondConfigFilePermissionArray=crondConfigFilePermissionArray,crondallowdenyFilenameArray=crondallowdenyFilenameArray,crondallowdenyFileIfExistArray=crondallowdenyFileIfExistArray,crondallowdenyFilePermissionArray=crondallowdenyFilePermissionArray,crondallowdenyFileOwnerArray=crondallowdenyFileOwnerArray,sshdIfEnabled=sshdIfEnabled,sshdConfigFilePermission=sshdConfigFilePermission,sshdIfDisableX11forwarding=sshdIfDisableX11forwarding,sshdIfSetMaxAuthTries=sshdIfSetMaxAuthTries,sshdIfEnableIgnoreRhosts=sshdIfEnableIgnoreRhosts,sshdIfDisableHostbasedAuthentication=sshdIfDisableHostbasedAuthentication,sshdIfDisablePermitRootLogin=sshdIfDisablePermitRootLogin,sshdIfDisablePermitEmptyPasswords=sshdIfDisablePermitEmptyPasswords,sshdIfDisablePermitUserEnvironment=sshdIfDisablePermitUserEnvironment,sshdIfSpecificMACs=sshdIfSpecificMACs,sshdIfSetClientAliveInterval=sshdIfSetClientAliveInterval,sshdIfSetLoginGraceTime=sshdIfSetLoginGraceTime,pamPwqualityconfIfExist=pamPwqualityconfIfExist,pamIfSetMinlen=pamIfSetMinlen,pamIfSetMinclass=pamIfSetMinclass,sshdSetedLockAndUnlockTimeFiles=sshdSetedLockAndUnlockTimeFiles,sshdNotSetedLockAndUnlockTimeFiles=sshdNotSetedLockAndUnlockTimeFiles,sshdPamdFileArray=sshdPamdFileArray,sshdPamdFileReuseLimitArray=sshdPamdFileReuseLimitArray,sshdPamdFileIfSetSha512Array=sshdPamdFileIfSetSha512Array,accountPassMaxDays=accountPassMaxDays,accountPassMinDays=accountPassMinDays,accountPassWarnDays=accountPassWarnDays,accountPassAutolockInactiveDays=accountPassAutolockInactiveDays,accountShouldUnloginArray=accountShouldUnloginArray,accountGIDOfRoot=accountGIDOfRoot,accountProfileFileArray=accountProfileFileArray,accountProfileTMOUTArray=accountProfileTMOUTArray,accountIfSetUsersCanAccessSuCommand=accountIfSetUsersCanAccessSuCommand,importantFilenameArray=importantFilenameArray,importantFilePermissionArray=importantFilePermissionArray,importantFileUidgidArray=importantFileUidgidArray,userIfSetPasswdOrArray=userIfSetPasswdOrArray,uid0OnlyRootOrArray=uid0OnlyRootOrArray,pathDirIfNotHasDot=pathDirIfNotHasDot,pathDirPermissionHasGWArray=pathDirPermissionHasGWArray,pathDirPermissionHasOWArray=pathDirPermissionHasOWArray,pathDirOwnerIsNotRootArray=pathDirOwnerIsNotRootArray,pathDirDoesNotExistOrNotDirArray=pathDirDoesNotExistOrNotDirArray,userArray=userArray,userHomeDirIfExistArray=userHomeDirIfExistArray,userHomeDirPermissionArray=userHomeDirPermissionArray,userIfOwnTheirHomeDirArray=userIfOwnTheirHomeDirArray,userHomeDirIfHasGWorOWDotFileArray=userHomeDirIfHasGWorOWDotFileArray,userHomeDirIfHasOtherFileArray=userHomeDirIfHasOtherFileArray,groupNotExistInetcgroup=groupNotExistInetcgroup,usersIfHasUniqueUIDArray=usersIfHasUniqueUIDArray,groupsIfHasUniqueGIDArray=groupsIfHasUniqueGIDArray)
                 models.LinuxCheckRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,ck_tmpIfSeparate=ck_tmpIfSeparate,ck_tmpIfNoexec=ck_tmpIfNoexec,ck_tmpIfNosuid=ck_tmpIfNosuid,ck_grubcfgPermissionLE600=ck_grubcfgPermissionLE600,ck_grubcfgIfSetPasswd=ck_grubcfgIfSetPasswd,ck_singleUserModeIfNeedAuth=ck_singleUserModeIfNeedAuth,ck_selinuxStateIfEnforcing=ck_selinuxStateIfEnforcing,ck_selinuxPolicyIfConfigured=ck_selinuxPolicyIfConfigured,ck_timeSyncServerIfConfigured=ck_timeSyncServerIfConfigured,ck_x11windowIfNotInstalled=ck_x11windowIfNotInstalled,ck_hostsAllowFilePermission=ck_hostsAllowFilePermission,ck_hostsAllowFileIfConfigured=ck_hostsAllowFileIfConfigured,ck_hostsDenyFilePermission=ck_hostsDenyFilePermission,ck_hostsDenyFileIfConfigured=ck_hostsDenyFileIfConfigured,ck_iptablesIfInstalled=ck_iptablesIfInstalled,ck_iptablesInputPolicyIfDrop=ck_iptablesInputPolicyIfDrop,ck_iptablesOutputPolicyIfDrop=ck_iptablesOutputPolicyIfDrop,ck_auditdIfEnabled=ck_auditdIfEnabled,ck_auditdIfSetMaxLogFile=ck_auditdIfSetMaxLogFile,ck_auditdIfSetMaxLogFileAction=ck_auditdIfSetMaxLogFileAction,ck_auditdIfSetSpaceLeftAction=ck_auditdIfSetSpaceLeftAction,ck_auditdIfSetNumLogs=ck_auditdIfSetNumLogs,ck_auditdIfCheckTimechange=ck_auditdIfCheckTimechange,ck_auditdRulesNotCheckedUserandgroupfile=ck_auditdRulesNotCheckedUserandgroupfile,ck_auditdRulesNotCheckedNetworkenv=ck_auditdRulesNotCheckedNetworkenv,ck_auditdRulesNotCheckedMACchange=ck_auditdRulesNotCheckedMACchange,ck_auditdRulesNotCheckedDACChangeSyscall=ck_auditdRulesNotCheckedDACChangeSyscall,ck_auditdRulesNotCheckedFileAccessAttemptSyscall=ck_auditdRulesNotCheckedFileAccessAttemptSyscall,ck_auditdRulesNotCheckedLoginoutEvents=ck_auditdRulesNotCheckedLoginoutEvents,ck_auditdRulesNotCheckedPrivilegedCommand=ck_auditdRulesNotCheckedPrivilegedCommand,ck_auditdRulesNotCheckedSudoerFile=ck_auditdRulesNotCheckedSudoerFile,ck_auditdRulesIfImmutable=ck_auditdRulesIfImmutable,ck_rsyslogIfEnabled=ck_rsyslogIfEnabled,ck_crondIfEnabled=ck_crondIfEnabled,ck_crondConfigFilePermissionArray=ck_crondConfigFilePermissionArray,ck_crondallowdenyFilePermissionArray=ck_crondallowdenyFilePermissionArray,ck_sshdConfigFilePermission=ck_sshdConfigFilePermission,ck_sshdIfDisableX11forwarding=ck_sshdIfDisableX11forwarding,ck_sshdIfSetMaxAuthTries=ck_sshdIfSetMaxAuthTries,ck_sshdIfEnableIgnoreRhosts=ck_sshdIfEnableIgnoreRhosts,ck_sshdIfDisableHostbasedAuthentication=ck_sshdIfDisableHostbasedAuthentication,ck_sshdIfDisablePermitRootLogin=ck_sshdIfDisablePermitRootLogin,ck_sshdIfDisablePermitEmptyPasswords=ck_sshdIfDisablePermitEmptyPasswords,ck_sshdIfDisablePermitUserEnvironment=ck_sshdIfDisablePermitUserEnvironment,ck_sshdIfSpecificMACs=ck_sshdIfSpecificMACs,ck_sshdIfSetClientAliveInterval=ck_sshdIfSetClientAliveInterval,ck_sshdIfSetLoginGraceTime=ck_sshdIfSetLoginGraceTime,ck_pamIfSetMinlen=ck_pamIfSetMinlen,ck_pamIfSetMinclass=ck_pamIfSetMinclass,ck_sshdNotSetedLockAndUnlockTimeFiles=ck_sshdNotSetedLockAndUnlockTimeFiles,ck_sshdPamdFileReuseLimitArray=ck_sshdPamdFileReuseLimitArray,ck_sshdPamdFileIfSetSha512Array=ck_sshdPamdFileIfSetSha512Array,ck_accountPassMaxDays=ck_accountPassMaxDays,ck_accountPassMinDays=ck_accountPassMinDays,ck_accountPassWarnDays=ck_accountPassWarnDays,ck_accountPassAutolockInactiveDays=ck_accountPassAutolockInactiveDays,ck_accountShouldUnloginArray=ck_accountShouldUnloginArray,ck_accountGIDOfRoot=ck_accountGIDOfRoot,ck_accountProfileTMOUTArray=ck_accountProfileTMOUTArray,ck_accountIfSetUsersCanAccessSuCommand=ck_accountIfSetUsersCanAccessSuCommand,ck_importantFilePermissionArray=ck_importantFilePermissionArray,ck_importantFileUidgidArray=ck_importantFileUidgidArray,ck_userIfSetPasswdOrArray=ck_userIfSetPasswdOrArray,ck_uid0OnlyRootOrArray=ck_uid0OnlyRootOrArray,ck_pathDirIfNotHasDot=ck_pathDirIfNotHasDot,ck_pathDirPermissionHasGWArray=ck_pathDirPermissionHasGWArray,ck_pathDirPermissionHasOWArray=ck_pathDirPermissionHasOWArray,ck_pathDirDoesNotExistOrNotDirArray=ck_pathDirDoesNotExistOrNotDirArray,ck_userHomeDirIfExistArray=ck_userHomeDirIfExistArray,ck_userHomeDirPermissionArray=ck_userHomeDirPermissionArray,ck_userIfOwnTheirHomeDirArray=ck_userIfOwnTheirHomeDirArray,ck_userHomeDirIfHasGWorOWDotFileArray=ck_userHomeDirIfHasGWorOWDotFileArray,ck_userHomeDirIfHasOtherFileArray=ck_userHomeDirIfHasOtherFileArray,ck_groupNotExistInetcgroup=ck_groupNotExistInetcgroup,ck_usersIfHasUniqueUIDArray=ck_usersIfHasUniqueUIDArray,ck_groupsIfHasUniqueGIDArray=ck_groupsIfHasUniqueGIDArray)
                 models.AllScanResRecord.objects.get_or_create(scanTime=scanTime,scanType="OS",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList)
+                models.MiddlewareCheckResMeta.objects.get_or_create(scanTime=scanTime,scanType="linux",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,middlewareCheckResMeta=json.dumps(middlewareCheckResDict))
+                vulnCheckResList=linux_vuln_check_res_store(data=linuxVulnScanResDict)
+                print(vulnCheckResList)
+                models.VulnCheckRes.objects.get_or_create(scanTime=scanTime,scanType="linux",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,vulnCheckRes=json.dumps(vulnCheckResList))
                 return HttpResponse("Success.")
                 raise DatabaseError
         except DatabaseError:

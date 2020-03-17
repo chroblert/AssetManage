@@ -1,0 +1,22 @@
+#!/bin/awk -f
+BEGIN{flag=0;}
+{ 
+	while(getline) {
+		if (index($0,"<!--")|| flag==1) {
+			if(index($0,"HTTP") && index($0,"-->")) { 
+				print $0;
+				continue;
+			}
+			flag=1;
+			if (index($0,"-->")) {
+				flag=0
+			} 
+			#print "";
+			continue;
+		}
+		if ($0  ~ /^[[:blank:]]*$/){
+			continue;
+		}
+		print $0;
+	}
+}
