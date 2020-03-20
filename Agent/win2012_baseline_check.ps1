@@ -647,7 +647,8 @@ function Get-ABasicInfo(){
 Write-Host "=================================="
 Write-Host "|       Windows baseline check   |"
 Write-Host "|         Author:JC0o0l          |"
-Write-Host "|         version:2.0            |"
+Write-Host "|         wechat:JC_SecNotes     |"
+Write-Host "|         version:3.0            |"
 Write-Host "|         Mail:jerryzvs@163.com  |"
 Write-Host "=================================="
 $basic_info=Get-BasicInfo

@@ -1142,9 +1142,10 @@ function system_check {
 
 echo """
 ==================================
-|        Linux 基线检查工具      |
+|        Linux 基线检查工具       |
+|        wechat:JC_SecNotes      |
 |        author:JC0o0l           |
-|        version:2.2             |
+|        version:3.0             |
 ==================================
 """
 echo "========================Get Basic Info========================="
