@@ -13,6 +13,6 @@ RUN cd ./Django-3.0.4
 RUN python setup.py install
 RUN cd /root/AssetManage
 WORKDIR /root/AssetManage
-#RUN python -m pip install -r requirements.txt
+RUN python -m pip install -r requirements.txt
 EXPOSE 8000
 CMD ["python","manage.py","runserver","0.0.0.0:8000"]
