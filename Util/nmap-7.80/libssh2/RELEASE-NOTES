@@ -1,0 +1,12 @@
+libssh2 1.8.2
+
+This release includes the following bugfixes:
+
+ o Fixed the misapplied userauth patch that broke 1.8.1
+ o moved the MAX size declarations from the public header
+
+This release would not have looked like this without help, code, reports and
+advice from friends like these:
+
+  Will Cosgrove
+  (1 contributors)

@@ -1,0 +1,1 @@
+#define DEFAULT_CHANNEL "7.80"
