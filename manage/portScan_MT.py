@@ -12,12 +12,24 @@ try:
 except:
     import xml.etree.ElementTree as ET
 
-ThreadCount = 20
 class config:
     serverPortDBName="portinfo.db"
     scanLimit = 1000
     nmapScanLimit = 20
     restore = 1
+    ThreadCount = 20
+    @staticmethod
+    def setScanLimit(masscanScanLimit=1000):
+        if masscanScanLimit != "" and masscanScanLimit != None:
+            config.scanLimit = masscanScanLimit
+    @staticmethod
+    def setNmapScanLimit(nmapScanLimit=20):
+        if nmapScanLimit != "" and nmapScanLimit != None:
+            config.nmapScanLimit = nmapScanLimit
+    @staticmethod
+    def setThreadCount(ThreadCount = 20):
+        if ThreadCount != "" and ThreadCount != None:
+            config.ThreadCount = ThreadCount
 
 class MasscanThread(threading.Thread):
     def __init__(self,func,args,name='',):
@@ -55,7 +67,7 @@ def masscan_one_port(port='80',ipList=[]):
             ipScanList = tmpList.copy()
             tmpList = []
         ipScanStr = ",".join(ipScanList)
-        scanStr = "masscan -sS -Pn --open-only --rate=1000 -p" + str(port) + " " + ipScanStr +" --http-user-agent 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36' -oG " + str(port) + "_" + str(count) + ".txt"
+        scanStr = "masscan -sS -Pn --open-only --rate=1000 -p" + str(port) + " " + ipScanStr +" --http-user-agent 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36' -oG " + str(port) + "_" + str(count) + ".txt 2>&1 1>/dev/null"
         # print(scanStr)
         child = subprocess.Popen(args = scanStr,shell=True)
         child.wait()
@@ -256,22 +268,21 @@ def nmap_scan(masscanDoneFlag,dbname=config.serverPortDBName):
             time.sleep(5)
             continue
         print("|||||||||{}".format(portFileNameList))
-        global ThreadCount
         # for i in range(0,len(portFileNameList)):
         i = 0
         while i < len(portFileNameList):
             print("----------------------{}------".format(i))
             print("masscanDoneFlag.value={}".format(masscanDoneFlag.value))
-            ThreadCount = ThreadCount if len(portFileNameList)-i >= ThreadCount else len(portFileNameList)-i
+            tmpThreadCount = config.ThreadCount if len(portFileNameList)-i >= config.ThreadCount else len(portFileNameList)-i
             threads = []
-            for j in range(1,ThreadCount+1):
+            for j in range(1,tmpThreadCount+1):
                 t = NmapThread(single_thread_nmap_scan,(portFileNameList[i+j-1],j),str(j))
                 threads.append(t)
             for t in threads:
                 t.start()
             for t in threads:
                 t.join()
-            i = i + ThreadCount
+            i = i + tmpThreadCount
 
 def export_to_excel(dbname=config.serverPortDBName):
     conn = sqlite3.connect(dbname)
@@ -300,20 +311,19 @@ def scanMain(ipGetType="file",iplist=[],portGetType="all",start=445,end=446,port
     masscanDoneFlag = multiprocessing.Value('i',1)
     # for port in portList:
     flag = True
-    global ThreadCount
     # for i in range(0,len(portList)):
     i = 0
     while i < len(portList):
         threads = []
-        ThreadCount = ThreadCount if (len(portList)-i) >= ThreadCount else len(portList) - i 
-        for j in range(1,ThreadCount+1):
+        tmpThreadCount = config.ThreadCount if (len(portList)-i) >= config.ThreadCount else len(portList) - i 
+        for j in range(1,tmpThreadCount+1):
             t = MasscanThread(single_thread_masscan_scan,(portList[i+j-1],j,ipList,),str(j))
             threads.append(t)
         for t in threads:
             t.start()
         for t in threads:
             t.join()
-        i = i + ThreadCount
+        i = i + tmpThreadCount
         # start nmap scan
         if flag:
             flag = False

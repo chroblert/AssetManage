@@ -31,7 +31,226 @@
             </form>
         </div>
     </div>
+    <div class="box">
+        <div class="box-header with-border">
+            <h3 class="box-title">端口扫描</h3>
+        </div>
+        <div class="box-body">
+            <form id="portScanForm" action="#" method="post" class="form-inline" role="form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <label class="label label-info" for="test">资产来源</label>
+                        </div>
+                        <div class="col-md-8">
 
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="ipSource" id="ipInDB" value="ipInDB">
+                                    资产数据库中的IP
+                                </label>
+                            </div>
+<br>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="ipSource" id="ipInText" value="ipInText" checked>
+                                    文本中的IP
+                                </label>
+                                <input name="ipText" id="ipText" type="text">
+                            </div>
+<br>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="ipSource" id="ipInFile" value="ipInFile">
+                                    文件中的IP
+                                </label>
+                                <input name="ipFile" id="ipFile" disabled="disabled" type="file">
+                            </div>
+                            
+
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <label class="label label-info" for="test">端口来源</label>
+                        </div>
+                        <div class="col-md-8">
+
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="portSource" id="portInText" value="portInText" checked>
+                                    文本
+                                </label>
+                                <input name="portText" id="portText" type="text">
+                            </div>
+<br>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="portSource" id="portInFile" value="portInFile" >
+                                    文件
+                                </label>
+                                <input name="portFile" id="portFile" type="file" disabled="disabled">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <label class="label label-info" for="test">其他配置</label>
+                        </div>
+                        <div class="col-md-8">
+
+                            <div class="text">
+                                <label for="threadCount">
+                                    线程数量:
+                                    <input type="text" name="threadCount" id="threadCount" placeholder="20" value="">
+                                </label>
+                            </div>
+<br>
+                            <div class="text">
+                                <label for="masscanScanIPLimit">
+                                    masscan单port扫描IP的数量:
+                                    <input type="text" name="masscanScanIPLimit" id="masscanScanIPLimit" placeholder="1000" value="">
+                                </label>
+                            </div>
+<br>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">nmap单port扫描IP的数量:</span>
+                                    
+                                    <input type="text" name="nmapScanIPLimit" id="nmapScanIPLimit" placeholder="20" value="">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="portScan" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+    <div class="box">
+        <div class="box-header with-border">
+            <h3 class="box-title">
+                端口失效检测
+            </h3>
+        </div>
+        <div class="box-body">
+            <a id="portCheck" class="btn btn-default" role="button">点击检测</a>
+            <label id="lastPortCheckTime" class="label label-info">上次检测时间</label>
+        </div>
+    </div>
 </section>
+
+{% endblock %}
+{% block script %}
+
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlet-2.4.10/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+
+<script>
+
+// 单选框点击事件
+$("#portInFile").click(function(){
+    $("#portFile").attr("disabled",false);
+    $("#portText").attr("disabled",true);
+});
+$("#portInText").click(function(){
+    $("#portFile").attr("disabled",true);
+    $("#portText").attr("disabled",false);
+});
+$("#ipInDB").click(function(){
+    $("#ipText").attr("disabled",true);
+    $("#ipFile").attr("disabled",true);
+});
+$("#ipInText").click(function(){
+    $("#ipText").attr("disabled",false);
+    $("#ipFile").attr("disabled",true);
+});
+$("#ipInFile").click(function(){
+    $("#ipText").attr("disabled",true);
+    $("#ipFile").attr("disabled",false);
+});
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+
+function csrfSafeMethod(method) {
+    // 这些HTTP方法不要求CSRF包含
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+$(function () {
+
+    $.ajax({
+        type:'get',
+        url:"{% url 'manage:getLastPortCheckTime' %}",
+        success: function(ret){
+            $("#lastPortCheckTime").text("上次检测时间：" + ret);
+        }
+    });
+    $("#portCheck").click(function(){
+        $("#lastPortCheckTime").text("上次检测时间：" + Date());
+        if ($("#portCheck").attr("class").search("disable") != -1){
+            $("#portCheck").attr("class","btn btn-danger disable");
+            $("#portCheck").text("检测中,请等待检测完成");
+        }else{
+            $("#portCheck").attr("class","btn btn-danger disable");
+            $("#portCheck").text("检测中");
+            $.ajax({
+                type:'get',
+                url: "{% url 'manage:portCheck' %}",
+                data:{
+                    time: new Date()
+                },
+                success: function(ret){
+                    $("#portCheck").attr("class","btn btn-default");
+                    $("#portCheck").text("检测完成");
+                    $("#portCheck").text("点击检测");
+                }
+                }
+            );
+        }
+
+    });
+    $("#portScan").click(function(){
+        $.ajax({
+            type: "post",
+            url: "{% url 'manage:portScan' %}",
+            data: $("#portScanForm").serialize(),
+            success:function(ret){
+                $("#portCheck").text("后台扫描中，请等待扫描完成");
+            }
+        });
+    });
+});
+
+</script>
 
 {% endblock %}

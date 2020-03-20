@@ -52,12 +52,12 @@ def dashboard(request):
         aws_count = 0
     breakdown = 0 #models.Asset.objects.filter(status=3).count()
     backup = 0 #models.Asset.objects.filter(status=4).count()
+    private_count = total - ali_count - azure_count - aws_count
 
     ali_rate =  round(ali_count/total*100) if total != 0 else 0 
     azure_rate =  round(azure_count/total*100) if total != 0 else 0
     aws_rate =  round(aws_count/total*100) if total != 0 else 0
-    bd_rate =  round(breakdown / total * 100) if total != 0 else 0
-    bu_rate =  round(backup / total * 100) if total != 0 else 0
+    private_rate =  round( private_count / total * 100) if total != 0 else 0
 
     # 端口分布图
     # 每个端口对应多少个Server
@@ -71,16 +71,26 @@ def dashboard(request):
         return render(request,'assets/dashboard.html',locals())
     conn = sqlite3.connect("portinfo.db")
     con = conn.cursor()
-    sql = "select distinct(portID) from portInfoDB"
+    # sql = "select distinct(portID) from portInfoDB"
+    # con.execute(sql)
+    # portTupleList=con.fetchall()
+    # for portTuple in portTupleList:
+    #     port_num_count_dict = {}
+    #     port_num=portTuple[0]
+    #     sql = "select count(*) from portInfoDB where portID = {}".format(port_num)
+    #     con.execute(sql)
+    #     portNumTupleList=con.fetchall()
+    #     port_count = portNumTupleList[0][0]
+    #     port_num_count_dict['port_count'] = port_count
+    #     port_num_count_dict['port_num'] = port_num
+    #     port_num_count_list.append(port_num_count_dict)
+    sql = "select distinct(portID),count(*) a from portInfoDB group by(portID) order by a desc limit 10"
     con.execute(sql)
-    portTupleList=con.fetchall()
-    for portTuple in portTupleList:
+    portCountTupleList = con.fetchall()
+    for portCountTuple in portCountTupleList:
         port_num_count_dict = {}
-        port_num=portTuple[0]
-        sql = "select count(*) from portInfoDB where portID = {}".format(port_num)
-        con.execute(sql)
-        portNumTupleList=con.fetchall()
-        port_count = portNumTupleList[0][0]
+        port_num = portCountTuple[0]
+        port_count = portCountTuple[1]
         port_num_count_dict['port_count'] = port_count
         port_num_count_dict['port_num'] = port_num
         port_num_count_list.append(port_num_count_dict)
@@ -108,7 +118,13 @@ def displayport(request):
         serverPortDict['service']=serverPortTuple[3]
         serverPortDict['product']=serverPortTuple[4]
         serverPortDict['version']=serverPortTuple[5]
-        serverPortDict['osVersion']=models.ServerInfo.objects.filter(publicIP=serverPortDict['ip'])[0].osVersion
-        serverPortDict['serverName']=models.ServerInfo.objects.filter(publicIP=serverPortDict['ip'])[0].serverName
+        try:
+            serverPortDict['osVersion']=models.ServerInfo.objects.filter(publicIP=serverPortDict['ip'])[0].osVersion
+        except:
+            serverPortDict['osVersion']='未收录'
+        try:
+            serverPortDict['serverName']=models.ServerInfo.objects.filter(publicIP=serverPortDict['ip'])[0].serverName
+        except:
+            serverPortDict['serverName']='未收录'
         serverPortDictList.append(serverPortDict)
     return render(request,'assets/serverPortInfo.html',locals())

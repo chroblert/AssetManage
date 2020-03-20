@@ -66,7 +66,7 @@
 
                     <!-- ./col -->
                     <div class="col-xs-6 col-md-3 text-center">
-                      <input type="text" class="knob" value="{{ bu_rate }}" data-width="90" data-height="90" data-fgColor="#3c8dbc" data-readonly="true">
+                      <input type="text" class="knob" value="{{ private_rate }}" data-width="90" data-height="90" data-fgColor="#3c8dbc" data-readonly="true">
 
                       <div class="knob-label">内网</div>
                     </div>
@@ -113,7 +113,7 @@
           <!-- DONUT CHART -->
           <div class="box box-danger">
             <div class="box-header with-border">
-              <h3 class="box-title">各端口资产数量统计：</h3>
+              <h3 class="box-title">端口Top10：</h3>
 
               <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -222,7 +222,7 @@ $(function () {
         series: [{
             name: '数量',
             type: 'bar',
-            data: [{{ ali_count }}, {{ azure_count }}, {{ aws_count }}, {{ backup }}]
+            data: [{{ ali_count }}, {{ azure_count }}, {{ aws_count }}, {{ private_count }}]
         }]
     };
 
