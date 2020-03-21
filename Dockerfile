@@ -16,9 +16,12 @@ RUN apt-get install git gcc make libpcap-dev clang -y
 RUN cd ./Util/masscan-1.0.5/
 WORKDIR ./Util/masscan-1.0.5/
 RUN make
+RUN ln -s /root/AssetManage/Util/masscan-1.0.5/bin/masscan /usr/local/bin/masscan
 RUN apt-get install openssl libssl-dev libssh2-1-dev build-essential -y
 RUN cd ../nmap-7.80/
 WORKDIR ../nmap-7.80/
 RUN chmod +x ./* && ./configure && make && make install
+RUN cd /root/AssetManage/
+WORKDIR /root/AssetManage/
 # tar xf nmap-7.80.tar.bz2 && cd nmap-7.80 && chmod +x ./* && ./configure && make && make install
 CMD ["python","manage.py","runserver","0.0.0.0:8000"]
