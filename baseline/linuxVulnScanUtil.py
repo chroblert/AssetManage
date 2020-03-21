@@ -66,7 +66,11 @@ def sendRequest(queryData,os="Linux",arc="x86_64"):
 
     url = 'https://vulmon.com/scannerapi_vv211'
     body = 'querydata=' + json_request_data
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'cache-control': 'no-cache',
+        'Pragma': 'no-cache'       
+        }
 
     if args.proxy:
         if args.proxytype == 'https':
@@ -78,7 +82,12 @@ def sendRequest(queryData,os="Linux",arc="x86_64"):
             proxies = {'http' : proxy, 'https' : proxy}
             response = (requests.post(url, data=body, headers=headers, proxies=proxies, verify=False)).json()
     else:
-            response = (requests.post(url, data=body, headers=headers)).json()
+            response = requests.post(url, data=body, headers=headers)
+            # print(response.content)
+            if response.status_code == 200:
+                response = response.json()
+            else:
+                response = {'status_message':'error'}
 
     return response
 
@@ -87,7 +96,7 @@ def outResults(q,os="Linux",arc="x86_64"):
 
     queryData = q[:-1]
     queryData += ']'
-    response = sendRequest(queryData,os=os,arc=os)
+    response = sendRequest(queryData,os=os,arc=arc)
     allProductExpList=[]
     if response['status_message'] == 'success':
         # 一个query_string
@@ -148,12 +157,13 @@ def vulnCheck(data=[],os="Linux",arc="x86_64"):
     # print("Reading software inventory from "+InventoryOutFile)
     # with open(InventoryOutFile) as json_file:
     #     products = json.load(json_file)
+    productExpList=[]
     if len(data) == 0:
-        return -1
+        return productExpList
     # print("in")
     products = data
     # print(products)
-    productExpList=[]
+    
     for a in products:
         if count == 0:
             queryData = '['

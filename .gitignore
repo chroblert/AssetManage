@@ -16,3 +16,4 @@ baseline/migrations/0012_auto_20200107_1555.py
 baseline/migrations/0013_auto_20200107_1657.py
 baseline/migrations/0015_linuxcheckres_ck_auditdrulesnotcheckedloginoutevents.py
 baseline/migrations/0014_auto_20200110_1412.py
+Dockerfile.bak

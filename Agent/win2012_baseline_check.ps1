@@ -672,4 +672,4 @@ $KBResult|Out-File KB.json -encoding utf8
 #$window_check_res="{""secInfoArray"":$secInfoArray,""account_check_res"":$account_check_res,""audit_check_res"":$audit_check_res,""userright_check_res"":$userright_check_res,""secureoption_check_res"":$secureoption_check_res,""portsecure_check_res"":$portsecure_check_res,""systemsecure_check_res"":$systemsecure_check_res}"
 $window_check_res="{""basic_info"":$basic_info,""account_check_res"":$account_check_res,""audit_check_res"":$audit_check_res,""userright_check_res"":$userright_check_res,""secureoption_check_res"":$secureoption_check_res,""portsecure_check_res"":$portsecure_check_res,""systemsecure_check_res"":$systemsecure_check_res,""vuln_scan_res"":$KBResult}"
 #Write-Host $window_check_res
-Invoke-RestMethod -Uri "http://192.168.3.111:8000/baseline/windows_scan_res_report/" -Method Post -ContentType "application/json" -Body $window_check_res
+Invoke-RestMethod -Uri "http://10.0.1.104:8000/baseline/windows_scan_res_report/" -Method Post -ContentType "application/json" -Body $window_check_res

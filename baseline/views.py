@@ -11,6 +11,7 @@ import baseline.linuxVulnScanUtil
 import baseline.windowsVulnScanUtil
 from pathlib import Path
 import re
+from multiprocessing import Process
 # Create your views here.
 def middleware_check_res_display(request):
     scanTime=str(base64.urlsafe_b64decode(bytes(request.GET['scanTime'],encoding="utf-8")),encoding="utf-8")
@@ -399,7 +400,13 @@ def linux_vuln_check_res_store(data={}):
     # linux_vuln_scan_list=[["kbd", "1.15.5", "Centos"], ["setup", "2.8.71", "Centos"], ["libstdc++", "4.8.5", "Centos"]]
     # os="Linux"
     # arc="x86_64"
-    return baseline.linuxVulnScanUtil.vulnCheck(data=linux_vuln_scan_list,os=os,arc=arc)
+    vulnCheckResList = baseline.linuxVulnScanUtil.vulnCheck(data=linux_vuln_scan_list,os=os,arc=arc)
+    print("vulnCheckResList: {}".format(vulnCheckResList))
+    if len(vulnCheckResList) > 0:
+        models.VulnCheckRes.objects.get_or_create(scanTime=scanTime,scanType="linux",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,vulnCheckRes=json.dumps(vulnCheckResList))
+        print("[+] search Linux Exp Success")
+    else:
+        print("[-] no EXP or error")
 
 @csrf_exempt
 def linux_scan_res_report(request):
@@ -646,12 +653,14 @@ def linux_scan_res_report(request):
                 models.LinuxCheckRes.objects.get_or_create(scanTime=scanTime,osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,ck_tmpIfSeparate=ck_tmpIfSeparate,ck_tmpIfNoexec=ck_tmpIfNoexec,ck_tmpIfNosuid=ck_tmpIfNosuid,ck_grubcfgPermissionLE600=ck_grubcfgPermissionLE600,ck_grubcfgIfSetPasswd=ck_grubcfgIfSetPasswd,ck_singleUserModeIfNeedAuth=ck_singleUserModeIfNeedAuth,ck_selinuxStateIfEnforcing=ck_selinuxStateIfEnforcing,ck_selinuxPolicyIfConfigured=ck_selinuxPolicyIfConfigured,ck_timeSyncServerIfConfigured=ck_timeSyncServerIfConfigured,ck_x11windowIfNotInstalled=ck_x11windowIfNotInstalled,ck_hostsAllowFilePermission=ck_hostsAllowFilePermission,ck_hostsAllowFileIfConfigured=ck_hostsAllowFileIfConfigured,ck_hostsDenyFilePermission=ck_hostsDenyFilePermission,ck_hostsDenyFileIfConfigured=ck_hostsDenyFileIfConfigured,ck_iptablesIfInstalled=ck_iptablesIfInstalled,ck_iptablesInputPolicyIfDrop=ck_iptablesInputPolicyIfDrop,ck_iptablesOutputPolicyIfDrop=ck_iptablesOutputPolicyIfDrop,ck_auditdIfEnabled=ck_auditdIfEnabled,ck_auditdIfSetMaxLogFile=ck_auditdIfSetMaxLogFile,ck_auditdIfSetMaxLogFileAction=ck_auditdIfSetMaxLogFileAction,ck_auditdIfSetSpaceLeftAction=ck_auditdIfSetSpaceLeftAction,ck_auditdIfSetNumLogs=ck_auditdIfSetNumLogs,ck_auditdIfCheckTimechange=ck_auditdIfCheckTimechange,ck_auditdRulesNotCheckedUserandgroupfile=ck_auditdRulesNotCheckedUserandgroupfile,ck_auditdRulesNotCheckedNetworkenv=ck_auditdRulesNotCheckedNetworkenv,ck_auditdRulesNotCheckedMACchange=ck_auditdRulesNotCheckedMACchange,ck_auditdRulesNotCheckedDACChangeSyscall=ck_auditdRulesNotCheckedDACChangeSyscall,ck_auditdRulesNotCheckedFileAccessAttemptSyscall=ck_auditdRulesNotCheckedFileAccessAttemptSyscall,ck_auditdRulesNotCheckedLoginoutEvents=ck_auditdRulesNotCheckedLoginoutEvents,ck_auditdRulesNotCheckedPrivilegedCommand=ck_auditdRulesNotCheckedPrivilegedCommand,ck_auditdRulesNotCheckedSudoerFile=ck_auditdRulesNotCheckedSudoerFile,ck_auditdRulesIfImmutable=ck_auditdRulesIfImmutable,ck_rsyslogIfEnabled=ck_rsyslogIfEnabled,ck_crondIfEnabled=ck_crondIfEnabled,ck_crondConfigFilePermissionArray=ck_crondConfigFilePermissionArray,ck_crondallowdenyFilePermissionArray=ck_crondallowdenyFilePermissionArray,ck_sshdConfigFilePermission=ck_sshdConfigFilePermission,ck_sshdIfDisableX11forwarding=ck_sshdIfDisableX11forwarding,ck_sshdIfSetMaxAuthTries=ck_sshdIfSetMaxAuthTries,ck_sshdIfEnableIgnoreRhosts=ck_sshdIfEnableIgnoreRhosts,ck_sshdIfDisableHostbasedAuthentication=ck_sshdIfDisableHostbasedAuthentication,ck_sshdIfDisablePermitRootLogin=ck_sshdIfDisablePermitRootLogin,ck_sshdIfDisablePermitEmptyPasswords=ck_sshdIfDisablePermitEmptyPasswords,ck_sshdIfDisablePermitUserEnvironment=ck_sshdIfDisablePermitUserEnvironment,ck_sshdIfSpecificMACs=ck_sshdIfSpecificMACs,ck_sshdIfSetClientAliveInterval=ck_sshdIfSetClientAliveInterval,ck_sshdIfSetLoginGraceTime=ck_sshdIfSetLoginGraceTime,ck_pamIfSetMinlen=ck_pamIfSetMinlen,ck_pamIfSetMinclass=ck_pamIfSetMinclass,ck_sshdNotSetedLockAndUnlockTimeFiles=ck_sshdNotSetedLockAndUnlockTimeFiles,ck_sshdPamdFileReuseLimitArray=ck_sshdPamdFileReuseLimitArray,ck_sshdPamdFileIfSetSha512Array=ck_sshdPamdFileIfSetSha512Array,ck_accountPassMaxDays=ck_accountPassMaxDays,ck_accountPassMinDays=ck_accountPassMinDays,ck_accountPassWarnDays=ck_accountPassWarnDays,ck_accountPassAutolockInactiveDays=ck_accountPassAutolockInactiveDays,ck_accountShouldUnloginArray=ck_accountShouldUnloginArray,ck_accountGIDOfRoot=ck_accountGIDOfRoot,ck_accountProfileTMOUTArray=ck_accountProfileTMOUTArray,ck_accountIfSetUsersCanAccessSuCommand=ck_accountIfSetUsersCanAccessSuCommand,ck_importantFilePermissionArray=ck_importantFilePermissionArray,ck_importantFileUidgidArray=ck_importantFileUidgidArray,ck_userIfSetPasswdOrArray=ck_userIfSetPasswdOrArray,ck_uid0OnlyRootOrArray=ck_uid0OnlyRootOrArray,ck_pathDirIfNotHasDot=ck_pathDirIfNotHasDot,ck_pathDirPermissionHasGWArray=ck_pathDirPermissionHasGWArray,ck_pathDirPermissionHasOWArray=ck_pathDirPermissionHasOWArray,ck_pathDirDoesNotExistOrNotDirArray=ck_pathDirDoesNotExistOrNotDirArray,ck_userHomeDirIfExistArray=ck_userHomeDirIfExistArray,ck_userHomeDirPermissionArray=ck_userHomeDirPermissionArray,ck_userIfOwnTheirHomeDirArray=ck_userIfOwnTheirHomeDirArray,ck_userHomeDirIfHasGWorOWDotFileArray=ck_userHomeDirIfHasGWorOWDotFileArray,ck_userHomeDirIfHasOtherFileArray=ck_userHomeDirIfHasOtherFileArray,ck_groupNotExistInetcgroup=ck_groupNotExistInetcgroup,ck_usersIfHasUniqueUIDArray=ck_usersIfHasUniqueUIDArray,ck_groupsIfHasUniqueGIDArray=ck_groupsIfHasUniqueGIDArray)
                 models.AllScanResRecord.objects.get_or_create(scanTime=scanTime,scanType="OS",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList)
                 models.MiddlewareCheckResMeta.objects.get_or_create(scanTime=scanTime,scanType="linux",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,middlewareCheckResMeta=json.dumps(middlewareCheckResDict))
-                vulnCheckResList=linux_vuln_check_res_store(data=linuxVulnScanResDict)
-                print(vulnCheckResList)
-                models.VulnCheckRes.objects.get_or_create(scanTime=scanTime,scanType="linux",osVersion=osVersion,hostname=hostname,macaddr=macaddr,ipList=ipList,vulnCheckRes=json.dumps(vulnCheckResList))
+                child = Process(target=linux_vuln_check_res_store,args=(linuxVulnScanResDict))
+                # vulnCheckResList=linux_vuln_check_res_store(data=linuxVulnScanResDict)
+                child.start()
+
                 return HttpResponse("Success.")
                 raise DatabaseError
-        except DatabaseError:
+        except DatabaseError as e:
+            print(e)
             return HttpResponse("0oops,something is wrong")
         # models.LinuxScanResMeta.objects.get_or_create(scanTime=scanTime,macaddr=macaddr,linuxScanResMetaData=bodyData)
         # with open("test.log","a") as f:
