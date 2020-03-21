@@ -175,7 +175,7 @@ def vulnCheck(data=[],os="Linux",arc="x86_64"):
         count += 1
         if count == 100:
             count = 0
-            tmpList=outResults(queryData)
+            tmpList=outResults(queryData,os=os,arc=arc)
             productExpList.extend(tmpList)
     tmpList=outResults(queryData,os=os,arc=arc)
     productExpList.extend(tmpList)

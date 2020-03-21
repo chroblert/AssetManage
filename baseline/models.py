@@ -7,8 +7,8 @@ class AllScanResRecord(models.Model):
     scanType=models.CharField(max_length=50,verbose_name="scanTime")
     hostname=models.CharField(max_length=100,verbose_name="hostname")
     osVersion=models.CharField(max_length=100,verbose_name="osVersion")
-    ipList=models.CharField(max_length=100,verbose_name="ipList")
-    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    ipList=models.CharField(max_length=200,verbose_name="ipList")
+    macaddr=models.CharField(max_length=500,verbose_name="macaddr")
     def __str__(self):
         return '%s %s' %(self.scanTime,self.macaddr)
     class Meta:
@@ -19,8 +19,8 @@ class WindowsCheckRes(models.Model):
     scanTime=models.DateTimeField(verbose_name="scanTime")
     hostname=models.CharField(max_length=100,verbose_name="hostname")
     osVersion=models.CharField(max_length=100,verbose_name="osVersion")
-    ipList=models.CharField(max_length=100,verbose_name="ipList")
-    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    ipList=models.CharField(max_length=200,verbose_name="ipList")
+    macaddr=models.CharField(max_length=500,verbose_name="macaddr")
 
     # account_check_res
     ## password_check_info
@@ -87,7 +87,7 @@ class WindowsScanResMeta(models.Model):
     # 时间
     scanTime=models.DateTimeField(verbose_name="scanTime")
     # macaddr
-    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    macaddr=models.CharField(max_length=500,verbose_name="macaddr")
     # 扫描结果
     windowsScanResMetaData=models.CharField(max_length=100000,verbose_name="windowsScanResMeta")
     def __str__(self):
@@ -101,8 +101,8 @@ class WindowsScanRes(models.Model):
     scanTime=models.DateTimeField(verbose_name="scanTime")
     hostname=models.CharField(max_length=100,verbose_name="hostname")
     osVersion=models.CharField(max_length=100,verbose_name="osVersion")
-    ipList=models.CharField(max_length=100,verbose_name="ipList")
-    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    ipList=models.CharField(max_length=200,verbose_name="ipList")
+    macaddr=models.CharField(max_length=500,verbose_name="macaddr")
 
     # account_check_res
     ## password_check_info
@@ -171,8 +171,8 @@ class MiddlewareCheckResMeta(models.Model):
     scanType=models.CharField(max_length=50,name="scanType")
     hostname=models.CharField(max_length=100,verbose_name="hostname")
     osVersion=models.CharField(max_length=100,verbose_name="osVersion")
-    ipList=models.CharField(max_length=100,verbose_name="ipList")
-    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    ipList=models.CharField(max_length=200,verbose_name="ipList")
+    macaddr=models.CharField(max_length=500,verbose_name="macaddr")
     middlewareCheckResMeta=models.CharField(max_length=65535,verbose_name="middlewareCheckResMeta")
 
     def __str__(self):
@@ -185,8 +185,8 @@ class VulnCheckRes(models.Model):
     scanType=models.CharField(max_length=50,name="scanType")
     hostname=models.CharField(max_length=100,verbose_name="hostname")
     osVersion=models.CharField(max_length=100,verbose_name="osVersion")
-    ipList=models.CharField(max_length=100,verbose_name="ipList")
-    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    ipList=models.CharField(max_length=200,verbose_name="ipList")
+    macaddr=models.CharField(max_length=500,verbose_name="macaddr")
     vulnCheckRes=models.CharField(max_length=65535,verbose_name="vulnCheckRes")
 
     def __str__(self):
@@ -198,7 +198,7 @@ class LinuxScanResMeta(models.Model):
     # 时间
     scanTime=models.DateTimeField(verbose_name="scanTime")
     # macaddr
-    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    macaddr=models.CharField(max_length=500,verbose_name="macaddr")
     # 扫描结果
     linuxScanResMetaData=models.CharField(max_length=100000,verbose_name="linuxScanResMeta")
     def __str__(self):
@@ -212,8 +212,8 @@ class LinuxCheckRes(models.Model):
     scanTime=models.DateTimeField(verbose_name="scanTime")
     hostname=models.CharField(max_length=100,verbose_name="hostname")
     osVersion=models.CharField(max_length=100,verbose_name="osVersion")
-    ipList=models.CharField(max_length=100,verbose_name="ipList")
-    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    ipList=models.CharField(max_length=200,verbose_name="ipList")
+    macaddr=models.CharField(max_length=500,verbose_name="macaddr")
     kernelVersion=models.CharField(max_length=100,verbose_name="macaddr")
     # 
     ck_tmpIfSeparate=models.CharField(max_length=20,default="False",verbose_name="ck_tmpIfSeparate")
@@ -304,9 +304,9 @@ class LinuxScanRes(models.Model):
     # basic_info
     #publicIP=models.CharField(max_length=30,verbose_name="publicIP")
     #privateIP=models.CharField(max_length=30,verbose_name="privateIP")
-    ipList=models.CharField(max_length=100,verbose_name="ipList")
+    ipList=models.CharField(max_length=200,verbose_name="ipList")
     hostname=models.CharField(max_length=100,verbose_name="hostname")
-    macaddr=models.CharField(max_length=100,verbose_name="macaddr")
+    macaddr=models.CharField(max_length=500,verbose_name="macaddr")
     osVersion=models.CharField(max_length=30,verbose_name="osVersion")
     kernelVersion=models.CharField(max_length=30,verbose_name="kernelVersion")
 
