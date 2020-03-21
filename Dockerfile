@@ -1,4 +1,4 @@
-FROM python:3.6-slim
+FROM python:3.6-buster
 COPY . /root/AssetManage/
 RUN cd /root/AssetManage/Util
 WORKDIR /root/AssetManage/Util
